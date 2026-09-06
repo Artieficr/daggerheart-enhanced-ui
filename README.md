@@ -1,3 +1,9 @@
+# Daggerheart Sleek UI (personal fork)
+
+Fork of [pasoktcm/daggerheart-sleek-ui](https://github.com/pasoktcm/daggerheart-sleek-ui)
+
+---
+
 ![](https://github.com/user-attachments/assets/7bd87dfd-59f9-4c74-b077-ca98f8a9e4fa)
 Alternative actor sheets with UI/UX improvements for Foundryborne's Daggerheart System
 
