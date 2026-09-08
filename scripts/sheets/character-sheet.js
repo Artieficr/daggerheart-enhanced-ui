@@ -76,7 +76,7 @@ export function registerCharacterSheet() {
       await this._prepareHeaderContext(context, options);
 
       context.tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
-      context.quickAccess = game.settings.get("daggerheart-sleek-ui", "quickAccess");
+      context.quickAccess = game.settings.get("daggerheart-sleek-ui", "favoritesDisplayMode") === "quickAccess";
       context.showTooltip = game.settings.get("daggerheart-sleek-ui", "showTooltip");
       context.currencyLabel = game.settings.get("daggerheart-sleek-ui", "currencyLabel");
       context.ownershipLevel = game.user.isGM ? CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER : this.actor.getUserLevel(game.user);

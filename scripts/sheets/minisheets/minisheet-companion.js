@@ -1,5 +1,25 @@
-import { hideMacrobar, showMacrobar, collapseMinisheet, injectReopenButton, removeReopenButton, isMinisheetCollapsed, setMinisheetCollapsed, attachResourceListeners, attachToggleResourceListeners } from "./utils-minisheet.js";
+import { hideMacrobar, showMacrobar, collapseMinisheet, injectReopenButton, removeReopenButton, isMinisheetCollapsed, setMinisheetCollapsed, attachResourceListeners, attachToggleResourceListeners, attachActorPickerListeners } from "./utils-minisheet.js";
 import { applyMinisheetScale } from "../../settings.js";
+import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
+import { buildActorPickerContext, syncPinnedMinisheet } from "./minisheet-pin.js";
+
+// Static-only class scoped inside registerCompanionMiniSheet()'s closure —
+// module-scope reference needed so minisheet-pin.js's coordinator (and this
+// file's own exported show/teardown entry points) can reach it. Mirrors
+// minisheet-character.js's _characterMiniSheetRef.
+let _companionMiniSheetRef = null;
+
+export function showCompanionMiniSheetActor(actor) {
+  if (!_companionMiniSheetRef) return;
+  if (_companionMiniSheetRef.currentActor === actor && _companionMiniSheetRef.element) return;
+  _companionMiniSheetRef.currentActor = actor;
+  _companionMiniSheetRef._render();
+}
+
+export function teardownCompanionMiniSheet() {
+  if (!_companionMiniSheetRef?.currentActor && !_companionMiniSheetRef?.element) return;
+  _companionMiniSheetRef._teardown();
+}
 
 export function registerCompanionMiniSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -70,26 +90,6 @@ export function registerCompanionMiniSheet() {
 
     // ─── HOOKS ────────────────────────────────────────────────────────────────
 
-    static _onControlToken(_token, controlled) {
-      if (!controlled) {
-        if (!canvas.tokens?.controlled.length) CompanionMiniSheet._teardown();
-        return;
-      }
-
-      const actor = CompanionMiniSheet._resolveActor();
-
-      if (!actor) {
-        CompanionMiniSheet._teardown();
-        return;
-      }
-
-      if (actor === CompanionMiniSheet.currentActor) return;
-      if (actor.sheet?.rendered) return;
-
-      CompanionMiniSheet.currentActor = actor;
-      CompanionMiniSheet._render();
-    }
-
     static _onUpdateActor(actor) {
       if (actor === this.currentActor) this._render();
     }
@@ -97,22 +97,6 @@ export function registerCompanionMiniSheet() {
     static _onUpdateItem(item) {
       if (item.parent !== this.currentActor) return;
       this._render();
-    }
-
-    // ─── ACTOR RESOLUTION ────────────────────────────────────────────────────
-
-    static _resolveActor() {
-      const controlled = canvas.tokens?.controlled ?? [];
-      if (controlled.length !== 1) return null;
-
-      const token = controlled[0];
-      const actor = token.actor;
-      if (!actor || actor.type !== "companion") return null;
-
-      const ownerLevel = game.user.isGM ? CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER : actor.getUserLevel(game.user);
-      if (ownerLevel < CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER) return null;
-
-      return actor;
     }
 
     // ─── RENDER ───────────────────────────────────────────────────────────────
@@ -155,7 +139,7 @@ export function registerCompanionMiniSheet() {
             injectReopenButton(() => {
               hideMacrobar();
               this.element.style.transition = "transform 0.3s ease";
-              this.element.style.transform = `translateX(-50%)`;
+              this.element.style.transform = idleTransform();
               this._mountEffectsDisplay();
               setTimeout(() => applyMinisheetScale(), 310);
             });
@@ -179,18 +163,18 @@ export function registerCompanionMiniSheet() {
       if (collapsed) {
         const height = this.element.offsetHeight;
         this.element.style.transition = "none";
-        this.element.style.transform = `translateX(-50%) translateY(${height + 58}px)`;
+        this.element.style.transform = collapsedTransform(height);
         showMacrobar();
         injectReopenButton(() => {
           hideMacrobar();
           this.element.style.transition = "transform 0.3s ease";
-          this.element.style.transform = `translateX(-50%)`;
+          this.element.style.transform = idleTransform();
           this._mountEffectsDisplay();
           setTimeout(() => applyMinisheetScale(), 310);
         });
       } else {
         this.element.style.transition = "";
-        this.element.style.transform = `translateX(-50%)`;
+        this.element.style.transform = idleTransform();
         applyMinisheetScale();
       }
 
@@ -220,20 +204,7 @@ export function registerCompanionMiniSheet() {
     }
 
     static _injectContainer() {
-      const container = document.createElement("div");
-      container.id = "sleek-ui-sheet";
-      container.style.cssText = "position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:70;";
-
-      const scaleWrapper = document.createElement("div");
-      scaleWrapper.classList.add("minisheet-transform-wrapper");
-      scaleWrapper.style.transformOrigin = "bottom center";
-
-      const value = game.settings.get("daggerheart-sleek-ui", "minisheetScale");
-      scaleWrapper.style.transform = `scale(${value})`;
-
-      container.appendChild(scaleWrapper);
-      document.body.appendChild(container);
-      this.element = container;
+      this.element = injectMinisheetContainer();
     }
 
     // ─── CONTEXT ─────────────────────────────────────────────────────────────
@@ -258,6 +229,7 @@ export function registerCompanionMiniSheet() {
         attack: actor.system.attack,
         attackDamage,
         attackDamageType,
+        actorPicker: buildActorPickerContext(actor),
       };
     }
 
@@ -270,6 +242,7 @@ export function registerCompanionMiniSheet() {
 
       attachResourceListeners(this.element, actor);
       attachToggleResourceListeners(this.element, actor);
+      attachActorPickerListeners(this.element);
 
       // Open full sheet on portrait click
       this.element.querySelectorAll("[data-action='openSheet']").forEach((el) => {
@@ -356,7 +329,9 @@ export function registerCompanionMiniSheet() {
 
   // ─── HOOKS ─────────────────────────────────────────────────────────────────
 
-  Hooks.on("controlToken", CompanionMiniSheet._onControlToken.bind(CompanionMiniSheet));
+  // Token-selection-driven display goes through minisheet-pin.js's shared
+  // controlToken listener instead — see minisheet-character.js's identical
+  // note and minisheet-pin.js's own header comment.
   Hooks.on("updateActor", CompanionMiniSheet._onUpdateActor.bind(CompanionMiniSheet));
   Hooks.on("updateItem", CompanionMiniSheet._onUpdateItem.bind(CompanionMiniSheet));
 
@@ -366,11 +341,7 @@ export function registerCompanionMiniSheet() {
     }
   });
 
-  Hooks.on("closeSleekCompanionSheet", (app) => {
-    const actor = CompanionMiniSheet._resolveActor();
-    if (actor && app.actor === actor) {
-      CompanionMiniSheet.currentActor = actor;
-      CompanionMiniSheet._render();
-    }
-  });
+  Hooks.on("closeSleekCompanionSheet", () => syncPinnedMinisheet());
+
+  _companionMiniSheetRef = CompanionMiniSheet;
 }

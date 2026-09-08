@@ -1,0 +1,15 @@
+{{#if actorPicker.show}}
+<div class="minisheet-actor-picker">
+    <button type="button" class="minisheet-actor-picker-toggle" data-tooltip="Switch Character">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
+    <div class="minisheet-actor-picker-list">
+        {{#each actorPicker.actors}}
+        <button type="button" class="minisheet-actor-picker-item {{#if this.active}}active{{/if}}" data-actor-uuid="{{this.uuid}}">
+            <img src="{{this.img}}" alt="{{this.name}}" />
+            <span>{{this.name}}</span>
+        </button>
+        {{/each}}
+    </div>
+</div>
+{{/if}}

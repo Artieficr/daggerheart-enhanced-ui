@@ -13,10 +13,41 @@ import {
   attachFavoritesListeners,
   renderFavorites,
   attachDowntimeListeners,
+  attachActorPickerListeners,
 } from "./utils-minisheet.js";
 
 import { applyMinisheetScale } from "../../settings.js";
 import { toggleResourceManagement, toggleArmorManagement, formatWeaponDamageDisplay, getBeastformPortrait, resolveUnarmedAttack } from "../../helpers.js";
+import { renderCardHandWindow, getCardHandOpenState, setCardHandOpenState, renderCardHandReorderPopover } from "../../card-hand.js";
+import { renderInventoryWindow, renderInventoryFilterPopover, getInventoryOpenState, setInventoryOpenState } from "../../inventory-panel.js";
+import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
+import { buildActorPickerContext, syncPinnedMinisheet } from "./minisheet-pin.js";
+
+// CharacterMiniSheet is a static-only class scoped inside registerCharacterMiniSheet()'s
+// closure, so a module-scope reference is needed for other modules (card-hand.js's
+// favoritesDisplayMode setting) to force a re-render — that setting changes which
+// buttons/windows the minisheet's own template renders, not just a CSS toggle, so a
+// live setting change needs a real re-render to take effect without a page reload.
+let _characterMiniSheetRef = null;
+
+export function refreshCharacterMiniSheet() {
+  if (_characterMiniSheetRef?.currentActor) _characterMiniSheetRef._render();
+}
+
+// Entry points for minisheet-pin.js's cross-type coordinator — it decides
+// *which* actor (and which minisheet class) should be showing, these just
+// carry that decision out against this class's own static state.
+export function showCharacterMiniSheetActor(actor) {
+  if (!_characterMiniSheetRef) return;
+  if (_characterMiniSheetRef.currentActor === actor && _characterMiniSheetRef.element) return;
+  _characterMiniSheetRef.currentActor = actor;
+  _characterMiniSheetRef._render();
+}
+
+export function teardownCharacterMiniSheet() {
+  if (!_characterMiniSheetRef?.currentActor && !_characterMiniSheetRef?.element) return;
+  _characterMiniSheetRef._teardown();
+}
 
 export function registerCharacterMiniSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -67,7 +98,7 @@ export function registerCharacterMiniSheet() {
 
       const originalSetAnchor = mgr._setAnchor.bind(mgr);
       mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#sleek-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
+        if (this.element?.closest("#sleek-ui-sheet .minisheet") && !this.element?.closest(".favorites-window, .card-hand-window")) {
           const pad = this.constructor.TOOLTIP_MARGIN_PX;
           const pos = this.element.getBoundingClientRect();
           return this._setStyle({
@@ -82,26 +113,6 @@ export function registerCharacterMiniSheet() {
       this._tooltipPatched = true;
     }
 
-    static _onControlToken(token, controlled) {
-      if (!controlled) {
-        if (!canvas.tokens?.controlled.length) CharacterMiniSheet._teardown();
-        return;
-      }
-
-      const actor = CharacterMiniSheet._resolveActor();
-
-      if (!actor) {
-        CharacterMiniSheet._teardown();
-        return;
-      }
-
-      if (actor === CharacterMiniSheet.currentActor) return;
-      if (actor.sheet?.rendered) return;
-
-      CharacterMiniSheet.currentActor = actor;
-      CharacterMiniSheet._render();
-    }
-
     static _onUpdateActor(actor) {
       if (actor === this.currentActor) this._render();
     }
@@ -112,28 +123,25 @@ export function registerCharacterMiniSheet() {
         this._render();
       } else {
         this._renderFavorites();
+        this._renderCardHand();
+        this._renderInventory();
       }
-    }
-
-    static _resolveActor() {
-      const controlled = canvas.tokens?.controlled ?? [];
-      if (controlled.length !== 1) return null;
-
-      const token = controlled[0];
-      const actor = token.actor;
-      if (!actor || actor.type !== "character") return null;
-
-      const ownerLevel = game.user.isGM ? CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER : actor.getUserLevel(game.user);
-      if (ownerLevel < CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER) return null;
-
-      return actor;
     }
 
     static async _render() {
       if (!this.currentActor) return;
 
-      // Preserve favorites window open state across re-renders
-      const favWasActive = this.element?.querySelector(".favorites-window")?.classList.contains("active") ?? false;
+      // Preserve open-window state across re-renders. ".favorites-window"
+      // alone would also match the Inventory window (it carries that class
+      // too, to reuse its styling) — excluding ".inventory-window" keeps
+      // this specifically about the real Quick Access window.
+      const favWasActive = this.element?.querySelector(".favorites-window:not(.inventory-window)")?.classList.contains("active") ?? false;
+      // On a fresh mount (this.element didn't exist yet — e.g. reselecting a
+      // token, or a fresh page load) there's no DOM to read the prior state
+      // off of, so fall back to the persisted setting instead of always
+      // defaulting closed: "if the user didn't close it, it's always open."
+      const cardHandWasActive = this.element ? (this.element.querySelector(".card-hand-window")?.classList.contains("active") ?? false) : getCardHandOpenState();
+      const inventoryWasActive = this.element ? (this.element.querySelector(".inventory-window")?.classList.contains("active") ?? false) : getInventoryOpenState();
 
       const effectsEl = document.getElementById("effects-display");
       const wasInMinisheet = effectsEl && this.element?.contains(effectsEl);
@@ -171,7 +179,7 @@ export function registerCharacterMiniSheet() {
             injectReopenButton(() => {
               hideMacrobar();
               this.element.style.transition = "transform 0.3s ease";
-              this.element.style.transform = `translateX(-50%)`;
+              this.element.style.transform = idleTransform();
               this._mountEffectsDisplay();
               setTimeout(() => applyMinisheetScale(), 310);
             });
@@ -192,30 +200,46 @@ export function registerCharacterMiniSheet() {
       }
 
       if (favWasActive) {
-        const favWindow = this.element.querySelector(".favorites-window");
-        const tabBtn = this.element.querySelector(".tab-button");
+        const favWindow = this.element.querySelector(".favorites-window:not(.inventory-window)");
+        const tabBtn = this.element.querySelector('.tab-button[data-hand-target="favorites"]');
         favWindow?.classList.add("active");
+        tabBtn?.classList.add("active");
+      }
+
+      if (cardHandWasActive) {
+        const cardHandWindow = this.element.querySelector(".card-hand-window");
+        const tabBtn = this.element.querySelector('.tab-button[data-hand-target="cardHand"]');
+        cardHandWindow?.classList.add("active");
+        tabBtn?.classList.add("active");
+      }
+
+      if (inventoryWasActive) {
+        const inventoryWindow = this.element.querySelector(".inventory-window");
+        const tabBtn = this.element.querySelector('.tab-button[data-hand-target="inventory"]');
+        inventoryWindow?.classList.add("active");
         tabBtn?.classList.add("active");
       }
 
       this._attachListeners();
       this._patchTooltipManager(); // skip in party minisheet, it doesn't have this
+      renderCardHandWindow(this.element, this.currentActor);
+      renderInventoryWindow(this.element, this.currentActor);
 
       if (collapsed) {
         const height = this.element.offsetHeight;
         this.element.style.transition = "none";
-        this.element.style.transform = `translateX(-50%) translateY(${height + 58}px)`;
+        this.element.style.transform = collapsedTransform(height);
         showMacrobar();
         injectReopenButton(() => {
           hideMacrobar();
           this.element.style.transition = "transform 0.3s ease";
-          this.element.style.transform = `translateX(-50%)`;
+          this.element.style.transform = idleTransform();
           this._mountEffectsDisplay();
           setTimeout(() => applyMinisheetScale(), 310);
         });
       } else {
         this.element.style.transition = "";
-        this.element.style.transform = `translateX(-50%)`;
+        this.element.style.transform = idleTransform();
         applyMinisheetScale();
       }
 
@@ -238,6 +262,16 @@ export function registerCharacterMiniSheet() {
       await renderFavorites(this.element, this.currentActor, "modules/daggerheart-sleek-ui/templates/sheets/characters/main/favorites.hbs", context);
     }
 
+    static _renderCardHand() {
+      if (!this.currentActor || !this.element) return;
+      renderCardHandWindow(this.element, this.currentActor);
+    }
+
+    static _renderInventory() {
+      if (!this.currentActor || !this.element) return;
+      renderInventoryWindow(this.element, this.currentActor);
+    }
+
     static _teardown() {
       this._unmountEffectsDisplay();
       removeReopenButton();
@@ -258,20 +292,7 @@ export function registerCharacterMiniSheet() {
     }
 
     static _injectContainer() {
-      const container = document.createElement("div");
-      container.id = "sleek-ui-sheet";
-      container.style.cssText = "position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:70;";
-
-      const scaleWrapper = document.createElement("div");
-      scaleWrapper.classList.add("minisheet-transform-wrapper");
-      scaleWrapper.style.transformOrigin = "bottom center";
-
-      const value = game.settings.get("daggerheart-sleek-ui", "minisheetScale");
-      scaleWrapper.style.transform = `scale(${value})`;
-
-      container.appendChild(scaleWrapper);
-      document.body.appendChild(container);
-      this.element = container;
+      this.element = injectMinisheetContainer();
     }
 
     static async _prepareContext(actor) {
@@ -336,6 +357,8 @@ export function registerCharacterMiniSheet() {
         quickAccessItems = [];
       }
 
+      const favoritesDisplayMode = game.settings.get("daggerheart-sleek-ui", "favoritesDisplayMode");
+
       return {
         document: actor,
         source: actor,
@@ -354,6 +377,8 @@ export function registerCharacterMiniSheet() {
         weapons,
         armors,
         loadoutCards,
+        favoritesDisplayMode,
+        actorPicker: buildActorPickerContext(actor),
       };
     }
 
@@ -387,15 +412,60 @@ export function registerCharacterMiniSheet() {
       });
 
       attachFavoritesListeners(this.element, actor, { isMinisheet: true });
+      attachActorPickerListeners(this.element);
 
-      // Tab button toggle
+      // Tab button toggle — Quick Access mode renders one button, Standard
+      // mode renders two (Inventory + Hand) — either way each button just
+      // opens/closes its own window.
+      const windowSelectorFor = (target) => {
+        if (target === "cardHand") return ".card-hand-window";
+        if (target === "inventory") return ".inventory-window";
+        return ".favorites-window";
+      };
+
+      // Inventory and Hand are both meant to behave like persistent HUD
+      // elements, not popups — they only close via their own toggle button,
+      // never from an outside click, and remember whether they were left
+      // open across a minisheet remount (reselecting a token, reloading).
+      const isPersistentTarget = (target) => target === "cardHand" || target === "inventory";
+      const setPersistentOpenState = (target, value) => {
+        if (target === "cardHand") setCardHandOpenState(value);
+        else if (target === "inventory") setInventoryOpenState(value);
+      };
+
       this.element.querySelectorAll(".tab-button").forEach((btn) => {
         btn.addEventListener("click", (event) => {
           event.stopPropagation();
-          const favWindow = this.element.querySelector(".favorites-window");
-          const isActive = favWindow?.classList.contains("active");
-          favWindow?.classList.toggle("active", !isActive);
-          btn.classList.toggle("active", !isActive);
+          const targetWindow = this.element.querySelector(windowSelectorFor(btn.dataset.handTarget));
+          const isActive = targetWindow?.classList.contains("active");
+          const nextActive = !isActive;
+          targetWindow?.classList.toggle("active", nextActive);
+          btn.classList.toggle("active", nextActive);
+          if (isPersistentTarget(btn.dataset.handTarget)) setPersistentOpenState(btn.dataset.handTarget, nextActive);
+        });
+      });
+
+      // Filter/reorder popovers — quick on-the-fly panels next to the
+      // Inventory and Hand buttons. Two separate .hand-filter-btn elements
+      // can exist now (Inventory's own filter, Hand's own reorder list —
+      // Hand has no filter of its own any more: with weapons/consumables
+      // moved to Inventory, everything Hand shows is a real card, so
+      // there's nothing left to hide), each paired with the popover that's
+      // its own sibling within the same .tab-button-group, dispatching to a
+      // different render function based on its own data-action.
+      this.element.querySelectorAll(".hand-filter-btn").forEach((filterBtn) => {
+        filterBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const popover = filterBtn.closest(".tab-button-group")?.querySelector(".hand-filter-popover");
+          if (!popover) return;
+          const isActive = popover.classList.contains("active");
+          if (!isActive) {
+            if (filterBtn.dataset.action === "toggleInventoryFilters") renderInventoryFilterPopover(popover, this.element, actor);
+            else if (filterBtn.dataset.action === "toggleHandReorder") renderCardHandReorderPopover(popover, this.element, actor);
+          }
+          popover.classList.toggle("active", !isActive);
+          filterBtn.classList.toggle("active", !isActive);
         });
       });
 
@@ -406,12 +476,23 @@ export function registerCharacterMiniSheet() {
 
       this._outsideClickListener = (event) => {
         if (!this.element) return;
-        const favWindow = this.element.querySelector(".favorites-window");
-        if (!favWindow?.classList.contains("active")) return;
-        if (!favWindow.contains(event.target) && !event.target.closest(".tab-button")) {
-          favWindow.classList.remove("active");
-          this.element.querySelector(".tab-button.active")?.classList.remove("active");
-        }
+        this.element.querySelectorAll(".tab-button").forEach((btn) => {
+          if (isPersistentTarget(btn.dataset.handTarget)) return;
+          const targetWindow = this.element.querySelector(windowSelectorFor(btn.dataset.handTarget));
+          if (!targetWindow?.classList.contains("active")) return;
+          if (!targetWindow.contains(event.target) && !event.target.closest(".tab-button")) {
+            targetWindow.classList.remove("active");
+            btn.classList.remove("active");
+          }
+        });
+
+        this.element.querySelectorAll(".hand-filter-popover").forEach((filterPopover) => {
+          const filterBtn = filterPopover.closest(".tab-button-group")?.querySelector(".hand-filter-btn");
+          if (filterPopover.classList.contains("active") && !filterPopover.contains(event.target) && event.target !== filterBtn && !filterBtn?.contains(event.target)) {
+            filterPopover.classList.remove("active");
+            filterBtn?.classList.remove("active");
+          }
+        });
       };
 
       document.addEventListener("click", this._outsideClickListener);
@@ -424,7 +505,10 @@ export function registerCharacterMiniSheet() {
     }
   }
 
-  Hooks.on("controlToken", CharacterMiniSheet._onControlToken.bind(CharacterMiniSheet));
+  // Token-selection-driven display now goes through minisheet-pin.js's
+  // shared controlToken listener (see its own header comment) instead of a
+  // listener bound here — that's what lets the toggle button gate display
+  // and lets a pinned actor take over with no token controlled at all.
   Hooks.on("updateActor", CharacterMiniSheet._onUpdateActor.bind(CharacterMiniSheet));
   Hooks.on("updateItem", CharacterMiniSheet._onUpdateItem.bind(CharacterMiniSheet));
   Hooks.on("updateActiveEffect", CharacterMiniSheet._onUpdateActiveEffect.bind(CharacterMiniSheet));
@@ -435,11 +519,7 @@ export function registerCharacterMiniSheet() {
     }
   });
 
-  Hooks.on("closeSleekCharacterSheet", (app) => {
-    const actor = CharacterMiniSheet._resolveActor();
-    if (actor && app.actor === actor) {
-      CharacterMiniSheet.currentActor = actor;
-      CharacterMiniSheet._render();
-    }
-  });
+  Hooks.on("closeSleekCharacterSheet", () => syncPinnedMinisheet());
+
+  _characterMiniSheetRef = CharacterMiniSheet;
 }

@@ -1,3 +1,5 @@
+import { scaleTransformFor, transformOriginFor } from "./sheets/minisheets/minisheet-position.js";
+
 export function registerSettings() {
 
   // Theme Foundryborne
@@ -33,6 +35,26 @@ export function registerSettings() {
     default: true,
   });
 
+  // Minisheet visibility — driven by the "Toggle Mini Sheet" token control
+  // button (see sheets/minisheets/minisheet-pin.js), not this settings menu.
+  // Lets a player hide the minisheet while a token is selected (to free up
+  // the hotbar) or show it with no token selected at all (theater of mind).
+  game.settings.register("daggerheart-sleek-ui", "minisheetVisible", {
+    scope: "client",
+    config: false,
+    type: Boolean,
+    default: true,
+  });
+
+  // Remembers which owned actor's minisheet to show when visible with no
+  // token controlled and the player owns more than one pinnable actor.
+  game.settings.register("daggerheart-sleek-ui", "minisheetPinnedActor", {
+    scope: "client",
+    config: false,
+    type: String,
+    default: "",
+  });
+
   // Minisheet Style
 
   //Minisheet Transform
@@ -49,17 +71,6 @@ export function registerSettings() {
     },
     default: 1,
     onChange: (value) => applyMinisheetScale(value),
-  });
-
-  game.settings.register("daggerheart-sleek-ui", "minisheetOffset", {
-    name: "Minisheet Horizontal Offset",
-    hint: "Adjusts the horizontal position of the mini sheets, nudging it from the center by the value in pixels (default: 0)",
-    scope: "client",
-    config: true,
-    type: Number,
-    range: { min: -500, max: 500, step: 1 },
-    default: 0,
-    onChange: () => applyMinisheetOffset(),
   });
 
   // Tabs Position
@@ -80,15 +91,10 @@ export function registerSettings() {
     },
   });
 
-  // Quick Access
-  game.settings.register("daggerheart-sleek-ui", "quickAccess", {
-    name: "Enable Quick Access",
-    hint: "Switch the default equipment and loadout sidebar sections with a universal Quick Access section",
-    scope: "client",
-    config: true,
-    type: Boolean,
-    default: true,
-  });
+  // Quick Access — superseded by card-hand.js's "favoritesDisplayMode"
+  // three-way choice (Standard/Quick Access/Card Hand), which replaces this
+  // boolean everywhere it was read (character-sheet.js's own context prep
+  // included) so the minisheet only ever needs one tab-button, not several.
 
   // Tooltips
   game.settings.register("daggerheart-sleek-ui", "showTooltip", {
@@ -124,21 +130,10 @@ export function registerSettings() {
 
 export function applyMinisheetScale(value) {
   const scale = value ?? game.settings.get("daggerheart-sleek-ui", "minisheetScale");
-  const offset = game.settings.get("daggerheart-sleek-ui", "minisheetOffset");
   const wrapper = document.querySelector("#sleek-ui-sheet .minisheet-transform-wrapper");
   if (wrapper) {
-    wrapper.style.transform = `translateX(${offset}px) scale(${scale})`;
-    wrapper.style.transformOrigin = "bottom center";
-  }
-}
-
-export function applyMinisheetOffset() {
-  const scale = game.settings.get("daggerheart-sleek-ui", "minisheetScale");
-  const offset = game.settings.get("daggerheart-sleek-ui", "minisheetOffset");
-  const wrapper = document.querySelector("#sleek-ui-sheet .minisheet-transform-wrapper");
-  if (wrapper) {
-    wrapper.style.transform = `translateX(${offset}px) scale(${scale})`;
-    wrapper.style.transformOrigin = "bottom center";
+    wrapper.style.transform = scaleTransformFor(scale);
+    wrapper.style.transformOrigin = transformOriginFor();
   }
 }
 

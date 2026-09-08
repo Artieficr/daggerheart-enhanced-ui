@@ -1,0 +1,105 @@
+<div class="favorites">
+
+  {{#if unarmedAttack}}
+  <div class="favorites-container">
+    <div class="favorites-header">
+      <h3>{{localize "DAGGERHEART.ACTIONS.TYPES.attack.name"}}</h3>
+    </div>
+    <ul class="favorites-list">
+      {{> "modules/daggerheart-sleek-ui/templates/components/card-weapon.hbs"
+      item=unarmedAttack.item
+      tags=unarmedAttack.tags
+      hopeCost=unarmedAttack.hopeCost
+      usesData=unarmedAttack.usesData
+      damage=unarmedAttack.damage
+      enrichedDescription=unarmedAttack.enrichedDescription
+      ownershipLevel=@root.ownershipLevel}}
+    </ul>
+  </div>
+  {{/if}}
+
+  {{#if weapons.length}}
+  <div class="favorites-container">
+    <div class="favorites-header">
+      <h3>Weapons</h3>
+    </div>
+    <ul class="favorites-list">
+      {{#each weapons as |weaponData|}}
+      {{> "modules/daggerheart-sleek-ui/templates/components/card-weapon.hbs"
+      item=weaponData.item
+      tags=weaponData.tags
+      hopeCost=weaponData.hopeCost
+      usesData=weaponData.usesData
+      damage=weaponData.damage
+      enrichedDescription=weaponData.enrichedDescription
+      ownershipLevel=@root.ownershipLevel}}
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
+  {{#if armors.length}}
+  <div class="favorites-container">
+    <div class="favorites-header">
+      <h3>Armor</h3>
+    </div>
+    <ul class="favorites-list">
+      {{#each armors as |armorData|}}
+      {{> "modules/daggerheart-sleek-ui/templates/components/card-armor.hbs"
+      item=armorData.item
+      tags=armorData.tags
+      hopeCost=armorData.hopeCost
+      usesData=armorData.usesData
+      marks=armorData.marks
+      enrichedDescription=armorData.enrichedDescription
+      ownershipLevel=@root.ownershipLevel}}
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
+  {{#if consumables.length}}
+  <div class="favorites-container">
+    <div class="favorites-header">
+      <h3>Consumables</h3>
+    </div>
+    <ul class="favorites-list">
+      {{#each consumables as |itemData|}}
+      {{> "modules/daggerheart-sleek-ui/templates/components/card-item.hbs"
+      item=itemData.item
+      tags=itemData.tags
+      hopeCost=itemData.hopeCost
+      usesData=itemData.usesData
+      quantity=itemData.quantity
+      enrichedDescription=itemData.enrichedDescription
+      ownershipLevel=@root.ownershipLevel}}
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
+  {{#if items.length}}
+  <div class="favorites-container">
+    <div class="favorites-header">
+      <h3>Items</h3>
+    </div>
+    <ul class="favorites-list">
+      {{#each items as |itemData|}}
+      {{> "modules/daggerheart-sleek-ui/templates/components/card-item.hbs"
+      item=itemData.item
+      tags=itemData.tags
+      hopeCost=itemData.hopeCost
+      usesData=itemData.usesData
+      quantity=itemData.quantity
+      enrichedDescription=itemData.enrichedDescription
+      ownershipLevel=@root.ownershipLevel}}
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
+  {{#unless (or weapons.length armors.length consumables.length items.length unarmedAttack)}}
+  <div class="no-cards">No items</div>
+  {{/unless}}
+
+</div>

@@ -1,6 +1,8 @@
 // ─── MACROBAR ────────────────────────────────────────────────────────────────
 
 import { attachQuantityListeners, recallDomainCardFromVault, resolveUnarmedAttack } from "../../helpers.js";
+import { collapsedTransform } from "./minisheet-position.js";
+import { selectPinnedActor } from "./minisheet-pin.js";
 
 export function hideMacrobar() {
   const hotbar = document.getElementById("hotbar");
@@ -110,6 +112,35 @@ export function attachReactionRollListeners(element, actor) {
   });
 }
 
+// Actor picker overlay — shown over the portrait only when the minisheet is
+// displaying via the pin fallback (no owned token controlling it, see
+// minisheet-pin.js's buildActorPickerContext) and the player owns more than
+// one pinnable actor. Shared by the Character and Companion minisheets since
+// the picker itself is actor-type-agnostic (it just hands a uuid back to the
+// coordinator, which decides which minisheet class to mount). Its
+// outside-click-to-close behavior is wired once, globally, in
+// minisheet-pin.js's registerMinisheetPin() rather than rebound here on
+// every render — this function itself is called on every _attachListeners(),
+// but its own listeners die naturally with the DOM nodes each render
+// discards, so no accumulation to guard against.
+export function attachActorPickerListeners(element) {
+  const picker = element.querySelector(".minisheet-actor-picker");
+  if (!picker) return;
+
+  picker.querySelector(".minisheet-actor-picker-toggle")?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    picker.classList.toggle("open");
+  });
+
+  picker.querySelectorAll(".minisheet-actor-picker-item").forEach((item) => {
+    item.addEventListener("click", (event) => {
+      event.stopPropagation();
+      picker.classList.remove("open");
+      selectPinnedActor(item.dataset.actorUuid);
+    });
+  });
+}
+
 // ─── MINISHEET COLLAPSE STATE ─────────────────────────────────────────────────
 
 export function isMinisheetCollapsed() {
@@ -142,7 +173,7 @@ export function registerMinisheetKeybinding() {
 export function collapseMinisheet(element, onCollapsed) {
   const height = element.offsetHeight;
   element.style.transition = "transform 0.3s ease";
-  element.style.transform = `translateX(-50%) translateY(${height + 58}px)`;
+  element.style.transform = collapsedTransform(height);
 
   setTimeout(() => {
     if (onCollapsed) onCollapsed();
@@ -237,7 +268,15 @@ async function _onToggleResource(event, target) {
 let _hoveredCompactCard = null;
 
 export async function renderFavorites(element, actor, templatePath, context) {
-  const favWindow = element.querySelector(".favorites-window");
+  // :not(.inventory-window) matters in Standard mode: the Inventory window
+  // reuses the .favorites-window class for its own CSS (see inventory-panel.js),
+  // and without this exclusion this function would find IT instead (the real
+  // Quick Access .favorites-window doesn't exist in Standard mode) and
+  // overwrite its content with favorites.hbs's own render — which is exactly
+  // what was happening: toggling a weapon's equipped state from the
+  // Inventory window triggered this function, which clobbered Inventory's
+  // content with the old "Equipment & Loadout" list.
+  const favWindow = element.querySelector(".favorites-window:not(.inventory-window)");
   if (!favWindow) return;
 
   const scrollTop = favWindow.querySelector(".favorites")?.scrollTop ?? 0;
@@ -276,10 +315,10 @@ export function attachFavoritesListeners(element, actor, { isMinisheet = false }
 // ─── FAVORITES HELPERS ───────────────────────────────────────────────────────
 
 function _closeFavoritesWindow(element) {
-  const favWindow = element.closest(".favorites-window");
+  const favWindow = element.closest(".favorites-window, .card-hand-window");
   if (!favWindow?.classList.contains("active")) return;
   favWindow.classList.remove("active");
-  favWindow.closest(".minisheet")?.querySelector(".tab-button.active")?.classList.remove("active");
+  favWindow.closest(".minisheet")?.querySelector(`.tab-button.active[data-hand-target="${favWindow.classList.contains("card-hand-window") ? "cardHand" : "favorites"}"]`)?.classList.remove("active");
 }
 
 function _attachCompactCardHoverListeners(element) {

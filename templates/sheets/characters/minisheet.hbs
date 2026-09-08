@@ -11,6 +11,7 @@
             <i class="fa-solid fa-skull death-save"></i>
         </a>
         {{/if}}
+        {{> "modules/daggerheart-sleek-ui/templates/components/minisheet-actor-picker.hbs"}}
     </div>
 
     <div class="character-information">
@@ -51,13 +52,28 @@
                         <span class="separator"></span>
                     </div>
 
-                    {{#if quickAccess}}
-                    <div class="tab-button">
-                        <h3>Quick Access</h3>
+                    {{#if (eq favoritesDisplayMode "standard")}}
+                    <div class="tab-button-group">
+                        <div class="tab-button" data-hand-target="inventory">
+                            <h3>Inventory</h3>
+                        </div>
+                        <button type="button" class="hand-filter-btn" data-action="toggleInventoryFilters" data-tooltip="Filter Inventory">
+                            <i class="fa-solid fa-filter"></i>
+                        </button>
+                        <div class="hand-filter-popover inventory-filter-popover"></div>
+                    </div>
+                    <div class="tab-button-group">
+                        <div class="tab-button" data-hand-target="cardHand">
+                            <h3>Hand</h3>
+                        </div>
+                        <button type="button" class="hand-filter-btn" data-action="toggleHandReorder" data-tooltip="Reorder Hand">
+                            <i class="fa-solid fa-arrow-down-up-across-line"></i>
+                        </button>
+                        <div class="hand-filter-popover hand-reorder-popover"></div>
                     </div>
                     {{else}}
-                    <div class="tab-button">
-                        <h3>{{localize "DAGGERHEART.GENERAL.Tabs.equipment"}} & {{localize "DAGGERHEART.GENERAL.Tabs.loadout"}}</h3>
+                    <div class="tab-button" data-hand-target="favorites">
+                        <h3>Quick Access</h3>
                     </div>
                     {{/if}}
 
@@ -210,10 +226,20 @@
 
     </div>
     
+    {{#if (eq favoritesDisplayMode "quickAccess")}}
     <div class="favorites-window-container">
         <div class="favorites-window">
             {{> "modules/daggerheart-sleek-ui/templates/sheets/characters/main/favorites.hbs"}}
         </div>
     </div>
+    {{else}}
+    <div class="favorites-window-container inventory-window-container">
+        <div class="favorites-window inventory-window"></div>
+    </div>
+
+    <div class="card-hand-window-container">
+        <div class="card-hand-window"></div>
+    </div>
+    {{/if}}
 
 </div>

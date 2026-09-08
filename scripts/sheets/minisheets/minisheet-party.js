@@ -1,5 +1,6 @@
 import { hideMacrobar, showMacrobar, collapseMinisheet, injectReopenButton, removeReopenButton, isMinisheetCollapsed, setMinisheetCollapsed } from "./utils-minisheet.js";
 import { applyMinisheetScale } from "../../settings.js";
+import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
 import { getBeastformPortrait } from "../../helpers.js";
 
 export function registerPartyMiniSheet() {
@@ -92,7 +93,7 @@ export function registerPartyMiniSheet() {
             injectReopenButton(() => {
               hideMacrobar();
               this.element.style.transition = "transform 0.3s ease";
-              this.element.style.transform = `translateX(-50%)`;
+              this.element.style.transform = idleTransform();
               setTimeout(() => applyMinisheetScale(), 310);
             });
 
@@ -114,17 +115,17 @@ export function registerPartyMiniSheet() {
       if (collapsed) {
         const height = this.element.offsetHeight;
         this.element.style.transition = "none";
-        this.element.style.transform = `translateX(-50%) translateY(${height + 58}px)`;
+        this.element.style.transform = collapsedTransform(height);
         showMacrobar();
         injectReopenButton(() => {
           hideMacrobar();
           this.element.style.transition = "transform 0.3s ease";
-          this.element.style.transform = `translateX(-50%)`;
+          this.element.style.transform = idleTransform();
           setTimeout(() => applyMinisheetScale(), 310);
         });
       } else {
         this.element.style.transition = "";
-        this.element.style.transform = `translateX(-50%)`;
+        this.element.style.transform = idleTransform();
         applyMinisheetScale();
       }
     }
@@ -143,20 +144,7 @@ export function registerPartyMiniSheet() {
     }
 
     static _injectContainer() {
-      const container = document.createElement("div");
-      container.id = "sleek-ui-sheet";
-      container.style.cssText = "position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:70;";
-
-      const scaleWrapper = document.createElement("div");
-      scaleWrapper.classList.add("minisheet-transform-wrapper");
-      scaleWrapper.style.transformOrigin = "bottom center";
-
-      const value = game.settings.get("daggerheart-sleek-ui", "minisheetScale");
-      scaleWrapper.style.transform = `scale(${value})`;
-
-      container.appendChild(scaleWrapper);
-      document.body.appendChild(container);
-      this.element = container;
+      this.element = injectMinisheetContainer();
     }
 
     // ─── CONTEXT ─────────────────────────────────────────────────────────────

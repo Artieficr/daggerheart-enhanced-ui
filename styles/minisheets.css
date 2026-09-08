@@ -57,6 +57,101 @@ PORTRAIT
 }
 
 /* //////////////////////////////
+ACTOR PICKER — the "switch character" overlay shown on the portrait when the
+minisheet is displaying via the pin fallback (no owned token controlled) and
+the player owns more than one pinnable character/companion. Sits on top of
+the existing portrait without shifting any layout — see minisheet-pin.js.
+////////////////////////////// */
+
+#sleek-ui-sheet .minisheet-actor-picker {
+  position: absolute;
+  left: 50%;
+  bottom: var(--sleekUI-spacing-xs);
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--sleekUI-color-background-primary);
+  border: 1px solid var(--sleekUI-color-border);
+  color: var(--sleekUI-color-primary);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+#sleek-ui-sheet .minisheet-actor-picker.open .minisheet-actor-picker-toggle i {
+  transform: rotate(180deg);
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-toggle i {
+  transition: transform 0.15s ease;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-list {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 160px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: var(--sleekUI-spacing-tiny);
+  border-radius: var(--sleekUI-border-radius);
+  background: var(--sleekUI-color-background-primary);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker.open .minisheet-actor-picker-list {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: var(--sleekUI-border-radius-s);
+  background: transparent;
+  border: none;
+  color: var(--sleekUI-color-primary);
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-item:hover {
+  background: var(--sleekUI-color-border);
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-item.active {
+  color: var(--sleekUI-color-secondary);
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-item img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+
+/* //////////////////////////////
 CHARACTER INFORMATION
 ////////////////////////////// */
 

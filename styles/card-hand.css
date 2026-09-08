@@ -1,0 +1,869 @@
+/* ====================
+   CARD HAND POSITIONING
+   No boxed panel — Happytree's hand is just the cards themselves, floating
+   over the scene with no enclosing background/border. The container only
+   positions the fan (via the cardHandPosition setting) and gates click-
+   through when collapsed.
+   ==================== */
+
+#sleek-ui-sheet .minisheet .card-hand-window-container {
+  position: absolute;
+  width: auto;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* The 20px gap (instead of flush 0/100%) gives the fan's arc room to
+   breathe — rotated outer cards dip a bit below their own baseline
+   (transform-origin: bottom center means their corners, not their center,
+   touch bottom), and without a gap that dip either clips against the
+   actual screen edge (right, whose baseline sits flush with the
+   minisheet's own bottom, i.e. the screen's bottom) or overlaps into the
+   minisheet itself (above). No "left" variant: the minisheet anchors
+   bottom-left by default, so there's no room to open a hand toward it. */
+#sleek-ui-sheet .minisheet .card-hand-window-container.pos-above {
+  bottom: calc(100% + 20px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#sleek-ui-sheet .minisheet .card-hand-window-container.pos-right {
+  left: calc(100% + 20px);
+  bottom: 20px;
+}
+
+#sleek-ui-sheet .minisheet .card-hand-window-container:has(.card-hand-window.active) {
+  pointer-events: unset;
+}
+
+#sleek-ui-sheet .minisheet .card-hand-window {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  overflow: visible;
+}
+
+#sleek-ui-sheet .minisheet .card-hand-window.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ====================
+   FAN LAYOUT — per-card rotation/overlap applied inline by
+   applyCardHandFanLayout() in card-hand.js.
+   ==================== */
+
+#sleek-ui-sheet .card-hand-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+#sleek-ui-sheet .card-hand-list .no-cards {
+  color: var(--sleekUI-color-secondary);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  padding: var(--sleekUI-spacing-md);
+}
+
+/* ====================
+   CARD — ported directly from Card Hand's own dnd.css (.dh-card / .dh-card-
+   scaler base sizing/hover-focus, renamed .hand-card / .dhc-scaler here) and
+   templates/improved/improved-template.js's injected cssContent (the
+   Improved template specifically — its bottom-anchored, grow-upward text
+   block is what actually fits long descriptions; the Default template's
+   fixed 51/49 split clips them). Only outer id/class scoping is adapted to
+   fit inside our own window instead of their standalone panel; layout,
+   values, and asset paths (pointed at our own copy of their art) are theirs.
+   ==================== */
+
+/* Improved template hardcodes its own font stack (#daggerheart-hand scope in
+   their source) rather than relying on the system to expose one — without
+   defining these ourselves, every var(--dh-font-header, ...) below was
+   silently falling through to our fallback value instead of theirs. */
+#sleek-ui-sheet {
+  --dh-font-header: "Modesto Condensed", "Signika", sans-serif;
+  --dh-font-body: "Signika", sans-serif;
+}
+
+#sleek-ui-sheet .hand-card {
+  position: relative;
+  width: 160px;
+  height: 220px;
+  flex-shrink: 0;
+  cursor: grab;
+  user-select: none;
+  /* Lets a filter change (or any other actor-item change) reflow the fan and
+     fade cards in/out smoothly instead of jump-cutting — the drag gesture's
+     own JS explicitly sets transition:none while dragging and restores this
+     on release, so it isn't fighting these. */
+  transition: margin-left 0.25s ease, transform 0.25s ease, opacity 0.2s ease;
+}
+
+#sleek-ui-sheet .hand-card:hover {
+  z-index: 1000 !important;
+}
+
+/* A card leaving the hand (filtered out, item deleted, etc.) — excluded from
+   the fan layout's own math (see applyCardHandFanLayout) so it just fades
+   out roughly where it was while its siblings reflow around it. !important
+   beats the inline transform applyCardHandFanLayout set before removal. */
+#sleek-ui-sheet .hand-card.hand-card-removing {
+  opacity: 0 !important;
+  transform: scale(0.7) translateY(20px) !important;
+  pointer-events: none;
+}
+
+/* The "focused card" fix: .dhc-scaler below is pointer-events:none, so this
+   fixed-size slice is the ONLY thing that can trigger :hover/drag/right-click
+   on a card — never the enlarged preview itself. Without this, hovering a
+   card grows its preview to cover part of the next card's slot, and since
+   the preview is what your cursor is actually over at that point, hover got
+   "stuck" on the card you were trying to leave instead of moving to the one
+   your cursor visually landed on. applyCardHandFanLayout narrows this
+   element's width to just the sliver NOT covered by the next card in the fan
+   (full width for the last card, which nothing covers) — outside the main
+   fan (the hover sub-stack, the group-overlay fan) it's left at its default
+   full-card width, since those don't overlap the same way.
+   Reflects a fix requested after the user sketched the exact zone they meant
+   directly on a screenshot. */
+#sleek-ui-sheet .hand-card-hitzone {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  cursor: grab;
+}
+
+#sleek-ui-sheet .dhc-scaler {
+  position: absolute;
+  bottom: 0;
+  left: -50%;
+  width: 320px;
+  height: 440px;
+  transform: scale(0.5);
+  transform-origin: center bottom;
+  z-index: 3;
+
+  border: none;
+  border-radius: 16px;
+  background: none;
+  overflow: hidden;
+  pointer-events: none;
+
+  transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.6s;
+}
+
+/* Direct-child combinator, not a descendant one, on purpose: a feature
+   group's stack nests a real mini .hand-card (with its own .dhc-scaler)
+   several levels inside this one. A descendant selector here would match
+   BOTH — meaning hovering anywhere on the group (even just its own hitzone,
+   which is what makes the whole ancestor chain register as :hover) enlarged
+   every nested feature card's preview at once, instead of only the specific
+   card whose own hitzone is actually being hovered. */
+#sleek-ui-sheet .hand-card:hover > .dhc-scaler {
+  transform: scale(0.75) translateY(-50px);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
+}
+
+/* !important here matches style.css's own #sleek-ui-sheet p/span rule,
+   which otherwise forces sleek-ui's Montserrat onto our card's <p>/<span>
+   text (the description and type label) regardless of specificity. Font
+   Awesome damage-type icons (<i class="fa-solid ...">, e.g. the fist/wand
+   icon next to a weapon's damage formula) are excluded from this override —
+   forcing them onto our body font replaced their icon glyph with a missing-
+   character box, since FA icons only exist in FA's own icon font. */
+#sleek-ui-sheet .dhc-scaler *:not([class*="fa-"]) {
+  font-family: var(--dh-font-body, "Signika", "Montserrat", sans-serif) !important;
+}
+
+#sleek-ui-sheet .dhc-scaler * {
+  box-sizing: border-box;
+}
+
+/* Card art is the background, anchored top, fills width */
+#sleek-ui-sheet .card-image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#sleek-ui-sheet .card-main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  pointer-events: none;
+}
+
+/* Text content is anchored to the bottom and expands upward, overlapping
+   the image as needed — this (not a fixed art/text split) is what lets
+   long descriptions fit without clipping. */
+#sleek-ui-sheet .card-text-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 0 0 8px;
+  background: rgba(255, 255, 255, 0.98);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  min-height: 184px;
+  max-height: 425px;
+  overflow: visible;
+}
+
+#sleek-ui-sheet .divider-container {
+  position: relative;
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 7;
+  top: -12px;
+}
+
+/* Divider image tinted per-domain: a colored hexagon sits under the shared
+   divider graphic, showing through its transparent parts. Real <img> +
+   plain inline background-color (not a CSS custom-property-driven
+   background-image on a ::before) — matches the same pattern already
+   confirmed working for the banner/stress-cost images. */
+#sleek-ui-sheet .title-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 42px;
+  z-index: 7;
+}
+
+#sleek-ui-sheet .title-bg-divider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#sleek-ui-sheet .title-bg-inner {
+  position: absolute;
+  top: 30%;
+  left: 30%;
+  width: 40%;
+  height: 52%;
+  clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
+  z-index: 1;
+}
+
+#sleek-ui-sheet .card-title {
+  position: relative;
+  width: 100%;
+  font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 24px;
+  padding-top: 2px;
+  line-height: 1;
+  text-align: center;
+  color: #000;
+  margin: 0;
+  z-index: 8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sleek-ui-sheet .card-type {
+  position: relative;
+  width: 120px;
+  font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 14px;
+  padding-top: 3px;
+  line-height: 1;
+  text-align: center;
+  color: #fff;
+  margin: 0;
+  z-index: 8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sleek-ui-sheet .description {
+  margin-top: 0;
+  color: #000;
+  line-height: 1.3;
+  overflow: visible;
+  max-width: 100%;
+  word-break: break-word;
+  padding: 0 12px;
+}
+
+#sleek-ui-sheet .description p {
+  margin: 0 0 5px;
+}
+
+#sleek-ui-sheet .description ul,
+#sleek-ui-sheet .description ol {
+  margin: 0;
+  padding-left: 16px;
+  text-align: left;
+}
+
+/* Level banner + recall/stress cost badges */
+#sleek-ui-sheet .card-banner_image {
+  left: 5%;
+  top: -15px;
+  width: 52px;
+  position: absolute;
+  height: auto;
+  object-fit: scale-down;
+  margin: 0 10px auto 0;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
+  z-index: 10;
+}
+
+#sleek-ui-sheet .card-level {
+  font-size: 23.8px;
+  top: 2%;
+  left: 4%;
+  width: 20%;
+  text-align: center;
+  margin: 0;
+  user-select: none;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.333));
+  position: absolute;
+  z-index: 10;
+  font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
+  font-weight: 800;
+  padding-right: 6px;
+  pointer-events: none;
+}
+
+#sleek-ui-sheet .stress_image {
+  position: absolute;
+  width: 32px;
+  top: 3%;
+  right: 4%;
+  z-index: 2;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.333));
+}
+
+#sleek-ui-sheet .stress_text {
+  position: absolute;
+  font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
+  top: 3%;
+  right: 4.5%;
+  width: 24px;
+  padding: 7px 2px 0 3px;
+  text-align: left;
+  font-size: 14px;
+  color: #fff;
+  z-index: 11;
+  margin: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Weapon damage block */
+#sleek-ui-sheet .damage-info {
+  position: relative;
+  z-index: 7;
+  color: #333;
+  padding: 0 0 8px;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+#sleek-ui-sheet .damage-info + .description {
+  margin-top: 0 !important;
+}
+
+#sleek-ui-sheet .damage-labels {
+  font-size: 15px;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+#sleek-ui-sheet .damage-range {
+  font-size: 14px;
+  color: #222;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+/* ====================
+   FEATURE GROUP STACKING — every group (see buildFeatureGroups in
+   card-hand.js), even a single-feature one, shows a real stack of its
+   actual member cards: at rest, each one peeks out a fixed amount above the
+   last, straight up (no left/right offset, no rotation) — like a deck lying
+   behind the parent, not a fanned hand. Hovering the parent turns them into
+   an actual fan (rotated, spread, exactly like the main hand's own layout —
+   applyCardHandFanLayout runs on this container directly, no second
+   implementation) positioned above the main fan, where each one is
+   individually draggable/playable, same as any other hand card. Chosen over
+   cramming every feature's full text onto the parent card, or a "choose a
+   feature" dialog, after the user pointed out official feature text is
+   often much longer than fits on a mini card, and that losing the "this
+   came from your Elf" context by flattening features into the main fan was
+   worse than keeping them as real, individually-playable cards.
+   ==================== */
+
+/* A child of .hand-card, so hovering into it (even though it renders
+   outside the parent's own box once revealed) keeps the parent's :hover
+   state alive too — CSS :hover bubbles to ancestors regardless of layout
+   position. z-index:1-3 here (below .dhc-scaler's explicit z-index:3) is
+   what keeps the peek genuinely BEHIND the parent's own face at rest —
+   .dhc-scaler has no explicit z-index otherwise, which lost the stacking
+   order fight against an explicit one and rendered the "peek" in FRONT of
+   the parent instead of behind it.
+
+   Rest-state layout (each member overlapping almost all of the one behind
+   it, just a thin sliver of each showing above the last) uses absolute
+   positioning + nth-child, not flex+gap — gap adds visible empty space
+   BETWEEN whole card boxes, which read as "cards spaced apart" instead of
+   "a stack, barely offset." The fan itself (hover state) is JS-driven — see
+   buildHandCardElement's pointerenter/pointerleave handlers, which call
+   applyCardHandFanLayout (the main hand's own layout function) — since
+   per-card rotation isn't something CSS alone can compute; hovering swaps
+   each member from absolute (rest) to relative positioning so they become
+   real flex items applyCardHandFanLayout can lay out in a row. */
+#sleek-ui-sheet .hand-card-substack {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 1;
+  transition: bottom 0.25s ease, z-index 0s 0.25s;
+}
+
+/* Even the FIRST (only, for a single-feature group) member gets the 14px
+   step — sitting it at bottom:0 made a single-member group's one child
+   completely invisible, fully hidden behind the parent, with nothing
+   visibly "stacked" at all. */
+#sleek-ui-sheet .hand-card-substack > .hand-card {
+  position: absolute;
+  left: -80px;
+  bottom: 14px;
+  z-index: 2;
+}
+
+#sleek-ui-sheet .hand-card-substack > .hand-card:nth-child(2) {
+  bottom: 28px;
+  z-index: 1;
+}
+
+#sleek-ui-sheet .hand-card-substack > .hand-card:nth-child(3) {
+  bottom: 42px;
+  z-index: 0;
+}
+
+#sleek-ui-sheet .hand-card-substack > .hand-card:nth-child(n + 4) {
+  bottom: 56px;
+  z-index: -1;
+}
+
+/* Bridges the gap between the parent's own (enlarged-on-hover) card face and
+   the fan reveal above it. Without this, moving the cursor from the parent
+   up toward the fan crossed empty space with no element from this card's
+   own subtree in it — pointerenter/pointerleave (and CSS :hover, which
+   works the same way) only care about actual DOM containment, not motion
+   continuity, so that gap counted as "left the card" and collapsed the fan
+   before you could ever reach a child card to drag it. Generously sized
+   (wider than a single card) since the fan can spread well past the
+   parent's own width once revealed, and a narrow bridge would still lose a
+   diagonal path toward an outer card. Invisible — exists purely to keep
+   hover alive in transit.
+
+   pointer-events starts at none, NOT auto — toggled to auto by JS only once
+   the card is actually focused (see buildHandCardElement's pointerenter
+   handler). Auto by default made the bridge itself a valid way to trigger
+   the fan, since it sits in the space directly above the card and pointer-
+   events:auto alone is enough to register as "entered this card's subtree"
+   — so just moving the cursor through that space (never having actually
+   hovered the card itself) opened the fan. It should only ever keep an
+   *already-open* fan open, never open one on its own. */
+#sleek-ui-sheet .hand-card-hover-bridge {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 95px;
+  pointer-events: none;
+}
+
+/* calc(100% + 95px): the parent's own preview scales up to ~330px tall and
+   lifts 50px further on hover (see .hand-card:hover > .dhc-scaler), so
+   clearing it needs real distance, not just a few px — but the first value
+   here (190px) was more than the user wanted once they could see it live;
+   halved per their direct feedback.
+
+   .forced-open (set/cleared by JS, see attachGrabGesture in card-hand.js) is
+   an alternative trigger alongside :hover, not a replacement for it: dragging
+   a child up and away moves the cursor off the parent's own hover area,
+   which drops :hover mid-drag — and since these rules are what keep a
+   member card as a real, position:relative flex item instead of the rest
+   state's position:absolute + nth-child offsets, losing them WHILE a drag is
+   still in progress made the still-being-dragged card's inline
+   transform/margin-left (written assuming flex-row layout) apply to an
+   absolutely-positioned box instead, landing it somewhere that looked like
+   it had jumped into the main fan. .forced-open keeps the substack in real
+   fan mode for the whole gesture regardless of where the cursor wanders. */
+#sleek-ui-sheet .hand-card:hover > .hand-card-substack,
+#sleek-ui-sheet .hand-card-substack.forced-open {
+  bottom: calc(100% + 95px);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  /* Behind the parent's own z-index:3 scaler by default — the revealed fan
+     should stay UNDER the parent unless a specific child is itself focused,
+     the same way a main-fan card only pops to the front on its own hover,
+     not just for being part of the fan at all. */
+  z-index: 2;
+  pointer-events: auto;
+  transition: bottom 0.25s ease, z-index 0s;
+}
+
+/* A stacking context can't let a child escape above whatever z-index its own
+   parent sits at, no matter how high the child's own z-index is set — so
+   the individual child's existing `.hand-card:hover { z-index: 1000 }` rule
+   (shared with the main fan) can't by itself pop it above the group card.
+   :has() bumps the WHOLE substack (which is what's actually capping them)
+   above the parent only while one of its children is genuinely hovered —
+   "just like the main fan works on focus," applied one level down. */
+#sleek-ui-sheet .hand-card:hover > .hand-card-substack:has(> .hand-card:hover),
+#sleek-ui-sheet .hand-card-substack.forced-open:has(> .hand-card:hover) {
+  z-index: 1000;
+}
+
+/* .forced-open always wins z-index:1000 outright, not just via :has() above
+   — while a member card is actively being dragged out and over the main
+   fan, it needs to already be winning hit-testing there for :hover to even
+   register on it in the first place (chicken-and-egg: the z:2 default is
+   lower than several main-fan cards' own z-index), so it can't be left to
+   bootstrap itself through :has(). Declared after the combined rule above
+   so it wins the tie for this exact selector. */
+#sleek-ui-sheet .hand-card-substack.forced-open {
+  z-index: 1000;
+}
+
+/* Overrides the rest-state absolute positioning above so these become real
+   flex items again once revealed — declared after the nth-child rules so it
+   wins the (otherwise tied) specificity/cascade fight and actually resets
+   left/bottom instead of leaving the rest offset stacked underneath the
+   fan's own transform. */
+#sleek-ui-sheet .hand-card:hover > .hand-card-substack > .hand-card,
+#sleek-ui-sheet .hand-card-substack.forced-open > .hand-card {
+  position: relative;
+  left: auto;
+  bottom: auto;
+}
+
+/* ====================
+   FEATURE GROUP OVERLAY — "drop the parent, its features fade in from the
+   center" reveal for a group with more than one feature (see
+   showFeatureGroupOverlay in card-hand.js). Appended inside #sleek-ui-sheet
+   itself (not document.body) so it inherits all the card-face rules above
+   for free, and so position:fixed here is relative to the viewport — true
+   as long as the minisheet's own outer container has no transform on it,
+   which holds for the character minisheet's bottom-left anchor (the only
+   anchor that ever renders a hand).
+   ==================== */
+
+#sleek-ui-sheet .card-hand-group-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#sleek-ui-sheet .card-hand-group-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#sleek-ui-sheet .card-hand-group-overlay-fan {
+  transform: scale(0.4);
+  transition: transform 0.25s ease;
+}
+
+#sleek-ui-sheet .card-hand-group-overlay.active .card-hand-group-overlay-fan {
+  transform: scale(1);
+}
+
+/* ====================
+   TAB ROW — Standard/Quick Access split into two always-visible buttons
+   (replacing the old single button whose label depended on a Settings-menu-
+   only toggle) plus the Hand button grouped with its filter icon.
+   ==================== */
+
+#sleek-ui-sheet .minisheet .tab-button-container .tab-button.active-mode {
+  border-color: var(--sleekUI-color-tertiary);
+}
+
+/* No overflow:hidden here — the filter popover is a child of this element,
+   positioned outside its box (top: 100%+), and would get invisibly clipped
+   along with it (that was the actual cause of the popover never appearing:
+   the click handler was firing fine, the popover just had nowhere to
+   render). Rounded-corner grouping is done per-child instead. */
+#sleek-ui-sheet .minisheet .tab-button-group {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--sleekUI-color-border);
+  border-radius: var(--sleekUI-border-radius);
+}
+
+#sleek-ui-sheet .minisheet .tab-button-group .tab-button {
+  border: none;
+  border-radius: var(--sleekUI-border-radius) 0 0 var(--sleekUI-border-radius);
+}
+
+#sleek-ui-sheet .minisheet .tab-button-group .hand-filter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  align-self: stretch;
+  height: auto;
+  margin: 0;
+  padding: 0 10px;
+  background: var(--sleekUI-gradient-card);
+  border: none;
+  border-left: 1px solid var(--sleekUI-color-border);
+  border-radius: 0 var(--sleekUI-border-radius) var(--sleekUI-border-radius) 0;
+  color: var(--sleekUI-color-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#sleek-ui-sheet .minisheet .tab-button-group .hand-filter-btn:hover,
+#sleek-ui-sheet .minisheet .tab-button-group .hand-filter-btn.active {
+  color: var(--sleekUI-color-primary);
+  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
+}
+
+/* ====================
+   HAND FILTER POPOVER — quick on-the-fly toggles for what shows up in the
+   hand, replacing the module-Settings-only version of the same options.
+   ==================== */
+
+#sleek-ui-sheet .minisheet .hand-filter-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  min-width: 180px;
+  padding: var(--sleekUI-spacing-sm);
+  background: var(--sleekUI-color-background-dark);
+  border: 1px solid var(--sleekUI-color-border);
+  border-radius: var(--sleekUI-border-radius);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+#sleek-ui-sheet .minisheet .hand-filter-popover.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Grid, not flex: a fixed checkbox column keeps every row's checkbox in the
+   same x-position regardless of its label's text length ("Domain Cards" vs
+   "Features"), instead of the checkbox's position drifting with the text. */
+#sleek-ui-sheet .minisheet .hand-filter-popover label {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  align-items: center;
+  gap: var(--sleekUI-spacing-xs);
+  padding: 4px 0;
+  color: var(--sleekUI-color-secondary);
+  font-size: var(--sleekUI-font-size-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#sleek-ui-sheet .minisheet .hand-filter-popover label input[type="checkbox"] {
+  justify-self: start;
+  margin: 0;
+}
+
+#sleek-ui-sheet .minisheet .hand-filter-popover label:hover {
+  color: var(--sleekUI-color-primary);
+}
+
+#sleek-ui-sheet .minisheet .hand-filter-popover hr {
+  border: none;
+  border-top: 1px solid var(--sleekUI-color-border);
+  margin: var(--sleekUI-spacing-xs) 0;
+}
+
+/* ====================
+   HAND REORDER POPOVER — a plain sortable list of card titles (main hand,
+   or one feature group's members when drilled into), reusing
+   .hand-filter-popover's own box/animation styling. See card-hand.js's
+   "REORDER POPOVER" section for why this replaced dragging the actual fanned
+   cards around live.
+   ==================== */
+
+#sleek-ui-sheet .minisheet .hand-reorder-popover {
+  min-width: 220px;
+  max-width: 280px;
+}
+
+/* A real child popover, not a navigation swap of the main one — positioned
+   to its right so both stay visible/reorderable at once. .hand-reorder-
+   popover is itself position:absolute, which is what makes it the
+   containing block this positions against. */
+#sleek-ui-sheet .minisheet .hand-reorder-child-popover {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  min-width: 220px;
+  max-width: 280px;
+  padding: var(--sleekUI-spacing-sm);
+  background: var(--sleekUI-color-background-dark);
+  border: 1px solid var(--sleekUI-color-border);
+  border-radius: var(--sleekUI-border-radius);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: translateX(-6px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+#sleek-ui-sheet .minisheet .hand-reorder-child-popover.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+#sleek-ui-sheet .minisheet .hand-reorder-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sleekUI-spacing-xs);
+  padding: 2px 0 var(--sleekUI-spacing-xs);
+  margin-bottom: var(--sleekUI-spacing-xs);
+  border-bottom: 1px solid var(--sleekUI-color-border);
+  color: var(--sleekUI-color-primary);
+  font-size: var(--sleekUI-font-size-sm);
+  font-weight: 600;
+}
+
+#sleek-ui-sheet .minisheet .hand-reorder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Fixed height + border-box, not padding-driven sizing — a row with the
+   children-button (20px tall) was naturally taller than a plain row (just
+   text/icon height) under align-items:center, since flex sizes a row to its
+   TALLEST child. Every row is the same height now regardless of content. */
+#sleek-ui-sheet .minisheet .hand-reorder-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sleekUI-spacing-xs);
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 var(--sleekUI-spacing-xs);
+  background: var(--sleekUI-gradient-card);
+  border: 1px solid var(--sleekUI-color-border);
+  border-radius: var(--sleekUI-border-radius);
+  color: var(--sleekUI-color-secondary);
+  font-size: var(--sleekUI-font-size-sm);
+  cursor: grab;
+}
+
+#sleek-ui-sheet .minisheet .hand-reorder-row i.fa-grip-lines {
+  color: var(--sleekUI-color-border);
+  font-size: 12px;
+}
+
+#sleek-ui-sheet .minisheet .hand-reorder-row.dragging {
+  opacity: 0.4;
+}
+
+#sleek-ui-sheet .minisheet .hand-reorder-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#sleek-ui-sheet .minisheet .hand-reorder-children-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--sleekUI-color-secondary);
+  cursor: pointer;
+  /* Without this, the browser's default focus ring (which a <button> keeps
+     after being clicked, not just while actively focused via keyboard)
+     stayed lit on whichever group's chevron was last clicked, even after
+     its panel had closed — looked like a permanently "active" toggle that
+     wasn't actually reflecting anything. */
+  outline: none;
+}
+
+/* .active (not :focus/outline — see the note above) marks whichever
+   chevron's own group is the one currently shown in the child popover, set/
+   cleared explicitly in JS alongside the popover's own open/closed state. */
+#sleek-ui-sheet .minisheet .hand-reorder-children-btn:hover,
+#sleek-ui-sheet .minisheet .hand-reorder-children-btn.active {
+  color: var(--sleekUI-color-primary);
+}
