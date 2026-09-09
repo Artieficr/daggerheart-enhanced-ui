@@ -2,6 +2,9 @@ MIT License
 
 Copyright (c) 2026 pasoktcm
 Copyright (c) 2026 Artyom Tsoy (modifications)
+Copyright (c) 2025 CPTN_Cosmo (Countdown Tracker widget — scripts/countdown-tracker.js,
+styles/countdown-tracker.css, templates/countdown-tracker.hbs, adapted from
+https://git.geeks.gay/cosmo/dh-improved-countdowns)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,3 +23,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+
+Portions of this software — the Card Hand panel (`scripts/card-hand.js`,
+`styles/card-hand.css`, `assets/cardhand/`) — are ported from Card Hand
+(https://github.com/Happytreedice/happytreedice-daggerheart-card-hand) by
+Happytreedice, both its code and its visual assets. That repository does not
+currently publish a LICENSE file; this use is under the author's direct,
+informal permission, not a public license grant. Update this note once
+Happytreedice's own repository publishes a formal LICENSE to cite instead.
