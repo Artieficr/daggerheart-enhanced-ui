@@ -3,6 +3,8 @@ import { registerSettings, applyMinisheetScale, applyTheme, applyThemeChat } fro
 import { registerMinisheetKeybinding } from "./sheets/minisheets/utils-minisheet.js";
 import { registerCardHandSettings, registerCardHandSettingsUI, applyCardHandPosition, registerCardHandRuntimeHooks } from "./card-hand.js";
 import { registerInventorySettings } from "./inventory-panel.js";
+import { registerPartyOverview, registerPartyOverviewSettings, registerPartyOverviewSettingsUI } from "./party-overview.js";
+import { registerCountdownTracker, registerCountdownTrackerSettings, registerCountdownTrackerSettingsUI } from "./countdown-tracker.js";
 
 import { registerCharacterSheet } from "./sheets/character-sheet.js";
 import { registerCompanionSheet } from "./sheets/companion-sheet.js";
@@ -25,6 +27,10 @@ Hooks.once("init", () => {
   registerCardHandSettings();
   registerCardHandSettingsUI();
   registerInventorySettings();
+  registerPartyOverviewSettings();
+  registerPartyOverviewSettingsUI();
+  registerCountdownTrackerSettings();
+  registerCountdownTrackerSettingsUI();
   registerMinisheetKeybinding();
   registerMinisheetPin();
 });
@@ -58,4 +64,7 @@ Hooks.once("ready", () => {
   // this is the earliest point an initial pinned-actor display (no token
   // controlled at all, e.g. theater of mind on first load) can be shown.
   syncPinnedMinisheet();
+
+  registerPartyOverview();
+  registerCountdownTracker();
 });

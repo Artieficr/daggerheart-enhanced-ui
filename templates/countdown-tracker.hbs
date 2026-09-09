@@ -1,0 +1,205 @@
+<div class="countdown-tracker-window {{#if isMinimized}}minimized{{/if}} {{#if isLocked}}locked{{/if}}">
+    <div class="tracker-header">
+        <div class="drag-handle" title="Drag to move">
+            <i class="fa-solid fa-grip-vertical"></i>
+        </div>
+        <div class="header-controls">
+            {{#if isGM}}
+            <a class="control-btn" data-action="addCountdown"
+                title="{{#if hasCountdowns}}Manage Countdowns{{else}}Add New Countdown{{/if}}">
+                <i class="fa-solid {{#if hasCountdowns}}fa-pen-to-square{{else}}fa-plus-circle{{/if}}"></i>
+            </a>
+            {{/if}}
+            <a class="control-btn" data-action="toggleLock"
+                title="{{#if isLocked}}Unlock Window{{else}}Lock Window{{/if}}">
+                <i class="fa-solid {{#if isLocked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
+            </a>
+            <a class="control-btn" data-action="toggleViewMode"
+                title="{{#if isMinimized}}Maximize{{else}}Minimize{{/if}}">
+                <i class="fa-solid {{#if isMinimized}}fa-expand-alt{{else}}fa-compress-alt{{/if}}"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="countdowns-list">
+        {{#each countdowns as | countdown id |}}
+        <div class="countdown-item" data-id="{{id}}">
+            {{#unless ../isMinimized}}
+            <div class="countdown-name">{{countdown.name}}</div>
+            {{/unless}}
+
+            <div class="countdown-visual">
+                {{#if countdown.editable}}
+                <a class="value-control minus" data-action="decreaseCountdown" data-countdown="{{id}}">
+                    <i class="fa-solid fa-minus"></i>
+                </a>
+                {{/if}}
+
+                <div class="visual-wrapper">
+                    <div class="icon-container {{countdown.cssClass}}" {{#if
+                        ../isMinimized}}title="{{countdown.name}}" {{/if}}>
+                        <img src="{{countdown.img}}" class="countdown-icon" />
+
+                        {{#if ../showVisuals}}
+                        <div class="value-overlay visual">
+                            {{#if ../enableVisualOverlay}}
+                            {{#if (eq ../fillType "grayscale")}}
+                            {{!-- Grayscale Filter Mode --}}
+                            {{#if (eq ../iconShape "circle")}}
+                            {{#if ../invertProgress}}
+                            <div class="clock-visual grayscale-filter"
+                                style="-webkit-mask-image: conic-gradient(transparent {{countdown.percentage}}%, black {{countdown.percentage}}%); mask-image: conic-gradient(transparent {{countdown.percentage}}%, black {{countdown.percentage}}%);">
+                            </div>
+                            {{else}}
+                            <div class="clock-visual grayscale-filter"
+                                style="-webkit-mask-image: conic-gradient(black {{countdown.percentage}}%, transparent {{countdown.percentage}}%); mask-image: conic-gradient(black {{countdown.percentage}}%, transparent {{countdown.percentage}}%);">
+                            </div>
+                            {{/if}}
+                            {{else}}
+                            {{#if ../invertProgress}}
+                            <div class="bar-visual {{../barOrientation}} grayscale-filter"
+                                style="{{#if (eq ../barOrientation 'horizontal')}}width: {{countdown.pctRemaining}}%; left: {{countdown.percentage}}%;{{else}}height: {{countdown.pctRemaining}}%; top: 0;{{/if}}">
+                            </div>
+                            {{else}}
+                            <div class="bar-visual {{../barOrientation}} grayscale-filter"
+                                style="{{#if (eq ../barOrientation 'horizontal')}}width: {{countdown.percentage}}%;{{else}}height: {{countdown.percentage}}%;{{/if}}">
+                            </div>
+                            {{/if}}
+                            {{/if}}
+                            {{else}}
+                            {{!-- Color Overlay Mode --}}
+                            {{#if (eq ../iconShape "circle")}}
+                            {{#if ../invertProgress}}
+                            <div class="clock-visual"
+                                style="background: conic-gradient(transparent {{countdown.percentage}}%, {{../fillColor}} {{countdown.percentage}}%); opacity: 0.4;">
+                            </div>
+                            {{else}}
+                            <div class="clock-visual"
+                                style="background: conic-gradient({{../fillColor}} {{countdown.percentage}}%, transparent {{countdown.percentage}}%); opacity: 0.4;">
+                            </div>
+                            {{/if}}
+                            {{else}}
+                            {{#if ../invertProgress}}
+                            <div class="bar-visual {{../barOrientation}}"
+                                style="background-color: {{../fillColor}}; opacity: 0.4; {{#if (eq ../barOrientation 'horizontal')}}width: {{countdown.pctRemaining}}%; left: {{countdown.percentage}}%;{{else}}height: {{countdown.pctRemaining}}%; top: 0;{{/if}}">
+                            </div>
+                            {{else}}
+                            <div class="bar-visual {{../barOrientation}}"
+                                style="background-color: {{../fillColor}}; opacity: 0.4; {{#if (eq ../barOrientation 'horizontal')}}width: {{countdown.percentage}}%;{{else}}height: {{countdown.percentage}}%;{{/if}}">
+                            </div>
+                            {{/if}}
+                            {{/if}}
+                            {{/if}}
+                            {{/if}}
+
+                            {{#if ../enableVisualBorder}}
+                            <svg class="progress-border-svg" viewBox="0 0 48 48" style="transform: rotate(-90deg);">
+                                {{#if (eq ../iconShape "circle")}}
+                                {{#if ../invertBorder}}
+                                <circle cx="24" cy="24" r="23" fill="none" stroke="{{../borderColor}}" stroke-width="2"
+                                    pathLength="100" stroke-dasharray="{{countdown.pctRemaining}} 100"
+                                    stroke-dashoffset="-{{countdown.percentage}}"
+                                    style="transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease; opacity: 1;">
+                                </circle>
+                                {{else}}
+                                <circle cx="24" cy="24" r="23" fill="none" stroke="{{../borderColor}}" stroke-width="2"
+                                    pathLength="100" stroke-dasharray="{{countdown.percentage}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;"></circle>
+                                {{/if}}
+                                {{else}}
+                                {{#if (eq ../borderStyle "edge")}}
+                                {{#if ../invertBorder}}
+                                {{#if (eq ../borderEdge "bottom")}}
+                                <line x1="1" y1="1" x2="1" y2="47" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="0 {{countdown.percentage}} {{countdown.pctRemaining}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{else if (eq ../borderEdge "top")}}
+                                <line x1="47" y1="1" x2="47" y2="47" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="0 {{countdown.percentage}} {{countdown.pctRemaining}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{else if (eq ../borderEdge "left")}}
+                                <line x1="1" y1="1" x2="47" y2="1" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="0 {{countdown.percentage}} {{countdown.pctRemaining}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{else if (eq ../borderEdge "right")}}
+                                <line x1="1" y1="47" x2="47" y2="47" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="0 {{countdown.percentage}} {{countdown.pctRemaining}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{/if}}
+                                {{else}}
+                                {{#if (eq ../borderEdge "bottom")}}
+                                <line x1="1" y1="1" x2="1" y2="47" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="{{countdown.percentage}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{else if (eq ../borderEdge "top")}}
+                                <line x1="47" y1="1" x2="47" y2="47" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="{{countdown.percentage}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{else if (eq ../borderEdge "left")}}
+                                <line x1="1" y1="1" x2="47" y2="1" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="{{countdown.percentage}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{else if (eq ../borderEdge "right")}}
+                                <line x1="1" y1="47" x2="47" y2="47" stroke="{{../borderColor}}" stroke-width="2"
+                                    stroke-linecap="round" pathLength="100"
+                                    stroke-dasharray="{{countdown.percentage}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;">
+                                </line>
+                                {{/if}}
+                                {{/if}}
+                                {{else}}
+                                {{#if ../invertBorder}}
+                                <rect x="1" y="1" width="46" height="46" rx="8" ry="8" fill="none"
+                                    stroke="{{../borderColor}}" stroke-width="2" pathLength="100"
+                                    stroke-dasharray="{{countdown.pctRemaining}} 100"
+                                    stroke-dashoffset="-{{countdown.percentage}}"
+                                    style="transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease; opacity: 1;">
+                                </rect>
+                                {{else}}
+                                <rect x="1" y="1" width="46" height="46" rx="8" ry="8" fill="none"
+                                    stroke="{{../borderColor}}" stroke-width="2" pathLength="100"
+                                    stroke-dasharray="{{countdown.percentage}} 100"
+                                    style="transition: stroke-dasharray 0.3s ease; opacity: 1;"></rect>
+                                {{/if}}
+                                {{/if}}
+                                {{/if}}
+                            </svg>
+                            {{/if}}
+                        </div>
+                        {{/if}}
+                    </div>
+
+                    {{#if ../showNumbers}}
+                    <div class="value-overlay number" style="color: {{../numberColor}};">
+                        {{countdown.progress.current}}{{#unless ../isMinimized}}<span
+                            class="max-value">/{{countdown.progress.start}}</span>{{/unless}}
+                    </div>
+                    {{/if}}
+                </div>
+
+                {{#if countdown.editable}}
+                <a class="value-control plus" data-action="increaseCountdown" data-countdown="{{id}}">
+                    <i class="fa-solid fa-plus"></i>
+                </a>
+                {{/if}}
+            </div>
+        </div>
+        {{else}}
+        <div class="no-countdowns">No Active Countdowns</div>
+        {{/each}}
+    </div>
+</div>

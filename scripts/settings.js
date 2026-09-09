@@ -136,6 +136,12 @@ export function registerSettings() {
     default: true,
   });
 
+  // Party Overview widget's own settings live in party-overview.js
+  // (registerPartyOverviewSettings), not this file — same "feature owns its
+  // own settings" shape as card-hand.js/inventory-panel.js. Moved there so
+  // the layout setting's onChange can reach the live widget instance
+  // directly, without a cross-file export just for that.
+
 }
 
 export function applyMinisheetScale(value) {

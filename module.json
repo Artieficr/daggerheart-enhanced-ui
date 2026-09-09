@@ -1,7 +1,7 @@
 {
   "id": "daggerheart-enhanced-ui",
   "title": "Daggerheart: Enhanced UI",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -51,6 +51,12 @@
     },
     {
       "src": "styles/card-hand.css"
+    },
+    {
+      "src": "styles/party-overview.css"
+    },
+    {
+      "src": "styles/countdown-tracker.css"
     }
   ],
   "authors": [

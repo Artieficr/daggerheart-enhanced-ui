@@ -1,0 +1,183 @@
+/**
+ * Party Overview widget — see scripts/party-overview.js. A small always-on
+ * GM HUD, independent from #enhanced-ui-sheet (the minisheet's own
+ * container) so the two can be dragged/positioned independently.
+ */
+
+#party-overview-widget {
+  position: fixed;
+  z-index: 60;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* A real in-flow row above the card, not an absolutely-positioned overlay —
+   an earlier version used `position:absolute; top:-34px` to float this
+   above the card, but that put it outside the parent's own box for :hover
+   purposes (a negative offset moves a child out of its parent's painted
+   box without extending the parent's hoverable area), so the controls
+   vanished the instant the cursor left the card to reach them. Real flex
+   flow fixed that without any offset math.
+   Collapsed to max-height:0 at rest (no reserved empty space when the
+   widget isn't hovered) and animated open via max-height + margin-bottom
+   on hover — the margin-bottom only existing while expanded is what
+   supplies the gap between the controls and the card below, and growing
+   height with the widget's own bottom-anchored position reads as the card
+   sliding down / the controls sliding in from the top. Still one
+   contiguous real-flow box throughout the animation, so ancestor :hover
+   never has a dead zone to lose. */
+#party-overview-widget .party-overview-controls {
+  display: flex;
+  gap: var(--enhancedUI-spacing-tiny);
+  max-height: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  opacity: 0;
+  /* Grows open from its own vertical center, not just from the top edge —
+     transform-origin:center makes the max-height reveal read as a stretch
+     rather than a slide-out-from-under. */
+  transform: scaleY(0);
+  transform-origin: center;
+  pointer-events: none;
+  transition: max-height 0.25s ease, margin-bottom 0.25s ease, opacity 0.2s ease, transform 0.25s ease;
+}
+
+#party-overview-widget:hover .party-overview-controls {
+  max-height: 34px;
+  margin-bottom: var(--enhancedUI-spacing-xs);
+  opacity: 1;
+  transform: scaleY(1);
+  pointer-events: auto;
+}
+
+#party-overview-widget .po-drag-handle,
+#party-overview-widget .po-lock-toggle {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--enhancedUI-color-background-primary);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius-s);
+  color: var(--enhancedUI-color-primary);
+  cursor: pointer;
+}
+
+#party-overview-widget .po-drag-handle {
+  cursor: grab;
+}
+
+#party-overview-widget.locked .po-drag-handle {
+  display: none;
+}
+
+#party-overview-widget .party-overview {
+  display: flex;
+  flex-direction: column;
+  /* More transparent than the shared --enhancedUI-color-background-primary
+     token (rgba(26,30,43,0.75)) — overridden locally here rather than
+     changing that token, which every other panel in the module also uses. */
+  background: rgba(26, 30, 43, 0.5);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
+  backdrop-filter: blur(4px);
+  padding: var(--enhancedUI-spacing-xs);
+}
+
+#party-overview-widget .po-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--enhancedUI-font-primary);
+  font-size: var(--enhancedUI-font-size-sm);
+  color: var(--enhancedUI-color-primary);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#party-overview-widget .po-stat i {
+  color: var(--enhancedUI-color-border);
+  font-size: var(--enhancedUI-font-size-sm);
+}
+
+#party-overview-widget .po-portrait {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--enhancedUI-color-border);
+}
+
+#party-overview-widget .po-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#party-overview-widget .party-overview-empty {
+  font-family: var(--enhancedUI-font-primary);
+  font-size: var(--enhancedUI-font-size-sm);
+  color: var(--enhancedUI-color-secondary);
+  padding: var(--enhancedUI-spacing-xs);
+}
+
+/* Horizontal (default): members side by side (one column each), each
+   member stacking HP above Stress above its own portrait — .po-stats'
+   order comes before .po-portrait's regardless of DOM order, so every
+   member column reads the same top-to-bottom. */
+#party-overview-widget.layout-horizontal .party-overview-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+#party-overview-widget.layout-horizontal .po-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--enhancedUI-spacing-tiny);
+}
+
+#party-overview-widget.layout-horizontal .po-stats {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--enhancedUI-spacing-tiny);
+}
+
+#party-overview-widget.layout-horizontal .po-portrait {
+  order: 2;
+}
+
+/* Vertical: members stacked as rows, each row's portrait sitting to the
+   left, centered against its own HP (top)/Stress (bottom) pair stacked to
+   its right — the portrait visually spans both stat rows without being
+   stretched out of its circular shape. */
+#party-overview-widget.layout-vertical .party-overview-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#party-overview-widget.layout-vertical .po-member {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--enhancedUI-spacing-sm);
+}
+
+#party-overview-widget.layout-vertical .po-portrait {
+  order: 1;
+}
+
+#party-overview-widget.layout-vertical .po-stats {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

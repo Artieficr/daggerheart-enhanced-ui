@@ -34,6 +34,8 @@ export async function preloadHandlebarsTemplates() {
     "modules/daggerheart-enhanced-ui/templates/sheets/party/tabs/party-notes.hbs",
     "modules/daggerheart-enhanced-ui/templates/components/card-party-character.hbs",
     "modules/daggerheart-enhanced-ui/templates/sheets/party/party-minisheet.hbs",
+    "modules/daggerheart-enhanced-ui/templates/sheets/party/party-overview.hbs",
+    "modules/daggerheart-enhanced-ui/templates/countdown-tracker.hbs",
     // Adversary templates
     "modules/daggerheart-enhanced-ui/templates/sheets/adversaries/adversary-sheet-main.hbs",
     "modules/daggerheart-enhanced-ui/templates/sheets/adversaries/adversary-sheet-sidebar.hbs",

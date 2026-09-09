@@ -1,0 +1,390 @@
+/**
+ * Countdown Tracker — see scripts/countdown-tracker.js. Restyled from
+ * CPTN Cosmo's Improved Countdowns (MIT — see LICENSE) to use Enhanced
+ * UI's own design tokens/chrome instead of its original bespoke dark-glass
+ * palette. Layout/behavior (drag, lock, minimize, hover reveals) preserved.
+ */
+
+/* Hide the system's own default countdown tracker in favor of this one. */
+.daggerheart.countdowns {
+  display: none !important;
+}
+
+.enhanced-ui-countdown-tracker {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.countdown-tracker-window {
+  pointer-events: all;
+  background: rgba(26, 30, 43, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
+  padding: var(--enhancedUI-spacing-xs);
+  display: flex;
+  flex-direction: column;
+  gap: var(--enhancedUI-spacing-sm);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  min-width: 120px;
+  color: var(--enhancedUI-color-primary);
+  font-family: var(--enhancedUI-font-primary);
+}
+
+/* .force-open (see countdown-tracker.js's #restoreHoverState) mirrors every
+   :hover rule below — applied synchronously right after a re-render if the
+   cursor is still over the (brand new) window element, since clicking +/-
+   re-renders the whole app and native :hover doesn't carry over a DOM swap.
+   .no-transition rides along with it for exactly one frame: without it, a
+   freshly-created element still starts from its collapsed default and
+   ANIMATES into .force-open's state over the usual transition duration —
+   i.e. the reveal visibly replays on every click even though the hover
+   state itself was correctly restored. Forcing transitions off for that
+   one frame (removed again via requestAnimationFrame) makes the restore
+   truly instant instead of a fast copy of the normal open animation. */
+.countdown-tracker-window.no-transition,
+.countdown-tracker-window.no-transition .tracker-header {
+  transition: none !important;
+}
+
+.countdown-tracker-window:hover,
+.countdown-tracker-window.force-open {
+  background: rgba(26, 30, 43, 0.85);
+  border-color: var(--enhancedUI-color-border);
+}
+
+.countdown-tracker-window.minimized {
+  padding: var(--enhancedUI-spacing-xs) var(--enhancedUI-spacing-sm);
+}
+
+/* visibility, not display: none — the +/- buttons' own layout box stays
+   reserved at all times (same width whether hovered or not), rather than
+   popping in on hover and widening the whole panel. */
+.countdown-tracker-window.minimized .value-control {
+  visibility: hidden;
+}
+
+.countdown-tracker-window.minimized:hover .value-control,
+.countdown-tracker-window.minimized.force-open .value-control {
+  visibility: visible;
+}
+
+/* Header and drag handle — no reserved space at rest, grows open from
+   center on hover, same technique AND same anchor as Party Overview's own
+   controls row (see styles/party-overview.css): this window is bottom-
+   anchored (`window.positioned:false` in countdown-tracker.js, position
+   applied manually via #applyPosition — Foundry's own ApplicationV2 only
+   natively supports top/left) with .tracker-header as the FIRST child, so
+   growth pushes the top edge up while the bottom-anchored card never
+   moves. No transform/counter-animation needed. (An earlier version kept
+   this top-anchored via Foundry's native positioning and tried a
+   counter-translateY on the outer wrapper to fake bottom-anchor behavior —
+   relied on two independent CSS transitions staying frame-perfectly in
+   sync and visibly didn't; switching the actual anchor is the real fix,
+   not a workaround.) */
+.tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-height: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: center;
+  pointer-events: none;
+  transition: max-height 0.25s ease, margin-bottom 0.25s ease, opacity 0.2s ease, transform 0.25s ease;
+}
+
+.countdown-tracker-window:hover .tracker-header,
+.countdown-tracker-window.force-open .tracker-header {
+  max-height: 26px;
+  margin-bottom: var(--enhancedUI-spacing-xs);
+  opacity: 1;
+  transform: scaleY(1);
+  pointer-events: auto;
+}
+
+.drag-handle {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--enhancedUI-color-background-primary);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius-s);
+  color: var(--enhancedUI-color-primary);
+  cursor: grab;
+}
+
+.countdown-tracker-window.locked .drag-handle {
+  display: none;
+}
+
+.header-controls {
+  display: flex;
+  gap: var(--enhancedUI-spacing-tiny);
+}
+
+.control-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--enhancedUI-color-background-primary);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius-s);
+  color: var(--enhancedUI-color-primary);
+  cursor: pointer;
+  font-size: var(--enhancedUI-font-size-sm);
+}
+
+.control-btn:hover {
+  color: var(--enhancedUI-color-tertiary);
+  border-color: var(--enhancedUI-color-tertiary);
+}
+
+/* Countdowns list */
+.countdowns-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--enhancedUI-spacing-md);
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: var(--enhancedUI-spacing-tiny);
+  scrollbar-width: thin;
+  scrollbar-color: var(--enhancedUI-color-scrollbar) transparent;
+}
+
+.countdowns-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.countdowns-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.countdowns-list::-webkit-scrollbar-thumb {
+  background-color: var(--enhancedUI-color-scrollbar);
+  border-radius: 4px;
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--enhancedUI-spacing-tiny);
+  position: relative;
+}
+
+.countdown-name {
+  font-size: var(--enhancedUI-font-size-xs);
+  font-weight: var(--enhancedUI-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--enhancedUI-color-secondary);
+  text-align: center;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+  transition: max-width 0.3s ease;
+}
+
+.countdown-tracker-window:not(.minimized):hover .countdown-name,
+.countdown-tracker-window:not(.minimized).force-open .countdown-name {
+  max-width: 250px;
+  overflow: visible;
+  white-space: normal;
+}
+
+.countdown-visual {
+  display: flex;
+  align-items: center;
+  gap: var(--enhancedUI-spacing-sm);
+}
+
+.visual-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-container {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  background: var(--enhancedUI-color-background-dark);
+  border: 2px solid var(--enhancedUI-color-border);
+  overflow: hidden;
+  transition: border-radius 0.3s ease;
+}
+
+.icon-container.shape-circle {
+  border-radius: 50%;
+}
+
+.icon-container.shape-rounded {
+  border-radius: var(--enhancedUI-border-radius-s);
+}
+
+.countdown-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.value-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.value-overlay.number {
+  font-size: var(--enhancedUI-font-size-lg);
+  font-weight: var(--enhancedUI-font-weight-bold);
+  color: var(--enhancedUI-color-primary);
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.9);
+  width: max-content;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.value-overlay.visual {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transform: none;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.clock-visual {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.bar-visual {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transition: all 0.3s ease;
+}
+
+.progress-border-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.grayscale-filter {
+  backdrop-filter: grayscale(100%) !important;
+  background: transparent !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+.bar-visual.vertical {
+  width: 100%;
+}
+
+.bar-visual.horizontal {
+  height: 100%;
+}
+
+/* +/- controls */
+.value-control {
+  opacity: 0;
+  transition: opacity 0.2s ease, background 0.15s ease, color 0.15s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--enhancedUI-color-background-primary);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius-s);
+  cursor: pointer;
+  color: var(--enhancedUI-color-secondary);
+  font-size: var(--enhancedUI-font-size-xs);
+}
+
+.countdown-item:hover .value-control {
+  opacity: 1;
+}
+
+.value-control:hover {
+  color: var(--enhancedUI-color-primary);
+}
+
+.value-control.plus:hover {
+  border-color: var(--enhancedUI-color-tag2-border);
+  color: var(--enhancedUI-color-tag2-text);
+}
+
+.value-control.minus:hover {
+  border-color: var(--enhancedUI-color-tag4-border);
+  color: var(--enhancedUI-color-tag4-text);
+}
+
+.no-countdowns {
+  font-family: var(--enhancedUI-font-primary);
+  font-size: var(--enhancedUI-font-size-xs);
+  font-style: italic;
+  color: var(--enhancedUI-color-secondary);
+  padding: var(--enhancedUI-spacing-xs);
+  text-align: center;
+}
+
+/* Sidebar "Create Countdown" injection into the system's own GM menu */
+.enhanced-ui-countdown-sidebar {
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius-s);
+  padding: var(--enhancedUI-spacing-xs);
+  margin-top: var(--enhancedUI-spacing-xs);
+}
+
+.enhanced-ui-countdown-sidebar .menu-refresh-container {
+  display: flex;
+  justify-content: center;
+}
+
+.enhanced-ui-countdown-sidebar .create-countdown-btn {
+  background: var(--enhancedUI-color-background-primary);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius-s);
+  color: var(--enhancedUI-color-primary);
+  cursor: pointer;
+  font-family: var(--enhancedUI-font-primary);
+  font-size: var(--enhancedUI-font-size-sm);
+  padding: var(--enhancedUI-spacing-tiny) var(--enhancedUI-spacing-sm);
+  transition: border-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--enhancedUI-spacing-tiny);
+}
+
+.enhanced-ui-countdown-sidebar .create-countdown-btn:hover {
+  border-color: var(--enhancedUI-color-tertiary);
+  color: var(--enhancedUI-color-tertiary);
+}
+
+.enhanced-ui-countdown-sidebar i {
+  font-size: var(--enhancedUI-font-size-xs);
+}

@@ -10,7 +10,10 @@
 .floating-tabs-nav,
 .dh-style,
 .chat-message,
-.application.daggerheart {
+.application.daggerheart,
+#party-overview-widget,
+.enhanced-ui-countdown-tracker,
+.enhanced-ui-countdown-sidebar {
   /* Fonts */
   --enhancedUI-font-primary: "Montserrat", sans-serif;
   --enhancedUI-font-secondary: "Rubik", sans-serif;

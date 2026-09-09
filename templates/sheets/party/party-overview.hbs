@@ -1,0 +1,38 @@
+<div class="party-overview">
+
+    <div class="party-overview-controls">
+        <button type="button" class="po-drag-handle" title="Drag to move">
+            <i class="fa-solid fa-grip-vertical"></i>
+        </button>
+        <button type="button" class="po-lock-toggle" title="{{#if locked}}Unlock Position{{else}}Lock Position{{/if}}">
+            <i class="fa-solid {{#if locked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
+        </button>
+    </div>
+
+    {{#if noParty}}
+    <div class="party-overview-empty">No Party actor found</div>
+    {{else if members.length}}
+    <div class="party-overview-grid">
+        {{#each members as |member|}}
+        <div class="po-member">
+            <div class="po-portrait" data-action="openMemberSheet" data-actor-uuid="{{member.actorUuid}}" title="{{member.name}}">
+                <img src="{{member.img}}" alt="{{member.name}}" />
+            </div>
+            <div class="po-stats">
+                <div class="po-stat po-hp" data-action="openMemberSheet" data-actor-uuid="{{member.actorUuid}}" title="{{member.name}}">
+                    <i class="fa-solid fa-heart-crack"></i>
+                    <span class="po-value">{{member.hitPointsValue}}/{{member.hitPointsMax}}</span>
+                </div>
+                <div class="po-stat po-stress" data-action="openMemberSheet" data-actor-uuid="{{member.actorUuid}}" title="{{member.name}}">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span class="po-value">{{member.stressValue}}/{{member.stressMax}}</span>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="party-overview-empty">No party members</div>
+    {{/if}}
+
+</div>
