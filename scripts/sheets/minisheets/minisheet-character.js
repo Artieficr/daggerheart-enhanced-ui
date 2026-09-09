@@ -143,6 +143,19 @@ export function registerCharacterMiniSheet() {
       const cardHandWasActive = this.element ? (this.element.querySelector(".card-hand-window")?.classList.contains("active") ?? false) : getCardHandOpenState();
       const inventoryWasActive = this.element ? (this.element.querySelector(".inventory-window")?.classList.contains("active") ?? false) : getInventoryOpenState();
 
+      // Carried across the innerHTML wipe below (see where they're swapped
+      // back in) so renderCardHandWindow/renderInventoryWindow's own
+      // reconciliation sees the cards/rows that already exist instead of an
+      // empty container — otherwise ANY actor/effect update (HP, stress,
+      // hope, a status effect — constant during play, unrelated to Hand
+      // content) would make every card look newly-added and replay its
+      // entrance animation, even though nothing about the Hand actually
+      // changed. Item updates already dodge this (_onUpdateItem calls the
+      // targeted _renderCardHand()/_renderInventory(), never this full
+      // _render()), but actor/effect updates go through here.
+      const oldCardHandWindow = this.element?.querySelector(".card-hand-window") ?? null;
+      const oldInventoryWindow = this.element?.querySelector(".inventory-window") ?? null;
+
       const effectsEl = document.getElementById("effects-display");
       const wasInMinisheet = effectsEl && this.element?.contains(effectsEl);
       if (wasInMinisheet) document.body.appendChild(effectsEl);
@@ -160,6 +173,14 @@ export function registerCharacterMiniSheet() {
 
       const scaleWrapper = this.element.querySelector(".minisheet-transform-wrapper");
       scaleWrapper.innerHTML = html;
+
+      // Swap the freshly-templated (always-empty) containers back out for
+      // the ones carrying real content, if any survived — see where these
+      // were captured above. Each `?.` no-ops harmlessly if the new
+      // template doesn't render that container at all (e.g. favoritesDisplayMode
+      // switched to "quickAccess", which drops the Hand/Inventory buttons).
+      if (oldCardHandWindow) this.element.querySelector(".card-hand-window")?.replaceWith(oldCardHandWindow);
+      if (oldInventoryWindow) this.element.querySelector(".inventory-window")?.replaceWith(oldInventoryWindow);
 
       const collapsed = isMinisheetCollapsed();
 

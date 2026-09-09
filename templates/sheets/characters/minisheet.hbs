@@ -11,8 +11,13 @@
             <i class="fa-solid fa-skull death-save"></i>
         </a>
         {{/if}}
-        {{> "modules/daggerheart-sleek-ui/templates/components/minisheet-actor-picker.hbs"}}
     </div>
+
+    {{!-- Sibling of .portrait, not nested inside it — .portrait's own
+    mask-image (blends the art into the background) would otherwise bleed
+    onto this overlay's rendering, and anything extending past .portrait's
+    own box would get clipped by it. See minisheet-pin.js. --}}
+    {{> "modules/daggerheart-sleek-ui/templates/components/minisheet-actor-picker.hbs"}}
 
     <div class="character-information">
         <div class="header-details">

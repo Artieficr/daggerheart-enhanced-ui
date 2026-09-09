@@ -2,7 +2,7 @@
 
 import { attachQuantityListeners, recallDomainCardFromVault, resolveUnarmedAttack } from "../../helpers.js";
 import { collapsedTransform } from "./minisheet-position.js";
-import { selectPinnedActor } from "./minisheet-pin.js";
+import { selectPinnedActor, setFavoriteActor, pruneStaleFavorites } from "./minisheet-pin.js";
 
 export function hideMacrobar() {
   const hotbar = document.getElementById("hotbar");
@@ -117,7 +117,12 @@ export function attachReactionRollListeners(element, actor) {
 // minisheet-pin.js's buildActorPickerContext) and the player owns more than
 // one pinnable actor. Shared by the Character and Companion minisheets since
 // the picker itself is actor-type-agnostic (it just hands a uuid back to the
-// coordinator, which decides which minisheet class to mount). Its
+// coordinator, which decides which minisheet class to mount). Rendered as a
+// sibling of .portrait (not nested inside it — see the template's own note)
+// so it isn't clipped/faded by the portrait's own mask-image, and can extend
+// past the minisheet's own top edge for a long actor list — mainly a GM
+// concern (see buildActorPickerContext for the >5-actor "showExtras" UI:
+// search, per-row favorite star, and a favorites-only view). Its
 // outside-click-to-close behavior is wired once, globally, in
 // minisheet-pin.js's registerMinisheetPin() rather than rebound here on
 // every render — this function itself is called on every _attachListeners(),
@@ -127,18 +132,129 @@ export function attachActorPickerListeners(element) {
   const picker = element.querySelector(".minisheet-actor-picker");
   if (!picker) return;
 
-  picker.querySelector(".minisheet-actor-picker-toggle")?.addEventListener("click", (event) => {
+  const panel = picker.querySelector(".minisheet-actor-picker-panel");
+  const mainToggle = picker.querySelector(".minisheet-actor-picker-toggle");
+  const favoritesToggle = picker.querySelector(".minisheet-actor-picker-favorites-toggle");
+  const search = picker.querySelector(".minisheet-actor-picker-search");
+
+  // Cap the panel at 2x the minisheet's own rendered height (the inner list
+  // scrolls past that, search box stays put) — computed fresh each render
+  // since the minisheet's height varies by actor type/content.
+  if (panel) {
+    const minisheetHeight = element.querySelector(".minisheet")?.offsetHeight ?? 0;
+    panel.style.maxHeight = minisheetHeight ? `${minisheetHeight * 2}px` : "";
+  }
+
+  const openWith = (favoritesOnly) => {
+    picker.classList.add("open");
+    panel?.classList.toggle("favorites-only", favoritesOnly);
+  };
+
+  mainToggle?.addEventListener("click", (event) => {
     event.stopPropagation();
-    picker.classList.toggle("open");
+    const isOpen = picker.classList.contains("open");
+    const isFavoritesOnly = panel?.classList.contains("favorites-only");
+    if (isOpen && !isFavoritesOnly) picker.classList.remove("open");
+    else openWith(false);
+  });
+
+  favoritesToggle?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const isOpen = picker.classList.contains("open");
+    const isFavoritesOnly = panel?.classList.contains("favorites-only");
+    if (isOpen && isFavoritesOnly) {
+      picker.classList.remove("open");
+    } else {
+      openWith(true);
+      pruneStaleFavorites();
+    }
+  });
+
+  search?.addEventListener("click", (event) => event.stopPropagation());
+  // Stops keystrokes (spacebar especially) from reaching Foundry's global
+  // keybindings — e.g. the minisheet collapse shortcut — while typing here.
+  search?.addEventListener("keydown", (event) => event.stopPropagation());
+  search?.addEventListener("input", () => {
+    const query = search.value.trim().toLowerCase();
+    picker.querySelectorAll(".minisheet-actor-picker-item").forEach((item) => {
+      const matches = !query || item.dataset.actorName.toLowerCase().includes(query);
+      item.classList.toggle("search-hidden", !matches);
+    });
   });
 
   picker.querySelectorAll(".minisheet-actor-picker-item").forEach((item) => {
     item.addEventListener("click", (event) => {
+      if (event.target.closest(".minisheet-actor-picker-star")) return;
       event.stopPropagation();
       picker.classList.remove("open");
       selectPinnedActor(item.dataset.actorUuid);
     });
+
+    const star = item.querySelector(".minisheet-actor-picker-star");
+    star?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const nowFavorite = !item.classList.contains("favorite");
+      setFavoriteActor(item.dataset.actorUuid, nowFavorite);
+      item.classList.toggle("favorite", nowFavorite);
+      star.querySelector("i")?.classList.toggle("fa-solid", nowFavorite);
+      star.querySelector("i")?.classList.toggle("fa-regular", !nowFavorite);
+    });
+
+    // Right-click-to-remove only makes sense in the favorites-only view —
+    // in the full list it'd be ambiguous with "add to favorites" (that's
+    // what the star button is for).
+    item.addEventListener("contextmenu", (event) => {
+      if (!panel?.classList.contains("favorites-only")) return;
+      event.preventDefault();
+      event.stopPropagation();
+      showActorPickerContextMenu(event, () => {
+        setFavoriteActor(item.dataset.actorUuid, false);
+        item.classList.remove("favorite");
+        const icon = item.querySelector(".minisheet-actor-picker-star i");
+        icon?.classList.remove("fa-solid");
+        icon?.classList.add("fa-regular");
+      });
+    });
   });
+}
+
+/**
+ * A single-item right-click menu ("Remove from Favorites") for the actor
+ * picker. Appended to document.body rather than nested inside the picker —
+ * the minisheet sits inside a scaled `.minisheet-transform-wrapper`, and a
+ * `transform` on an ancestor turns it into the containing block for any
+ * `position:fixed` descendant, which would break positioning this at the
+ * real cursor coordinates. minisheet-pin.js's global outside-click closer
+ * knows to treat clicks on this menu as not "outside" the picker.
+ */
+function showActorPickerContextMenu(event, onRemove) {
+  document.querySelectorAll(".minisheet-actor-picker-contextmenu").forEach((el) => el.remove());
+
+  const menu = document.createElement("div");
+  menu.className = "minisheet-actor-picker-contextmenu";
+  menu.style.left = `${event.clientX}px`;
+  menu.style.top = `${event.clientY}px`;
+
+  const removeItem = document.createElement("button");
+  removeItem.type = "button";
+  removeItem.textContent = "Remove from Favorites";
+  removeItem.addEventListener("click", () => {
+    onRemove();
+    menu.remove();
+  });
+
+  menu.appendChild(removeItem);
+  document.body.appendChild(menu);
+
+  // Deferred so the same contextmenu event that opened this menu doesn't
+  // immediately bubble into this listener and close it right back.
+  setTimeout(() => {
+    document.addEventListener(
+      "click",
+      () => menu.remove(),
+      { once: true }
+    );
+  }, 0);
 }
 
 // ─── MINISHEET COLLAPSE STATE ─────────────────────────────────────────────────

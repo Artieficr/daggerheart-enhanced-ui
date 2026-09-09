@@ -55,6 +55,16 @@ export function registerSettings() {
     default: "",
   });
 
+  // Actor uuids starred in the minisheet's "switch character" picker — only
+  // surfaced once a player has more than 5 pinnable actors (mainly a GM
+  // convenience, see minisheet-pin.js's buildActorPickerContext).
+  game.settings.register("daggerheart-sleek-ui", "minisheetPinnedFavorites", {
+    scope: "client",
+    config: false,
+    type: Array,
+    default: [],
+  });
+
   // Minisheet Style
 
   //Minisheet Transform

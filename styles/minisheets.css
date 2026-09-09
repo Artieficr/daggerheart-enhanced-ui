@@ -57,21 +57,41 @@ PORTRAIT
 }
 
 /* //////////////////////////////
-ACTOR PICKER — the "switch character" overlay shown on the portrait when the
-minisheet is displaying via the pin fallback (no owned token controlled) and
-the player owns more than one pinnable character/companion. Sits on top of
-the existing portrait without shifting any layout — see minisheet-pin.js.
+ACTOR PICKER — the "switch character" overlay for the pin fallback (see
+minisheet-pin.js), shown when the minisheet is displaying an actor with no
+owned token controlling it and the player owns more than one pinnable
+character/companion. Rendered as a sibling of .portrait, not nested inside
+it (see the template's own note) — .portrait's own mask-image would
+otherwise fade/clip this overlay's rendering, including anything extending
+past .portrait's own box. Positioned the same way as
+.favorites-window-container: .minisheet-transform-wrapper's own `transform`
+(the minisheetScale zoom) makes it the containing block for absolutely
+positioned descendants regardless of its own `position` value, so left:0/
+bottom:0 lines up with the portrait's own corner without needing .minisheet
+itself repositioned.
 ////////////////////////////// */
 
 #sleek-ui-sheet .minisheet-actor-picker {
   position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 180px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-toggles {
+  position: absolute;
   left: 50%;
   bottom: var(--sleekUI-spacing-xs);
   transform: translateX(-50%);
-  z-index: 5;
+  display: flex;
+  gap: 6px;
+  pointer-events: auto;
 }
 
-#sleek-ui-sheet .minisheet-actor-picker-toggle {
+#sleek-ui-sheet .minisheet-actor-picker-toggle,
+#sleek-ui-sheet .minisheet-actor-picker-favorites-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,31 +114,56 @@ the existing portrait without shifting any layout — see minisheet-pin.js.
   transition: transform 0.15s ease;
 }
 
-#sleek-ui-sheet .minisheet-actor-picker-list {
+/* max-height is overridden inline per-render (2x the minisheet's own
+   height, see attachActorPickerListeners) — this is just a sane fallback. */
+#sleek-ui-sheet .minisheet-actor-picker-panel {
   position: absolute;
+  left: 0;
   bottom: calc(100% + 8px);
-  left: 50%;
+  width: 180px;
+  max-height: 220px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 160px;
-  max-height: 220px;
-  overflow-y: auto;
-  padding: var(--sleekUI-spacing-tiny);
   border-radius: var(--sleekUI-border-radius);
   background: var(--sleekUI-color-background-primary);
   backdrop-filter: blur(8px);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-50%) translateY(6px);
+  overflow: hidden;
+  transform: translateY(6px);
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-#sleek-ui-sheet .minisheet-actor-picker.open .minisheet-actor-picker-list {
+#sleek-ui-sheet .minisheet-actor-picker.open .minisheet-actor-picker-panel {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-search {
+  flex: none;
+  margin: var(--sleekUI-spacing-tiny);
+  padding: 4px 8px;
+  border-radius: var(--sleekUI-border-radius-s);
+  border: 1px solid var(--sleekUI-color-border);
+  background: transparent;
+  color: var(--sleekUI-color-primary);
+  font: inherit;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-search::placeholder {
+  color: var(--sleekUI-color-secondary);
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sleekUI-spacing-tiny);
 }
 
 #sleek-ui-sheet .minisheet-actor-picker-item {
@@ -128,11 +173,21 @@ the existing portrait without shifting any layout — see minisheet-pin.js.
   padding: 4px 6px;
   border-radius: var(--sleekUI-border-radius-s);
   background: transparent;
-  border: none;
   color: var(--sleekUI-color-primary);
   cursor: pointer;
   text-align: left;
   white-space: nowrap;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-item.search-hidden {
+  display: none;
+}
+
+/* The favorites-only view (star-icon toggle) reuses the same list/items as
+   the full picker — just hides anything not starred, rather than rendering
+   a second list. */
+#sleek-ui-sheet .minisheet-actor-picker-panel.favorites-only .minisheet-actor-picker-item:not(.favorite) {
+  display: none;
 }
 
 #sleek-ui-sheet .minisheet-actor-picker-item:hover {
@@ -149,6 +204,59 @@ the existing portrait without shifting any layout — see minisheet-pin.js.
   border-radius: 50%;
   object-fit: cover;
   flex: none;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-star {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--sleekUI-color-secondary);
+  cursor: pointer;
+}
+
+#sleek-ui-sheet .minisheet-actor-picker-item.favorite .minisheet-actor-picker-star {
+  color: var(--sleekUI-color-tertiary);
+}
+
+/* Right-click "Remove from Favorites" menu — appended to document.body, not
+   nested under #sleek-ui-sheet (see showActorPickerContextMenu for why),
+   so these rules are deliberately unscoped. */
+.minisheet-actor-picker-contextmenu {
+  position: fixed;
+  z-index: 200;
+  padding: 4px;
+  border-radius: var(--sleekUI-border-radius-s);
+  background: var(--sleekUI-color-background-primary);
+  border: 1px solid var(--sleekUI-color-border);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.minisheet-actor-picker-contextmenu button {
+  display: block;
+  width: 100%;
+  padding: 4px 10px;
+  background: transparent;
+  border: none;
+  color: var(--sleekUI-color-primary);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.minisheet-actor-picker-contextmenu button:hover {
+  background: var(--sleekUI-color-border);
 }
 
 /* //////////////////////////////

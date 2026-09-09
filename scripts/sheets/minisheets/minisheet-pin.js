@@ -49,6 +49,40 @@ export function setPinnedActorUuid(uuid) {
   game.settings.set(MODULE_ID, "minisheetPinnedActor", uuid ?? "");
 }
 
+export function getFavoriteActorUuids() {
+  return game.settings.get(MODULE_ID, "minisheetPinnedFavorites");
+}
+
+export function isFavoriteActor(uuid) {
+  return getFavoriteActorUuids().includes(uuid);
+}
+
+export function setFavoriteActor(uuid, value) {
+  const favorites = getFavoriteActorUuids();
+  const isFavorite = favorites.includes(uuid);
+  if (value === isFavorite) return;
+  const next = value ? [...favorites, uuid] : favorites.filter((id) => id !== uuid);
+  game.settings.set(MODULE_ID, "minisheetPinnedFavorites", next);
+}
+
+/**
+ * Drops any favorited uuid whose actor no longer exists (deleted while this
+ * client wasn't connected to catch the deleteActor hook in
+ * registerMinisheetPin — that hook prunes eagerly for the common case, this
+ * is the fallback for the rest). Cheap and silent: fromUuidSync resolves
+ * world/embedded documents already loaded client-side with no async round
+ * trip, and this only ever runs on-demand (opening the favorites view), not
+ * on every render. A stale entry is already invisible either way — nothing
+ * downstream renders a uuid that isn't in getPinnableActors() — so this is
+ * purely storage upkeep, never something a viewer would notice happen.
+ */
+export function pruneStaleFavorites() {
+  const favorites = getFavoriteActorUuids();
+  const next = favorites.filter((uuid) => fromUuidSync(uuid));
+  if (next.length === favorites.length) return;
+  game.settings.set(MODULE_ID, "minisheetPinnedFavorites", next);
+}
+
 /** All character/companion actors the current user owns — the full pin candidate pool. */
 export function getPinnableActors() {
   return game.actors.filter((actor) => PINNABLE_TYPES.includes(actor.type) && hasOwnerLevel(actor));
@@ -83,21 +117,28 @@ function resolvePinnedActor(actors) {
  * Context for the minisheet's own actor-picker overlay: shown only when
  * displaying via the pin fallback (no single owned token controlling it) and
  * more than one pinnable actor exists — a lone owned character/companion
- * just gets used directly, no picker needed.
+ * just gets used directly, no picker needed. `showExtras` (search box, the
+ * per-row favorite star, and the favorites-only view) only kicks in past 5
+ * actors — mainly a GM convenience, since a player is rarely juggling that
+ * many owned actors.
  */
 export function buildActorPickerContext(currentActor) {
-  if (resolveTokenControlledActor()) return { show: false, actors: [] };
+  if (resolveTokenControlledActor()) return { show: false, actors: [], showExtras: false };
 
   const actors = getPinnableActors();
-  if (actors.length <= 1) return { show: false, actors: [] };
+  if (actors.length <= 1) return { show: false, actors: [], showExtras: false };
+
+  const favorites = getFavoriteActorUuids();
 
   return {
     show: true,
+    showExtras: actors.length > 5,
     actors: actors.map((actor) => ({
       uuid: actor.uuid,
       name: actor.name,
       img: actor.img,
       active: actor === currentActor,
+      favorite: favorites.includes(actor.uuid),
     })),
   };
 }
@@ -153,15 +194,30 @@ export function registerMinisheetPin() {
 
   Hooks.on("controlToken", () => syncPinnedMinisheet());
   Hooks.on("createActor", () => syncPinnedMinisheet());
-  Hooks.on("deleteActor", () => syncPinnedMinisheet());
+  Hooks.on("deleteActor", (actor) => {
+    // Both settings store bare uuids with no reconciliation against
+    // game.actors — a deleted actor otherwise leaves a stale entry behind
+    // forever (harmless functionally, since nothing downstream matches a
+    // uuid that isn't in getPinnableActors() any more, but it's unbounded
+    // cruft in client storage over a long campaign). Prune eagerly instead
+    // of waiting for a read-time reconciliation that was never written.
+    if (getPinnedActorUuid() === actor.uuid) setPinnedActorUuid("");
+    setFavoriteActor(actor.uuid, false);
+    syncPinnedMinisheet();
+  });
   Hooks.on("updateUser", (user) => {
     if (user.id === game.user.id) syncPinnedMinisheet();
   });
 
   // Closes the actor-picker overlay on an outside click — registered once
   // here rather than per-render in attachActorPickerListeners, since
-  // document-level listeners bound on every render would stack forever.
+  // document-level listeners bound on every render would stack forever. The
+  // favorites-only right-click context menu (utils-minisheet.js) is
+  // appended to document.body rather than nested inside the picker — it has
+  // to escape the minisheet's own scale transform to position itself at the
+  // real cursor coordinates — so a click on it must not count as "outside".
   document.addEventListener("click", (event) => {
+    if (event.target.closest(".minisheet-actor-picker-contextmenu")) return;
     document.querySelectorAll(".minisheet-actor-picker.open").forEach((picker) => {
       if (!picker.contains(event.target)) picker.classList.remove("open");
     });

@@ -1,15 +1,32 @@
 {{#if actorPicker.show}}
 <div class="minisheet-actor-picker">
-    <button type="button" class="minisheet-actor-picker-toggle" data-tooltip="Switch Character">
-        <i class="fa-solid fa-chevron-up"></i>
-    </button>
-    <div class="minisheet-actor-picker-list">
-        {{#each actorPicker.actors}}
-        <button type="button" class="minisheet-actor-picker-item {{#if this.active}}active{{/if}}" data-actor-uuid="{{this.uuid}}">
-            <img src="{{this.img}}" alt="{{this.name}}" />
-            <span>{{this.name}}</span>
+    <div class="minisheet-actor-picker-toggles">
+        <button type="button" class="minisheet-actor-picker-toggle" data-tooltip="Switch Character">
+            <i class="fa-solid fa-chevron-up"></i>
         </button>
-        {{/each}}
+        {{#if actorPicker.showExtras}}
+        <button type="button" class="minisheet-actor-picker-favorites-toggle" data-tooltip="Favorite Characters">
+            <i class="fa-solid fa-star"></i>
+        </button>
+        {{/if}}
+    </div>
+    <div class="minisheet-actor-picker-panel">
+        {{#if actorPicker.showExtras}}
+        <input type="text" class="minisheet-actor-picker-search" placeholder="Search…" />
+        {{/if}}
+        <div class="minisheet-actor-picker-list">
+            {{#each actorPicker.actors}}
+            <div class="minisheet-actor-picker-item {{#if this.active}}active{{/if}} {{#if this.favorite}}favorite{{/if}}" data-actor-uuid="{{this.uuid}}" data-actor-name="{{this.name}}">
+                <img src="{{this.img}}" alt="{{this.name}}" />
+                <span class="minisheet-actor-picker-item-name">{{this.name}}</span>
+                {{#if @root.actorPicker.showExtras}}
+                <button type="button" class="minisheet-actor-picker-star" data-tooltip="Toggle Favorite">
+                    <i class="fa-{{#if this.favorite}}solid{{else}}regular{{/if}} fa-star"></i>
+                </button>
+                {{/if}}
+            </div>
+            {{/each}}
+        </div>
     </div>
 </div>
 {{/if}}
