@@ -1,0 +1,19 @@
+name: Watch upstream licenses
+
+on:
+  schedule:
+    - cron: '0 6 1 * *' # first of the month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash .github/scripts/check-upstream.sh license
+        env:
+          GH_TOKEN: ${{ github.token }}

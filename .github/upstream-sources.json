@@ -1,0 +1,28 @@
+{
+  "modules": [
+    {
+      "id": "daggerheart-sleek-ui",
+      "name": "Daggerheart Sleek UI",
+      "repo": "pasoktcm/daggerheart-sleek-ui",
+      "lastSeenRelease": null,
+      "lastSeenLicenseSha": null,
+      "notes": "MIT. This repo is a fork of it (remote: upstream) — see CLAUDE.md's 'This fork no longer optimizes for clean upstream merges' note. A new release here is the signal to diff the new tag against this repo's own layout and decide what (if anything) to cherry-pick."
+    },
+    {
+      "id": "happytreedice-daggerheart-card-hand",
+      "name": "Daggerheart Card Hand",
+      "repo": "Happytreedice/happytreedice-daggerheart-card-hand",
+      "lastSeenRelease": null,
+      "lastSeenLicenseSha": null,
+      "notes": "No LICENSE file upstream as of 2026-09-09 — treat as all-rights-reserved. Code/assets used here (scripts/card-hand.js, styles/card-hand.css, assets/cardhand/) under the author's direct informal permission, not a public license. A license-check hit here is the specific signal CLAUDE.md/LICENSE mention watching for — cite it directly once it lands instead of the informal-permission note."
+    },
+    {
+      "id": "dh-improved-countdowns",
+      "name": "Improved Countdowns",
+      "repo": "cptn-cosmo/dh-improved-countdowns",
+      "lastSeenRelease": null,
+      "lastSeenLicenseSha": null,
+      "notes": "MIT (GitHub mirror; upstream development happens on the author's own Gitea instance at git.geeks.gay/cosmo/dh-improved-countdowns). Ported into scripts/countdown-tracker.js/styles/countdown-tracker.css/templates/countdown-tracker.hbs — restyled, full functionality kept. A new release here is the signal to diff against those files."
+    }
+  ]
+}
