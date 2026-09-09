@@ -10,7 +10,7 @@ export function registerCompanionSheet() {
 
   const DaggerheartCompanionSheet = daggerheartSheet.cls;
 
-  class SleekCompanionSheet extends DaggerheartCompanionSheet {
+  class EnhancedCompanionSheet extends DaggerheartCompanionSheet {
     collapsedCategories = [];
     openCards = new Set();
     tabs = {};
@@ -19,12 +19,12 @@ export function registerCompanionSheet() {
     static DEFAULT_OPTIONS = foundry.utils.mergeObject(
       super.DEFAULT_OPTIONS,
       {
-        classes: ["daggerheart", "sheet", "actor", "sleek-ui", "sleek-companion"],
+        classes: ["daggerheart", "sheet", "actor", "enhanced-ui", "enhanced-companion"],
         window: { controls: [], resizable: true },
         position: { width: 370, height: 700 },
         actions: {
-          useActorAttack: SleekCompanionSheet._onUseActorAttack,
-          toggleCategory: SleekCompanionSheet._onToggleCategory,
+          useActorAttack: EnhancedCompanionSheet._onUseActorAttack,
+          toggleCategory: EnhancedCompanionSheet._onToggleCategory,
         },
       },
       { inplace: false },
@@ -32,7 +32,7 @@ export function registerCompanionSheet() {
 
     static PARTS = {
       mainSheet: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/companions/companion-sheet-main.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/companions/companion-sheet-main.hbs",
       },
       limited: {
         template: "systems/daggerheart/templates/sheets/actors/character/limited.hbs", // Use system's limited template
@@ -60,12 +60,12 @@ export function registerCompanionSheet() {
         };
       }
       context.tabs = this.tabs;
-      context.tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
-      context.showTooltip = game.settings.get("daggerheart-sleek-ui", "showTooltip");
+      context.tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
+      context.showTooltip = game.settings.get("daggerheart-enhanced-ui", "showTooltip");
 
       // Collapsed categories
       if (options.isFirstRender && !this.collapsedCategories) {
-        this.collapsedCategories = this.actor.getFlag("daggerheart-sleek-ui", "collapsedCategories") || [];
+        this.collapsedCategories = this.actor.getFlag("daggerheart-enhanced-ui", "collapsedCategories") || [];
       }
       context.collapsedCategories = this.collapsedCategories || [];
 
@@ -160,12 +160,12 @@ export function registerCompanionSheet() {
     _onRender(context, options) {
       super._onRender(context, options);
 
-      this.element.id = "sleek-ui-sheet";
+      this.element.id = "enhanced-ui-sheet";
       this._element = this.element;
 
       this.element.addEventListener("mousemove", dismissHoverTooltip);
 
-      const tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
+      const tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
 
       if (tabsPosition === "floating") {
         if (!this.floatingTabs) {
@@ -337,7 +337,7 @@ export function registerCompanionSheet() {
           this.collapsedCategories.splice(index, 1);
         }
       }
-      this.actor.setFlag("daggerheart-sleek-ui", "collapsedCategories", [...this.collapsedCategories]);
+      this.actor.setFlag("daggerheart-enhanced-ui", "collapsedCategories", [...this.collapsedCategories]);
     }
 
     async close(options = {}) {
@@ -360,9 +360,9 @@ export function registerCompanionSheet() {
     }
   }
 
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", SleekCompanionSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", EnhancedCompanionSheet, {
     types: ["companion"],
     makeDefault: true,
-    label: "DH Sleek UI",
+    label: "DH Enhanced UI",
   });
 }

@@ -24,7 +24,7 @@
 import { showCharacterMiniSheetActor, teardownCharacterMiniSheet } from "./minisheet-character.js";
 import { showCompanionMiniSheetActor, teardownCompanionMiniSheet } from "./minisheet-companion.js";
 
-const MODULE_ID = "daggerheart-sleek-ui";
+const MODULE_ID = "daggerheart-enhanced-ui";
 const PINNABLE_TYPES = ["character", "companion"];
 
 function hasOwnerLevel(actor) {
@@ -153,7 +153,17 @@ export function syncPinnedMinisheet() {
     return;
   }
 
-  const actor = resolveTokenControlledActor() ?? resolvePinnedActor(getPinnableActors());
+  // The pin fallback only applies with NOTHING selected at all — if exactly
+  // one token of some other type (adversary/environment/party/anything not
+  // pinnable) is controlled, that token's own minisheet class handles
+  // showing itself (each requires its own single-token-of-its-type match,
+  // same as this one), and the pinned character/companion sheet needs to
+  // get out of the way instead of fighting it for the same screen space.
+  // Multi-select (2+ controlled tokens) falls into this same "don't
+  // fall back" case, matching how every other minisheet type already
+  // shows nothing for an ambiguous multi-select.
+  const controlled = canvas.tokens?.controlled ?? [];
+  const actor = resolveTokenControlledActor() ?? (controlled.length === 0 ? resolvePinnedActor(getPinnableActors()) : null);
 
   if (!actor) {
     teardownCharacterMiniSheet();

@@ -4,7 +4,7 @@ import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./m
 
 export function registerEnvironmentMiniSheet() {
   if (game.system.id !== "daggerheart") return;
-  if (!game.settings.get("daggerheart-sleek-ui", "enableMinisheet")) return;
+  if (!game.settings.get("daggerheart-enhanced-ui", "enableMinisheet")) return;
 
   class EnvironmentMiniSheet {
     static currentActor = null;
@@ -22,7 +22,7 @@ export function registerEnvironmentMiniSheet() {
 
       const originalSetAnchor = mgr._setAnchor.bind(mgr);
       mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#sleek-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
+        if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
           const pad = this.constructor.TOOLTIP_MARGIN_PX;
           const pos = this.element.getBoundingClientRect();
           return this._setStyle({
@@ -149,7 +149,7 @@ export function registerEnvironmentMiniSheet() {
       if (this.sceneMode) {
         const environments = await Promise.all(this.sceneActors.map((actor) => this._prepareContext(actor)));
         html = await foundry.applications.handlebars.renderTemplate(
-          "modules/daggerheart-sleek-ui/templates/sheets/environments/environment-minisheet-scene.hbs",
+          "modules/daggerheart-enhanced-ui/templates/sheets/environments/environment-minisheet-scene.hbs",
           {
             environments,
             currentFear: game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Resources.Fear),
@@ -160,7 +160,7 @@ export function registerEnvironmentMiniSheet() {
         if (!this.currentActor) return;
 
         html = await foundry.applications.handlebars.renderTemplate(
-          "modules/daggerheart-sleek-ui/templates/sheets/environments/environment-minisheet.hbs",
+          "modules/daggerheart-enhanced-ui/templates/sheets/environments/environment-minisheet.hbs",
           context,
         );
       }
@@ -277,7 +277,7 @@ export function registerEnvironmentMiniSheet() {
         source: actor,
         actor,
         isNPC: true,
-        showTooltip: game.settings.get("daggerheart-sleek-ui", "showTooltip"),
+        showTooltip: game.settings.get("daggerheart-enhanced-ui", "showTooltip"),
         currentFear: game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Resources.Fear),
         environmentFeatures: systemContext.environmentFeatures ?? [],
       };
@@ -449,7 +449,7 @@ export function registerEnvironmentMiniSheet() {
     }
   });
 
-  Hooks.on("renderSleekEnvironmentSheet", (app) => {
+  Hooks.on("renderEnhancedEnvironmentSheet", (app) => {
     if (EnvironmentMiniSheet.sceneMode && EnvironmentMiniSheet.sceneActors.some((a) => a === app.actor)) {
       clearTimeout(EnvironmentMiniSheet._featuresTransferTimeout);
       EnvironmentMiniSheet._featuresTransferTimeout = null;
@@ -462,7 +462,7 @@ export function registerEnvironmentMiniSheet() {
     }
   });
 
-  Hooks.on("closeSleekEnvironmentSheet", () => {
+  Hooks.on("closeEnhancedEnvironmentSheet", () => {
     EnvironmentMiniSheet._syncDisplay();
   });
 

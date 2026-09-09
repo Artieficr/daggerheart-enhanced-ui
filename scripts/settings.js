@@ -3,9 +3,9 @@ import { scaleTransformFor, transformOriginFor } from "./sheets/minisheets/minis
 export function registerSettings() {
 
   // Theme Foundryborne
-  game.settings.register("daggerheart-sleek-ui", "theme", {
+  game.settings.register("daggerheart-enhanced-ui", "theme", {
     name: "Theme Foundryborne",
-    hint: "Enables the styling of Foundryborne's application windows to match Sleek UI's styling",
+    hint: "Enables the styling of Foundryborne's application windows to match Enhanced UI's styling",
     requiresReload: true,
     scope: "world",
     config: true,
@@ -14,9 +14,9 @@ export function registerSettings() {
   });
 
   // Theme Chat Cards
-  game.settings.register("daggerheart-sleek-ui", "themeChat", {
+  game.settings.register("daggerheart-enhanced-ui", "themeChat", {
     name: "Theme Chat Cards",
-    hint: "Enables the styling of chat cards to match Sleek UI's styling",
+    hint: "Enables the styling of chat cards to match Enhanced UI's styling",
     requiresReload: true,
     scope: "world",
     config: true,
@@ -25,7 +25,7 @@ export function registerSettings() {
   });
 
   // Minisheets
-  game.settings.register("daggerheart-sleek-ui", "enableMinisheet", {
+  game.settings.register("daggerheart-enhanced-ui", "enableMinisheet", {
     name: "Enable Mini Sheets",
     hint: "Enables the mini sheet displayed at the bottom of the screen while a token is selected",
     requiresReload: true,
@@ -39,7 +39,7 @@ export function registerSettings() {
   // button (see sheets/minisheets/minisheet-pin.js), not this settings menu.
   // Lets a player hide the minisheet while a token is selected (to free up
   // the hotbar) or show it with no token selected at all (theater of mind).
-  game.settings.register("daggerheart-sleek-ui", "minisheetVisible", {
+  game.settings.register("daggerheart-enhanced-ui", "minisheetVisible", {
     scope: "client",
     config: false,
     type: Boolean,
@@ -48,7 +48,7 @@ export function registerSettings() {
 
   // Remembers which owned actor's minisheet to show when visible with no
   // token controlled and the player owns more than one pinnable actor.
-  game.settings.register("daggerheart-sleek-ui", "minisheetPinnedActor", {
+  game.settings.register("daggerheart-enhanced-ui", "minisheetPinnedActor", {
     scope: "client",
     config: false,
     type: String,
@@ -58,7 +58,7 @@ export function registerSettings() {
   // Actor uuids starred in the minisheet's "switch character" picker — only
   // surfaced once a player has more than 5 pinnable actors (mainly a GM
   // convenience, see minisheet-pin.js's buildActorPickerContext).
-  game.settings.register("daggerheart-sleek-ui", "minisheetPinnedFavorites", {
+  game.settings.register("daggerheart-enhanced-ui", "minisheetPinnedFavorites", {
     scope: "client",
     config: false,
     type: Array,
@@ -68,7 +68,7 @@ export function registerSettings() {
   // Minisheet Style
 
   //Minisheet Transform
-  game.settings.register("daggerheart-sleek-ui", "minisheetScale", {
+  game.settings.register("daggerheart-enhanced-ui", "minisheetScale", {
     name: "Minisheet Scale",
     hint: "Adjusts the scale of the mini sheets to better accomodate smaller or larger screens (default: 1)",
     scope: "client",
@@ -84,7 +84,7 @@ export function registerSettings() {
   });
 
   // Tabs Position
-  game.settings.register("daggerheart-sleek-ui", "tabsPosition", {
+  game.settings.register("daggerheart-enhanced-ui", "tabsPosition", {
     name: "Tabs Position",
     scope: "client",
     config: true,
@@ -107,7 +107,7 @@ export function registerSettings() {
   // included) so the minisheet only ever needs one tab-button, not several.
 
   // Tooltips
-  game.settings.register("daggerheart-sleek-ui", "showTooltip", {
+  game.settings.register("daggerheart-enhanced-ui", "showTooltip", {
     name: "Show Card Tooltips",
     hint: "Shows tooltips for cards when hovering the icon",
     scope: "client",
@@ -117,7 +117,7 @@ export function registerSettings() {
   });
 
   // Currency Labels
-  game.settings.register("daggerheart-sleek-ui", "currencyLabel", {
+  game.settings.register("daggerheart-enhanced-ui", "currencyLabel", {
     name: "Show Currency Labels",
     hint: "Shows the labels for each currency on top of their values",
     scope: "world",
@@ -127,7 +127,7 @@ export function registerSettings() {
   });
 
   // Beastform Portrait
-  game.settings.register("daggerheart-sleek-ui", "beastformPortrait", {
+  game.settings.register("daggerheart-enhanced-ui", "beastformPortrait", {
     name: "Use Beastform Portrait",
     hint: "When in beastform, change the character's portrait to the form's Subject Texture",
     scope: "world",
@@ -139,8 +139,8 @@ export function registerSettings() {
 }
 
 export function applyMinisheetScale(value) {
-  const scale = value ?? game.settings.get("daggerheart-sleek-ui", "minisheetScale");
-  const wrapper = document.querySelector("#sleek-ui-sheet .minisheet-transform-wrapper");
+  const scale = value ?? game.settings.get("daggerheart-enhanced-ui", "minisheetScale");
+  const wrapper = document.querySelector("#enhanced-ui-sheet .minisheet-transform-wrapper");
   if (wrapper) {
     wrapper.style.transform = scaleTransformFor(scale);
     wrapper.style.transformOrigin = transformOriginFor();
@@ -148,7 +148,7 @@ export function applyMinisheetScale(value) {
 }
 
 export function applyTheme() {
-  if (!game.settings.get("daggerheart-sleek-ui", "theme")) return;
+  if (!game.settings.get("daggerheart-enhanced-ui", "theme")) return;
 
   const addStyle = (href) => {
     const link = document.createElement("link");
@@ -158,11 +158,11 @@ export function applyTheme() {
     document.head.appendChild(link);
   };
 
-  addStyle("modules/daggerheart-sleek-ui/styles/theme.css");
+  addStyle("modules/daggerheart-enhanced-ui/styles/theme.css");
 }
 
 export function applyThemeChat() {
-  if (!game.settings.get("daggerheart-sleek-ui", "themeChat")) return;
+  if (!game.settings.get("daggerheart-enhanced-ui", "themeChat")) return;
 
   const addStyle = (href) => {
     const link = document.createElement("link");
@@ -172,5 +172,5 @@ export function applyThemeChat() {
     document.head.appendChild(link);
   };
 
-  addStyle("modules/daggerheart-sleek-ui/styles/theme-chat.css");
+  addStyle("modules/daggerheart-enhanced-ui/styles/theme-chat.css");
 }

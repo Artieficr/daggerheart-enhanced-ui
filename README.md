@@ -1,6 +1,6 @@
-# Daggerheart Sleek UI (personal fork)
+# Daggerheart Enhanced UI
 
-Fork of [pasoktcm/daggerheart-sleek-ui](https://github.com/pasoktcm/daggerheart-sleek-ui)
+A fork of [Daggerheart Sleek UI](https://github.com/pasoktcm/daggerheart-sleek-ui) by pasoktcm, used under its MIT license.
 
 ---
 

@@ -36,17 +36,17 @@ export function collapsedTransform(height) {
   return `translateY(${height + 58}px)`;
 }
 
-/** Builds the #sleek-ui-sheet container + its scaled inner wrapper. */
+/** Builds the #enhanced-ui-sheet container + its scaled inner wrapper. */
 export function injectMinisheetContainer() {
   const container = document.createElement("div");
-  container.id = "sleek-ui-sheet";
+  container.id = "enhanced-ui-sheet";
   container.style.cssText = containerStyleFor();
 
   const scaleWrapper = document.createElement("div");
   scaleWrapper.classList.add("minisheet-transform-wrapper");
   scaleWrapper.style.transformOrigin = transformOriginFor();
 
-  const scale = game.settings.get("daggerheart-sleek-ui", "minisheetScale");
+  const scale = game.settings.get("daggerheart-enhanced-ui", "minisheetScale");
   scaleWrapper.style.transform = scaleTransformFor(scale);
 
   container.appendChild(scaleWrapper);

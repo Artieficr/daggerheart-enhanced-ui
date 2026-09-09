@@ -5,7 +5,7 @@ import { getBeastformPortrait } from "../../helpers.js";
 
 export function registerPartyMiniSheet() {
   if (game.system.id !== "daggerheart") return;
-  if (!game.settings.get("daggerheart-sleek-ui", "enableMinisheet")) return;
+  if (!game.settings.get("daggerheart-enhanced-ui", "enableMinisheet")) return;
 
   class PartyMiniSheet {
     static currentActor = null;
@@ -66,7 +66,7 @@ export function registerPartyMiniSheet() {
       const context = await this._prepareContext(this.currentActor);
       if (!this.currentActor) return;
 
-      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-sleek-ui/templates/sheets/party/party-minisheet.hbs", context);
+      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/party/party-minisheet.hbs", context);
       if (!this.currentActor) return;
 
       if (!this.element) {
@@ -247,11 +247,11 @@ export function registerPartyMiniSheet() {
     if (isMember) queueMicrotask(() => PartyMiniSheet._render());
   });
 
-  Hooks.on("renderSleekPartySheet", (app) => {
+  Hooks.on("renderEnhancedPartySheet", (app) => {
     if (app.actor === PartyMiniSheet.currentActor) PartyMiniSheet._teardown();
   });
 
-  Hooks.on("closeSleekPartySheet", (app) => {
+  Hooks.on("closeEnhancedPartySheet", (app) => {
     const actor = PartyMiniSheet._resolveActor();
     if (actor && app.actor === actor) {
       PartyMiniSheet.currentActor = actor;

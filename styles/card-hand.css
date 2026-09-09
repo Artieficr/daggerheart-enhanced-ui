@@ -6,7 +6,7 @@
    through when collapsed.
    ==================== */
 
-#sleek-ui-sheet .minisheet .card-hand-window-container {
+#enhanced-ui-sheet .minisheet .card-hand-window-container {
   position: absolute;
   width: auto;
   overflow: visible;
@@ -21,22 +21,22 @@
    minisheet's own bottom, i.e. the screen's bottom) or overlaps into the
    minisheet itself (above). No "left" variant: the minisheet anchors
    bottom-left by default, so there's no room to open a hand toward it. */
-#sleek-ui-sheet .minisheet .card-hand-window-container.pos-above {
+#enhanced-ui-sheet .minisheet .card-hand-window-container.pos-above {
   bottom: calc(100% + 20px);
   left: 50%;
   transform: translateX(-50%);
 }
 
-#sleek-ui-sheet .minisheet .card-hand-window-container.pos-right {
+#enhanced-ui-sheet .minisheet .card-hand-window-container.pos-right {
   left: calc(100% + 20px);
   bottom: 20px;
 }
 
-#sleek-ui-sheet .minisheet .card-hand-window-container:has(.card-hand-window.active) {
+#enhanced-ui-sheet .minisheet .card-hand-window-container:has(.card-hand-window.active) {
   pointer-events: unset;
 }
 
-#sleek-ui-sheet .minisheet .card-hand-window {
+#enhanced-ui-sheet .minisheet .card-hand-window {
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -47,7 +47,7 @@
   overflow: visible;
 }
 
-#sleek-ui-sheet .minisheet .card-hand-window.active {
+#enhanced-ui-sheet .minisheet .card-hand-window.active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -58,7 +58,7 @@
    applyCardHandFanLayout() in card-hand.js.
    ==================== */
 
-#sleek-ui-sheet .card-hand-list {
+#enhanced-ui-sheet .card-hand-list {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -68,10 +68,10 @@
   overflow: visible;
 }
 
-#sleek-ui-sheet .card-hand-list .no-cards {
-  color: var(--sleekUI-color-secondary);
+#enhanced-ui-sheet .card-hand-list .no-cards {
+  color: var(--enhancedUI-color-secondary);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  padding: var(--sleekUI-spacing-md);
+  padding: var(--enhancedUI-spacing-md);
 }
 
 /* ====================
@@ -89,12 +89,12 @@
    their source) rather than relying on the system to expose one — without
    defining these ourselves, every var(--dh-font-header, ...) below was
    silently falling through to our fallback value instead of theirs. */
-#sleek-ui-sheet {
+#enhanced-ui-sheet {
   --dh-font-header: "Modesto Condensed", "Signika", sans-serif;
   --dh-font-body: "Signika", sans-serif;
 }
 
-#sleek-ui-sheet .hand-card {
+#enhanced-ui-sheet .hand-card {
   position: relative;
   width: 160px;
   height: 220px;
@@ -108,7 +108,7 @@
   transition: margin-left 0.25s ease, transform 0.25s ease, opacity 0.2s ease;
 }
 
-#sleek-ui-sheet .hand-card:hover {
+#enhanced-ui-sheet .hand-card:hover {
   z-index: 1000 !important;
 }
 
@@ -116,7 +116,7 @@
    the fan layout's own math (see applyCardHandFanLayout) so it just fades
    out roughly where it was while its siblings reflow around it. !important
    beats the inline transform applyCardHandFanLayout set before removal. */
-#sleek-ui-sheet .hand-card.hand-card-removing {
+#enhanced-ui-sheet .hand-card.hand-card-removing {
   opacity: 0 !important;
   transform: scale(0.7) translateY(20px) !important;
   pointer-events: none;
@@ -135,14 +135,14 @@
    full-card width, since those don't overlap the same way.
    Reflects a fix requested after the user sketched the exact zone they meant
    directly on a screenshot. */
-#sleek-ui-sheet .hand-card-hitzone {
+#enhanced-ui-sheet .hand-card-hitzone {
   position: absolute;
   inset: 0;
   z-index: 5;
   cursor: grab;
 }
 
-#sleek-ui-sheet .dhc-scaler {
+#enhanced-ui-sheet .dhc-scaler {
   position: absolute;
   bottom: 0;
   left: -50%;
@@ -168,28 +168,28 @@
    which is what makes the whole ancestor chain register as :hover) enlarged
    every nested feature card's preview at once, instead of only the specific
    card whose own hitzone is actually being hovered. */
-#sleek-ui-sheet .hand-card:hover > .dhc-scaler {
+#enhanced-ui-sheet .hand-card:hover > .dhc-scaler {
   transform: scale(0.75) translateY(-50px);
   box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8);
 }
 
-/* !important here matches style.css's own #sleek-ui-sheet p/span rule,
-   which otherwise forces sleek-ui's Montserrat onto our card's <p>/<span>
+/* !important here matches style.css's own #enhanced-ui-sheet p/span rule,
+   which otherwise forces enhanced-ui's Montserrat onto our card's <p>/<span>
    text (the description and type label) regardless of specificity. Font
    Awesome damage-type icons (<i class="fa-solid ...">, e.g. the fist/wand
    icon next to a weapon's damage formula) are excluded from this override —
    forcing them onto our body font replaced their icon glyph with a missing-
    character box, since FA icons only exist in FA's own icon font. */
-#sleek-ui-sheet .dhc-scaler *:not([class*="fa-"]) {
+#enhanced-ui-sheet .dhc-scaler *:not([class*="fa-"]) {
   font-family: var(--dh-font-body, "Signika", "Montserrat", sans-serif) !important;
 }
 
-#sleek-ui-sheet .dhc-scaler * {
+#enhanced-ui-sheet .dhc-scaler * {
   box-sizing: border-box;
 }
 
 /* Card art is the background, anchored top, fills width */
-#sleek-ui-sheet .card-image-container {
+#enhanced-ui-sheet .card-image-container {
   position: absolute;
   top: 0;
   left: 0;
@@ -201,7 +201,7 @@
   pointer-events: none;
 }
 
-#sleek-ui-sheet .card-main-image {
+#enhanced-ui-sheet .card-main-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -213,7 +213,7 @@
 /* Text content is anchored to the bottom and expands upward, overlapping
    the image as needed — this (not a fixed art/text split) is what lets
    long descriptions fit without clipping. */
-#sleek-ui-sheet .card-text-content {
+#enhanced-ui-sheet .card-text-content {
   position: absolute;
   left: 0;
   right: 0;
@@ -230,7 +230,7 @@
   overflow: visible;
 }
 
-#sleek-ui-sheet .divider-container {
+#enhanced-ui-sheet .divider-container {
   position: relative;
   width: 100%;
   height: fit-content;
@@ -246,7 +246,7 @@
    plain inline background-color (not a CSS custom-property-driven
    background-image on a ::before) — matches the same pattern already
    confirmed working for the banner/stress-cost images. */
-#sleek-ui-sheet .title-bg {
+#enhanced-ui-sheet .title-bg {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -256,7 +256,7 @@
   z-index: 7;
 }
 
-#sleek-ui-sheet .title-bg-divider {
+#enhanced-ui-sheet .title-bg-divider {
   position: absolute;
   top: 0;
   left: 0;
@@ -267,7 +267,7 @@
   pointer-events: none;
 }
 
-#sleek-ui-sheet .title-bg-inner {
+#enhanced-ui-sheet .title-bg-inner {
   position: absolute;
   top: 30%;
   left: 30%;
@@ -277,7 +277,7 @@
   z-index: 1;
 }
 
-#sleek-ui-sheet .card-title {
+#enhanced-ui-sheet .card-title {
   position: relative;
   width: 100%;
   font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
@@ -295,7 +295,7 @@
   text-overflow: ellipsis;
 }
 
-#sleek-ui-sheet .card-type {
+#enhanced-ui-sheet .card-type {
   position: relative;
   width: 120px;
   font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
@@ -313,7 +313,7 @@
   text-overflow: ellipsis;
 }
 
-#sleek-ui-sheet .description {
+#enhanced-ui-sheet .description {
   margin-top: 0;
   color: #000;
   line-height: 1.3;
@@ -323,19 +323,19 @@
   padding: 0 12px;
 }
 
-#sleek-ui-sheet .description p {
+#enhanced-ui-sheet .description p {
   margin: 0 0 5px;
 }
 
-#sleek-ui-sheet .description ul,
-#sleek-ui-sheet .description ol {
+#enhanced-ui-sheet .description ul,
+#enhanced-ui-sheet .description ol {
   margin: 0;
   padding-left: 16px;
   text-align: left;
 }
 
 /* Level banner + recall/stress cost badges */
-#sleek-ui-sheet .card-banner_image {
+#enhanced-ui-sheet .card-banner_image {
   left: 5%;
   top: -15px;
   width: 52px;
@@ -347,7 +347,7 @@
   z-index: 10;
 }
 
-#sleek-ui-sheet .card-level {
+#enhanced-ui-sheet .card-level {
   font-size: 23.8px;
   top: 2%;
   left: 4%;
@@ -364,7 +364,7 @@
   pointer-events: none;
 }
 
-#sleek-ui-sheet .stress_image {
+#enhanced-ui-sheet .stress_image {
   position: absolute;
   width: 32px;
   top: 3%;
@@ -373,7 +373,7 @@
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.333));
 }
 
-#sleek-ui-sheet .stress_text {
+#enhanced-ui-sheet .stress_text {
   position: absolute;
   font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
   top: 3%;
@@ -390,7 +390,7 @@
 }
 
 /* Weapon damage block */
-#sleek-ui-sheet .damage-info {
+#enhanced-ui-sheet .damage-info {
   position: relative;
   z-index: 7;
   color: #333;
@@ -408,11 +408,11 @@
   margin-top: 4px;
 }
 
-#sleek-ui-sheet .damage-info + .description {
+#enhanced-ui-sheet .damage-info + .description {
   margin-top: 0 !important;
 }
 
-#sleek-ui-sheet .damage-labels {
+#enhanced-ui-sheet .damage-labels {
   font-size: 15px;
   text-transform: uppercase;
   color: #666;
@@ -420,7 +420,7 @@
   margin-top: 2px;
 }
 
-#sleek-ui-sheet .damage-range {
+#enhanced-ui-sheet .damage-range {
   font-size: 14px;
   color: #222;
   margin-top: 6px;
@@ -463,7 +463,7 @@
    per-card rotation isn't something CSS alone can compute; hovering swaps
    each member from absolute (rest) to relative positioning so they become
    real flex items applyCardHandFanLayout can lay out in a row. */
-#sleek-ui-sheet .hand-card-substack {
+#enhanced-ui-sheet .hand-card-substack {
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -477,24 +477,24 @@
    step — sitting it at bottom:0 made a single-member group's one child
    completely invisible, fully hidden behind the parent, with nothing
    visibly "stacked" at all. */
-#sleek-ui-sheet .hand-card-substack > .hand-card {
+#enhanced-ui-sheet .hand-card-substack > .hand-card {
   position: absolute;
   left: -80px;
   bottom: 14px;
   z-index: 2;
 }
 
-#sleek-ui-sheet .hand-card-substack > .hand-card:nth-child(2) {
+#enhanced-ui-sheet .hand-card-substack > .hand-card:nth-child(2) {
   bottom: 28px;
   z-index: 1;
 }
 
-#sleek-ui-sheet .hand-card-substack > .hand-card:nth-child(3) {
+#enhanced-ui-sheet .hand-card-substack > .hand-card:nth-child(3) {
   bottom: 42px;
   z-index: 0;
 }
 
-#sleek-ui-sheet .hand-card-substack > .hand-card:nth-child(n + 4) {
+#enhanced-ui-sheet .hand-card-substack > .hand-card:nth-child(n + 4) {
   bottom: 56px;
   z-index: -1;
 }
@@ -519,7 +519,7 @@
    — so just moving the cursor through that space (never having actually
    hovered the card itself) opened the fan. It should only ever keep an
    *already-open* fan open, never open one on its own. */
-#sleek-ui-sheet .hand-card-hover-bridge {
+#enhanced-ui-sheet .hand-card-hover-bridge {
   position: absolute;
   left: 50%;
   bottom: 100%;
@@ -546,8 +546,8 @@
    absolutely-positioned box instead, landing it somewhere that looked like
    it had jumped into the main fan. .forced-open keeps the substack in real
    fan mode for the whole gesture regardless of where the cursor wanders. */
-#sleek-ui-sheet .hand-card:hover > .hand-card-substack,
-#sleek-ui-sheet .hand-card-substack.forced-open {
+#enhanced-ui-sheet .hand-card:hover > .hand-card-substack,
+#enhanced-ui-sheet .hand-card-substack.forced-open {
   bottom: calc(100% + 95px);
   display: flex;
   flex-direction: row;
@@ -569,8 +569,8 @@
    :has() bumps the WHOLE substack (which is what's actually capping them)
    above the parent only while one of its children is genuinely hovered —
    "just like the main fan works on focus," applied one level down. */
-#sleek-ui-sheet .hand-card:hover > .hand-card-substack:has(> .hand-card:hover),
-#sleek-ui-sheet .hand-card-substack.forced-open:has(> .hand-card:hover) {
+#enhanced-ui-sheet .hand-card:hover > .hand-card-substack:has(> .hand-card:hover),
+#enhanced-ui-sheet .hand-card-substack.forced-open:has(> .hand-card:hover) {
   z-index: 1000;
 }
 
@@ -581,7 +581,7 @@
    lower than several main-fan cards' own z-index), so it can't be left to
    bootstrap itself through :has(). Declared after the combined rule above
    so it wins the tie for this exact selector. */
-#sleek-ui-sheet .hand-card-substack.forced-open {
+#enhanced-ui-sheet .hand-card-substack.forced-open {
   z-index: 1000;
 }
 
@@ -590,8 +590,8 @@
    wins the (otherwise tied) specificity/cascade fight and actually resets
    left/bottom instead of leaving the rest offset stacked underneath the
    fan's own transform. */
-#sleek-ui-sheet .hand-card:hover > .hand-card-substack > .hand-card,
-#sleek-ui-sheet .hand-card-substack.forced-open > .hand-card {
+#enhanced-ui-sheet .hand-card:hover > .hand-card-substack > .hand-card,
+#enhanced-ui-sheet .hand-card-substack.forced-open > .hand-card {
   position: relative;
   left: auto;
   bottom: auto;
@@ -600,7 +600,7 @@
 /* ====================
    FEATURE GROUP OVERLAY — "drop the parent, its features fade in from the
    center" reveal for a group with more than one feature (see
-   showFeatureGroupOverlay in card-hand.js). Appended inside #sleek-ui-sheet
+   showFeatureGroupOverlay in card-hand.js). Appended inside #enhanced-ui-sheet
    itself (not document.body) so it inherits all the card-face rules above
    for free, and so position:fixed here is relative to the viewport — true
    as long as the minisheet's own outer container has no transform on it,
@@ -608,7 +608,7 @@
    anchor that ever renders a hand).
    ==================== */
 
-#sleek-ui-sheet .card-hand-group-overlay {
+#enhanced-ui-sheet .card-hand-group-overlay {
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -621,17 +621,17 @@
   transition: opacity 0.25s ease;
 }
 
-#sleek-ui-sheet .card-hand-group-overlay.active {
+#enhanced-ui-sheet .card-hand-group-overlay.active {
   opacity: 1;
   pointer-events: auto;
 }
 
-#sleek-ui-sheet .card-hand-group-overlay-fan {
+#enhanced-ui-sheet .card-hand-group-overlay-fan {
   transform: scale(0.4);
   transition: transform 0.25s ease;
 }
 
-#sleek-ui-sheet .card-hand-group-overlay.active .card-hand-group-overlay-fan {
+#enhanced-ui-sheet .card-hand-group-overlay.active .card-hand-group-overlay-fan {
   transform: scale(1);
 }
 
@@ -641,8 +641,8 @@
    only toggle) plus the Hand button grouped with its filter icon.
    ==================== */
 
-#sleek-ui-sheet .minisheet .tab-button-container .tab-button.active-mode {
-  border-color: var(--sleekUI-color-tertiary);
+#enhanced-ui-sheet .minisheet .tab-button-container .tab-button.active-mode {
+  border-color: var(--enhancedUI-color-tertiary);
 }
 
 /* No overflow:hidden here — the filter popover is a child of this element,
@@ -650,20 +650,20 @@
    along with it (that was the actual cause of the popover never appearing:
    the click handler was firing fine, the popover just had nowhere to
    render). Rounded-corner grouping is done per-child instead. */
-#sleek-ui-sheet .minisheet .tab-button-group {
+#enhanced-ui-sheet .minisheet .tab-button-group {
   position: relative;
   display: flex;
   align-items: stretch;
-  border: 1px solid var(--sleekUI-color-border);
-  border-radius: var(--sleekUI-border-radius);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
 }
 
-#sleek-ui-sheet .minisheet .tab-button-group .tab-button {
+#enhanced-ui-sheet .minisheet .tab-button-group .tab-button {
   border: none;
-  border-radius: var(--sleekUI-border-radius) 0 0 var(--sleekUI-border-radius);
+  border-radius: var(--enhancedUI-border-radius) 0 0 var(--enhancedUI-border-radius);
 }
 
-#sleek-ui-sheet .minisheet .tab-button-group .hand-filter-btn {
+#enhanced-ui-sheet .minisheet .tab-button-group .hand-filter-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -672,19 +672,19 @@
   height: auto;
   margin: 0;
   padding: 0 10px;
-  background: var(--sleekUI-gradient-card);
+  background: var(--enhancedUI-gradient-card);
   border: none;
-  border-left: 1px solid var(--sleekUI-color-border);
-  border-radius: 0 var(--sleekUI-border-radius) var(--sleekUI-border-radius) 0;
-  color: var(--sleekUI-color-secondary);
+  border-left: 1px solid var(--enhancedUI-color-border);
+  border-radius: 0 var(--enhancedUI-border-radius) var(--enhancedUI-border-radius) 0;
+  color: var(--enhancedUI-color-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-#sleek-ui-sheet .minisheet .tab-button-group .hand-filter-btn:hover,
-#sleek-ui-sheet .minisheet .tab-button-group .hand-filter-btn.active {
-  color: var(--sleekUI-color-primary);
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
+#enhanced-ui-sheet .minisheet .tab-button-group .hand-filter-btn:hover,
+#enhanced-ui-sheet .minisheet .tab-button-group .hand-filter-btn.active {
+  color: var(--enhancedUI-color-primary);
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
 }
 
 /* ====================
@@ -692,16 +692,16 @@
    hand, replacing the module-Settings-only version of the same options.
    ==================== */
 
-#sleek-ui-sheet .minisheet .hand-filter-popover {
+#enhanced-ui-sheet .minisheet .hand-filter-popover {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
   z-index: 50;
   min-width: 180px;
-  padding: var(--sleekUI-spacing-sm);
-  background: var(--sleekUI-color-background-dark);
-  border: 1px solid var(--sleekUI-color-border);
-  border-radius: var(--sleekUI-border-radius);
+  padding: var(--enhancedUI-spacing-sm);
+  background: var(--enhancedUI-color-background-dark);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   opacity: 0;
   transform: translateY(6px);
@@ -709,7 +709,7 @@
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-#sleek-ui-sheet .minisheet .hand-filter-popover.active {
+#enhanced-ui-sheet .minisheet .hand-filter-popover.active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -718,31 +718,31 @@
 /* Grid, not flex: a fixed checkbox column keeps every row's checkbox in the
    same x-position regardless of its label's text length ("Domain Cards" vs
    "Features"), instead of the checkbox's position drifting with the text. */
-#sleek-ui-sheet .minisheet .hand-filter-popover label {
+#enhanced-ui-sheet .minisheet .hand-filter-popover label {
   display: grid;
   grid-template-columns: 16px 1fr;
   align-items: center;
-  gap: var(--sleekUI-spacing-xs);
+  gap: var(--enhancedUI-spacing-xs);
   padding: 4px 0;
-  color: var(--sleekUI-color-secondary);
-  font-size: var(--sleekUI-font-size-sm);
+  color: var(--enhancedUI-color-secondary);
+  font-size: var(--enhancedUI-font-size-sm);
   cursor: pointer;
   white-space: nowrap;
 }
 
-#sleek-ui-sheet .minisheet .hand-filter-popover label input[type="checkbox"] {
+#enhanced-ui-sheet .minisheet .hand-filter-popover label input[type="checkbox"] {
   justify-self: start;
   margin: 0;
 }
 
-#sleek-ui-sheet .minisheet .hand-filter-popover label:hover {
-  color: var(--sleekUI-color-primary);
+#enhanced-ui-sheet .minisheet .hand-filter-popover label:hover {
+  color: var(--enhancedUI-color-primary);
 }
 
-#sleek-ui-sheet .minisheet .hand-filter-popover hr {
+#enhanced-ui-sheet .minisheet .hand-filter-popover hr {
   border: none;
-  border-top: 1px solid var(--sleekUI-color-border);
-  margin: var(--sleekUI-spacing-xs) 0;
+  border-top: 1px solid var(--enhancedUI-color-border);
+  margin: var(--enhancedUI-spacing-xs) 0;
 }
 
 /* ====================
@@ -753,7 +753,7 @@
    cards around live.
    ==================== */
 
-#sleek-ui-sheet .minisheet .hand-reorder-popover {
+#enhanced-ui-sheet .minisheet .hand-reorder-popover {
   min-width: 220px;
   max-width: 280px;
 }
@@ -762,16 +762,16 @@
    to its right so both stay visible/reorderable at once. .hand-reorder-
    popover is itself position:absolute, which is what makes it the
    containing block this positions against. */
-#sleek-ui-sheet .minisheet .hand-reorder-child-popover {
+#enhanced-ui-sheet .minisheet .hand-reorder-child-popover {
   position: absolute;
   top: 0;
   left: calc(100% + 8px);
   min-width: 220px;
   max-width: 280px;
-  padding: var(--sleekUI-spacing-sm);
-  background: var(--sleekUI-color-background-dark);
-  border: 1px solid var(--sleekUI-color-border);
-  border-radius: var(--sleekUI-border-radius);
+  padding: var(--enhancedUI-spacing-sm);
+  background: var(--enhancedUI-color-background-dark);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   opacity: 0;
   transform: translateX(-6px);
@@ -779,25 +779,25 @@
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-#sleek-ui-sheet .minisheet .hand-reorder-child-popover.active {
+#enhanced-ui-sheet .minisheet .hand-reorder-child-popover.active {
   opacity: 1;
   transform: translateX(0);
   pointer-events: auto;
 }
 
-#sleek-ui-sheet .minisheet .hand-reorder-header {
+#enhanced-ui-sheet .minisheet .hand-reorder-header {
   display: flex;
   align-items: center;
-  gap: var(--sleekUI-spacing-xs);
-  padding: 2px 0 var(--sleekUI-spacing-xs);
-  margin-bottom: var(--sleekUI-spacing-xs);
-  border-bottom: 1px solid var(--sleekUI-color-border);
-  color: var(--sleekUI-color-primary);
-  font-size: var(--sleekUI-font-size-sm);
+  gap: var(--enhancedUI-spacing-xs);
+  padding: 2px 0 var(--enhancedUI-spacing-xs);
+  margin-bottom: var(--enhancedUI-spacing-xs);
+  border-bottom: 1px solid var(--enhancedUI-color-border);
+  color: var(--enhancedUI-color-primary);
+  font-size: var(--enhancedUI-font-size-sm);
   font-weight: 600;
 }
 
-#sleek-ui-sheet .minisheet .hand-reorder-list {
+#enhanced-ui-sheet .minisheet .hand-reorder-list {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -809,38 +809,38 @@
    children-button (20px tall) was naturally taller than a plain row (just
    text/icon height) under align-items:center, since flex sizes a row to its
    TALLEST child. Every row is the same height now regardless of content. */
-#sleek-ui-sheet .minisheet .hand-reorder-row {
+#enhanced-ui-sheet .minisheet .hand-reorder-row {
   display: flex;
   align-items: center;
-  gap: var(--sleekUI-spacing-xs);
+  gap: var(--enhancedUI-spacing-xs);
   height: 32px;
   box-sizing: border-box;
-  padding: 0 var(--sleekUI-spacing-xs);
-  background: var(--sleekUI-gradient-card);
-  border: 1px solid var(--sleekUI-color-border);
-  border-radius: var(--sleekUI-border-radius);
-  color: var(--sleekUI-color-secondary);
-  font-size: var(--sleekUI-font-size-sm);
+  padding: 0 var(--enhancedUI-spacing-xs);
+  background: var(--enhancedUI-gradient-card);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
+  color: var(--enhancedUI-color-secondary);
+  font-size: var(--enhancedUI-font-size-sm);
   cursor: grab;
 }
 
-#sleek-ui-sheet .minisheet .hand-reorder-row i.fa-grip-lines {
-  color: var(--sleekUI-color-border);
+#enhanced-ui-sheet .minisheet .hand-reorder-row i.fa-grip-lines {
+  color: var(--enhancedUI-color-border);
   font-size: 12px;
 }
 
-#sleek-ui-sheet .minisheet .hand-reorder-row.dragging {
+#enhanced-ui-sheet .minisheet .hand-reorder-row.dragging {
   opacity: 0.4;
 }
 
-#sleek-ui-sheet .minisheet .hand-reorder-title {
+#enhanced-ui-sheet .minisheet .hand-reorder-title {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-#sleek-ui-sheet .minisheet .hand-reorder-children-btn {
+#enhanced-ui-sheet .minisheet .hand-reorder-children-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -850,7 +850,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: var(--sleekUI-color-secondary);
+  color: var(--enhancedUI-color-secondary);
   cursor: pointer;
   /* Without this, the browser's default focus ring (which a <button> keeps
      after being clicked, not just while actively focused via keyboard)
@@ -863,7 +863,7 @@
 /* .active (not :focus/outline — see the note above) marks whichever
    chevron's own group is the one currently shown in the child popover, set/
    cleared explicitly in JS alongside the popover's own open/closed state. */
-#sleek-ui-sheet .minisheet .hand-reorder-children-btn:hover,
-#sleek-ui-sheet .minisheet .hand-reorder-children-btn.active {
-  color: var(--sleekUI-color-primary);
+#enhanced-ui-sheet .minisheet .hand-reorder-children-btn:hover,
+#enhanced-ui-sheet .minisheet .hand-reorder-children-btn.active {
+  color: var(--enhancedUI-color-primary);
 }

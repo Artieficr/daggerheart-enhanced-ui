@@ -7,13 +7,13 @@ export function registerPartySheet() {
   const registeredSheets = CONFIG.Actor.sheetClasses.party || {};
   const daggerheartPartySheet = registeredSheets["daggerheart.PartySheet"];
   if (!daggerheartPartySheet) {
-    console.warn("daggerheart-sleek-ui | Could not find the system Party sheet to extend.");
+    console.warn("daggerheart-enhanced-ui | Could not find the system Party sheet to extend.");
     return;
   }
 
   const DaggerheartPartySheet = daggerheartPartySheet.cls;
 
-  class SleekPartySheet extends DaggerheartPartySheet {
+  class EnhancedPartySheet extends DaggerheartPartySheet {
     tabs = {};
     floatingTabs = null;
     collapsedCategories = [];
@@ -22,19 +22,19 @@ export function registerPartySheet() {
     static DEFAULT_OPTIONS = foundry.utils.mergeObject(
       super.DEFAULT_OPTIONS,
       {
-        classes: ["daggerheart", "sheet", "actor", "sleek-ui", "sleek-party"],
+        classes: ["daggerheart", "sheet", "actor", "enhanced-ui", "enhanced-party"],
         window: { title: "TYPES.Actor.party", controls: [] },
         position: { width: 650, height: 700 },
         actions: {
-          toggleCategory: SleekPartySheet._onToggleCategory,
-          toggleHope: SleekPartySheet._onToggleMemberHope,
-          toggleHitPoints: SleekPartySheet._onToggleMemberHitPoints,
-          toggleStress: SleekPartySheet._onToggleMemberStress,
-          toggleArmorSlot: SleekPartySheet._onToggleMemberArmorSlot,
-          openMemberSheet: SleekPartySheet._onOpenMemberSheet,
-          deletePartyMember: SleekPartySheet._onDeletePartyMember,
-          deleteItem: SleekPartySheet._onDeleteItem,
-          modifyResource: SleekPartySheet._onModifyMemberResource,
+          toggleCategory: EnhancedPartySheet._onToggleCategory,
+          toggleHope: EnhancedPartySheet._onToggleMemberHope,
+          toggleHitPoints: EnhancedPartySheet._onToggleMemberHitPoints,
+          toggleStress: EnhancedPartySheet._onToggleMemberStress,
+          toggleArmorSlot: EnhancedPartySheet._onToggleMemberArmorSlot,
+          openMemberSheet: EnhancedPartySheet._onOpenMemberSheet,
+          deletePartyMember: EnhancedPartySheet._onDeletePartyMember,
+          deleteItem: EnhancedPartySheet._onDeleteItem,
+          modifyResource: EnhancedPartySheet._onModifyMemberResource,
         },
         dragDrop: [
           {
@@ -48,10 +48,10 @@ export function registerPartySheet() {
 
     static PARTS = {
       mainSheet: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/party/party-sheet-main.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/party/party-sheet-main.hbs",
       },
       partyMembers: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/party/tabs/party-members.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/party/tabs/party-members.hbs",
       },
     };
 
@@ -66,8 +66,8 @@ export function registerPartySheet() {
       const context = await super._prepareContext(options);
 
       context.partySize = this.document.system.partyMembers?.length ?? 0;
-      context.tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
-      context.showTooltip = game.settings.get("daggerheart-sleek-ui", "showTooltip");
+      context.tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
+      context.showTooltip = game.settings.get("daggerheart-enhanced-ui", "showTooltip");
 
       if (Object.keys(this.tabs).length === 0) {
         this.tabs = {
@@ -97,7 +97,7 @@ export function registerPartySheet() {
       await this._prepareInventoryData(context);
 
       if (options.isFirstRender && this.collapsedCategories.length === 0) {
-        this.collapsedCategories = this.document.getFlag("daggerheart-sleek-ui", "collapsedCategories") || [];
+        this.collapsedCategories = this.document.getFlag("daggerheart-enhanced-ui", "collapsedCategories") || [];
       }
       context.collapsedCategories = this.collapsedCategories;
 
@@ -325,11 +325,11 @@ export function registerPartySheet() {
       await super._onRender(context, options);
 
       // Set after super so drag-drop binding (which may touch the element) runs first.
-      this.element.id = "sleek-ui-sheet";
+      this.element.id = "enhanced-ui-sheet";
 
       this.element.addEventListener("mousemove", dismissHoverTooltip);
 
-      const tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
+      const tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
 
       if (tabsPosition === "floating") {
         if (!this.floatingTabs) {
@@ -654,7 +654,7 @@ export function registerPartySheet() {
         if (index > -1) this.collapsedCategories.splice(index, 1);
       }
 
-      this.document.setFlag("daggerheart-sleek-ui", "collapsedCategories", [...this.collapsedCategories]);
+      this.document.setFlag("daggerheart-enhanced-ui", "collapsedCategories", [...this.collapsedCategories]);
     }
 
     static async _onModifyMemberResource(event, target) {
@@ -795,7 +795,7 @@ export function registerPartySheet() {
       if (!item) return;
 
       if (item.parent === this.document) {
-        SleekPartySheet.draggedItem = {
+        EnhancedPartySheet.draggedItem = {
           itemId: item.id,
           actorId: this.document.id,
           itemName: item.name,
@@ -892,19 +892,19 @@ export function registerPartySheet() {
 
   // ─── Registration ─────────────────────────────────────────────────────────
 
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", SleekPartySheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", EnhancedPartySheet, {
     types: ["party"],
     makeDefault: true,
-    label: "DH Sleek UI",
+    label: "DH Enhanced UI",
   });
 
-  SleekPartySheet.draggedItem = null;
+  EnhancedPartySheet.draggedItem = null;
 
   Hooks.on("preCreateItem", async (item, data, options, userId) => {
-    if (!SleekPartySheet.draggedItem) return;
+    if (!EnhancedPartySheet.draggedItem) return;
     if (userId !== game.user.id) return;
 
-    const dragData = SleekPartySheet.draggedItem;
+    const dragData = EnhancedPartySheet.draggedItem;
 
     if (item.parent?.type === "character" && item.parent?.id !== dragData.actorId) {
       setTimeout(async () => {
@@ -916,18 +916,18 @@ export function registerPartySheet() {
             ui.notifications.info(`Transferred ${dragData.itemName} from ${sourceActor.name}`);
           }
         }
-        SleekPartySheet.draggedItem = null;
+        EnhancedPartySheet.draggedItem = null;
       }, 50);
     }
   });
 
   document.addEventListener("dragend", () => {
-    SleekPartySheet.draggedItem = null;
+    EnhancedPartySheet.draggedItem = null;
   });
 
   Hooks.on("updateActor", (actor) => {
     for (const app of foundry.applications.instances.values()) {
-      if (!(app instanceof SleekPartySheet)) continue;
+      if (!(app instanceof EnhancedPartySheet)) continue;
       const isMember = app.document.system.partyMembers?.some((m) => m?.id === actor.id);
       if (isMember) app.render(false, { parts: ["partyMembers"] });
     }
@@ -936,7 +936,7 @@ export function registerPartySheet() {
   Hooks.on("updateItem", (item) => {
     if (!item.parent) return;
     for (const app of foundry.applications.instances.values()) {
-      if (!(app instanceof SleekPartySheet)) continue;
+      if (!(app instanceof EnhancedPartySheet)) continue;
       const isMember = app.document.system.partyMembers?.some((m) => m?.id === item.parent.id);
       if (isMember) app.render(false, { parts: ["partyMembers"] });
     }
@@ -946,7 +946,7 @@ export function registerPartySheet() {
     const parentActor = effect.parent?.parent ?? effect.parent;
     if (!parentActor) return;
     for (const app of foundry.applications.instances.values()) {
-      if (!(app instanceof SleekPartySheet)) continue;
+      if (!(app instanceof EnhancedPartySheet)) continue;
       const isMember = app.document.system.partyMembers?.some((m) => m?.id === parentActor.id);
       if (isMember) queueMicrotask(() => app.render(false, { parts: ["partyMembers"] }));
     }

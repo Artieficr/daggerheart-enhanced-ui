@@ -3,35 +3,35 @@ CHAT COLORS
 ==================== */
 
 .chat-message {
-  --sleekUI-color-roll: var(--sleekUI-color-secondary);
-  --sleekUI-color-roll-transparent: rgba(143, 156, 217, 0.2);
-  --sleekUI-color-roll-border: var(--sleekUI-color-background-resourceHover);
-  --sleekUI-color-roll-background: var(--sleekUI-color-background-dark);
-  --sleekUI-color-roll-background-dark: #0d0f18;
+  --enhancedUI-color-roll: var(--enhancedUI-color-secondary);
+  --enhancedUI-color-roll-transparent: rgba(143, 156, 217, 0.2);
+  --enhancedUI-color-roll-border: var(--enhancedUI-color-background-resourceHover);
+  --enhancedUI-color-roll-background: var(--enhancedUI-color-background-dark);
+  --enhancedUI-color-roll-background-dark: #0d0f18;
 }
 
 .chat-message.hope {
-  --sleekUI-color-roll: #f3c267;
-  --sleekUI-color-roll-transparent: rgba(243, 194, 103, 0.2);
-  --sleekUI-color-roll-border: rgba(243, 194, 103, 0.3);
-  --sleekUI-color-roll-background: linear-gradient(45deg, #412402, #331504);
-  --sleekUI-color-roll-background-dark: rgb(37 13 1 / 30%);
+  --enhancedUI-color-roll: #f3c267;
+  --enhancedUI-color-roll-transparent: rgba(243, 194, 103, 0.2);
+  --enhancedUI-color-roll-border: rgba(243, 194, 103, 0.3);
+  --enhancedUI-color-roll-background: linear-gradient(45deg, #412402, #331504);
+  --enhancedUI-color-roll-background-dark: rgb(37 13 1 / 30%);
 }
 
 .chat-message.fear {
-  --sleekUI-color-roll: #8f87ee;
-  --sleekUI-color-roll-transparent: rgba(143, 135, 238, 0.2);
-  --sleekUI-color-roll-border: rgba(155, 139, 201, 0.3);
-  --sleekUI-color-roll-background: linear-gradient(45deg, #5c207b, #030116);
-  --sleekUI-color-roll-background-dark: rgba(8, 0, 18, 0.3);
+  --enhancedUI-color-roll: #8f87ee;
+  --enhancedUI-color-roll-transparent: rgba(143, 135, 238, 0.2);
+  --enhancedUI-color-roll-border: rgba(155, 139, 201, 0.3);
+  --enhancedUI-color-roll-background: linear-gradient(45deg, #5c207b, #030116);
+  --enhancedUI-color-roll-background-dark: rgba(8, 0, 18, 0.3);
 }
 
 .chat-message.critical {
-  --sleekUI-color-roll: #f9b58c;
-  --sleekUI-color-roll-transparent: rgb(249 130 130 / 20%);
-  --sleekUI-color-roll-border: rgb(205 132 94 / 30%);
-  --sleekUI-color-roll-background: linear-gradient(45deg, #7b2500, #2d0000);
-  --sleekUI-color-roll-background-dark: rgb(33 0 0 / 30%);
+  --enhancedUI-color-roll: #f9b58c;
+  --enhancedUI-color-roll-transparent: rgb(249 130 130 / 20%);
+  --enhancedUI-color-roll-border: rgb(205 132 94 / 30%);
+  --enhancedUI-color-roll-background: linear-gradient(45deg, #7b2500, #2d0000);
+  --enhancedUI-color-roll-background-dark: rgb(33 0 0 / 30%);
 }
 
 /* ==================== 
@@ -39,25 +39,25 @@ CHAT HEADER
 ==================== */
 
 .chat-message {
-  background: var(--sleekUI-color-roll-background);
+  background: var(--enhancedUI-color-roll-background);
 }
 
 .chat-message .message-header {
-  border-bottom: 1px solid var(--sleekUI-color-roll-border);
+  border-bottom: 1px solid var(--enhancedUI-color-roll-border);
   align-items: flex-start;
 }
 
 .chat-message .message-header-main {
   white-space: nowrap;
   overflow: visible;
-  font-family: var(--sleekUI-font-primary);
-  font-size: var(--sleekUI-font-size-md);
+  font-family: var(--enhancedUI-font-primary);
+  font-size: var(--enhancedUI-font-size-md);
 }
 
 .chat-message .message-header-main h4 {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-xs);
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-xs);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -73,8 +73,8 @@ CHAT HEADER
 }
 
 .chat-message .message-header .message-timestamp {
-  font-size: var(--sleekUI-font-size-xs);
-  color: var(--sleekUI-color-primary);
+  font-size: var(--enhancedUI-font-size-xs);
+  color: var(--enhancedUI-color-primary);
   opacity: 0.8;
 }
 
@@ -87,18 +87,18 @@ BUTTONS
 }
 
 .chat-message .message-content button {
-  font-family: var(--sleekUI-font-primary);
+  font-family: var(--enhancedUI-font-primary);
   font-weight: 500;
-  color: var(--sleekUI-color-roll);
-  background: var(--sleekUI-color-roll-background-dark);
-  border: 1px solid var(--sleekUI-color-roll-border);
-  border-radius: var(--sleekUI-border-radius);
+  color: var(--enhancedUI-color-roll);
+  background: var(--enhancedUI-color-roll-background-dark);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
   padding: 18px 8px;
   transition: none;
 }
 
 .chat-message .message-content button:hover {
-  background: var(--sleekUI-color-roll-transparent);
+  background: var(--enhancedUI-color-roll-transparent);
 }
 
 /* ==================== 
@@ -107,7 +107,7 @@ CHAT ROLL
 
 .chat-message .message-content .chat-roll {
   padding: 0;
-  padding-top: var(--sleekUI-spacing-sm);
+  padding-top: var(--enhancedUI-spacing-sm);
 }
 
 .chat-message .message-content .chat-roll .roll-container {
@@ -117,16 +117,16 @@ CHAT ROLL
 /* ROLL TITLE */
 
 .chat-message .message-content .chat-roll .roll-part-title {
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-sm);
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-sm);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 0;
-  margin-bottom: var(--sleekUI-spacing-sm);
+  margin-bottom: var(--enhancedUI-spacing-sm);
   background: none;
   white-space: nowrap;
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
 }
 
 /* ROLL RESULT */
@@ -140,9 +140,9 @@ CHAT ROLL
   flex-direction: column;
   gap: 8px;
   padding: 24px;
-  border-radius: var(--sleekUI-border-radius);
-  border: 1px solid var(--sleekUI-color-roll-border);
-  background: var(--sleekUI-color-roll-background-dark);
+  border-radius: var(--enhancedUI-border-radius);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  background: var(--enhancedUI-color-roll-background-dark);
 }
 
 .chat-message .message-content .chat-roll .roll-section .roll-part-header {
@@ -160,18 +160,18 @@ CHAT ROLL
 }
 
 .chat-message .message-content .chat-roll .roll-part-content .roll-result-container .roll-result-value {
-  font-family: var(--sleekUI-font-primary);
+  font-family: var(--enhancedUI-font-primary);
   font-size: 38px;
   font-weight: 800;
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
 }
 
 .chat-message .message-content .chat-roll .roll-part-content .roll-result-container .roll-result-desc span {
-  font-family: var(--sleekUI-font-primary);
+  font-family: var(--enhancedUI-font-primary);
   font-weight: 400;
   text-transform: uppercase;
   margin: 0;
-  color: var(--sleekUI-color-primary);
+  color: var(--enhancedUI-color-primary);
 }
 
 .chat-message .message-content .chat-roll .roll-part-content .roll-difficulty {
@@ -181,9 +181,9 @@ CHAT ROLL
 .chat-message .message-content .chat-roll .dice-roll .roll-formula {
   font-size: 14px;
   padding: 4px 8px;
-  border-radius: var(--sleekUI-border-radius);
-  background: var(--sleekUI-color-roll-transparent);
-  color: var(--sleekUI-color-roll);
+  border-radius: var(--enhancedUI-border-radius);
+  background: var(--enhancedUI-color-roll-transparent);
+  color: var(--enhancedUI-color-roll);
 }
 
 .chat-message:not(.duality) .message-content .chat-roll .dice-roll .dice-result fieldset {
@@ -203,19 +203,19 @@ CHAT ROLL
 }
 
 .chat-message .message-content .chat-roll .dice-roll .roll-dice .roll-die label {
-  font-family: var(--sleekUI-font-primary);
+  font-family: var(--enhancedUI-font-primary);
   font-weight: 400;
   text-transform: uppercase;
 }
 
 .chat-message .message-content .chat-roll .dice-roll .roll-dice .roll-die .dice {
   height: 48px;
-  font-family: var(--sleekUI-font-primary);
+  font-family: var(--enhancedUI-font-primary);
   font-size: 20px;
 }
 
 .chat-message .message-content .chat-roll .dice-roll .roll-dice .roll-die.has-plus {
-  font-family: var(--sleekUI-font-primary);
+  font-family: var(--enhancedUI-font-primary);
 }
 
 .chat-message .message-content .chat-roll .dice-roll .roll-dice .roll-die .dice.color-fear::before {
@@ -231,7 +231,7 @@ CHAT ROLL
 }
 
 .chat-message .message-content .chat-roll .damage-section .wrapper legend {
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
 }
 
 /* DAMAGE FIELDSET */
@@ -239,8 +239,8 @@ CHAT ROLL
 .chat-message .message-content .chat-roll .dice-roll .dice-result fieldset {
   margin: 0;
   padding: 0;
-  border-radius: var(--sleekUI-border-radius);
-  border: 1px solid var(--sleekUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
+  border: 1px solid var(--enhancedUI-color-roll-border);
 }
 
 .chat-message .message-content .chat-roll .dice-roll .dice-result fieldset .roll-formula {
@@ -259,8 +259,8 @@ CHAT ROLL
 
 .chat-message .message-content .target-section,
 .chat-message .message-content .description-section {
-  border: 1px solid var(--sleekUI-color-roll-border);
-  border-radius: var(--sleekUI-border-radius);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
   margin-top: 12px;
 }
 
@@ -279,11 +279,11 @@ CHAT ROLL
 }
 
 .chat-message .message-content .roll-part-header span {
-  color: var(--sleekUI-color-roll) !important;
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-xs);
+  color: var(--enhancedUI-color-roll) !important;
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-xs);
   font-weight: 600;
-  line-height: var(--sleekUI-spacing-sm);
+  line-height: var(--enhancedUI-spacing-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -303,15 +303,15 @@ CHAT ROLL
 .chat-message .message-content .description-section.expanded .description-content {
   opacity: 1;
   padding: 16px;
-  border-top: 1px solid var(--sleekUI-color-roll-border);
+  border-top: 1px solid var(--enhancedUI-color-roll-border);
 }
 
 .chat-message .message-content .description-section .description-content p {
-  font-family: var(--sleekUI-font-primary);
-  font-size: var(--sleekUI-font-size-sm);
+  font-family: var(--enhancedUI-font-primary);
+  font-size: var(--enhancedUI-font-size-sm);
   line-height: 18px;
   font-style: normal;
-  color: var(--sleekUI-color-primary);
+  color: var(--enhancedUI-color-primary);
 }
 
 .chat-message .message-content .target-section .roll-part-extra .wrapper {
@@ -328,8 +328,8 @@ CHAT ROLL
 
 .chat-message .message-content .target-section .roll-part-content .target-selector .target-choice {
   padding: 16px;
-  border-bottom: 1px solid var(--sleekUI-color-roll-border);
-  color: var(--sleekUI-color-roll);
+  border-bottom: 1px solid var(--enhancedUI-color-roll-border);
+  color: var(--enhancedUI-color-roll);
 }
 
 .chat-message .message-content .target-section .roll-part-content .target-selector .roll-part-header {
@@ -354,7 +354,7 @@ CHAT ROLL
 
 .chat-message .message-content .target-section .roll-part-content .selected-targets-container {
   margin: 0 8px 8px 8px;
-  font-size: var(--sleekUI-font-size-md);
+  font-size: var(--enhancedUI-font-size-md);
 }
 
 .chat-message .message-content .target-section .roll-part-content .selected-targets-container .ellipsis-marker {
@@ -411,9 +411,9 @@ FEATURES
 .chat-message .message-content .domain-card-move .domain-card-header {
   height: 64px;
   margin: 0;
-  margin-bottom: var(--sleekUI-spacing-sm);
-  padding: 0 var(--sleekUI-spacing-sm);
-  border-bottom: 1px solid var(--sleekUI-color-roll-border);
+  margin-bottom: var(--enhancedUI-spacing-sm);
+  padding: 0 var(--enhancedUI-spacing-sm);
+  border-bottom: 1px solid var(--enhancedUI-color-roll-border);
   user-select: none;
 }
 
@@ -428,10 +428,10 @@ FEATURES
 }
 
 .chat-message .message-content .domain-card-move .domain-card-header .domain-label .title {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-secondary) !important;
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-secondary) !important;
   font-size: 18px;
-  font-weight: var(--sleekUI-font-weight-bold);
+  font-weight: var(--enhancedUI-font-weight-bold);
   text-transform: uppercase;
   text-align: start;
   text-overflow: ellipsis;
@@ -451,11 +451,11 @@ FEATURES
 }
 
 .chat-message .message-content .domain-card-move .domain-card-header .domain-label .tags .tag {
-  border-radius: var(--sleekUI-border-radius);
-  font-size: var(--sleekUI-font-size-xs);
-  color: var(--sleekUI-color-tag3-text);
-  border: 1px solid var(--sleekUI-color-tag3-border);
-  background: var(--sleekUI-color-tag3-background);
+  border-radius: var(--enhancedUI-border-radius);
+  font-size: var(--enhancedUI-font-size-xs);
+  color: var(--enhancedUI-color-tag3-text);
+  border: 1px solid var(--enhancedUI-color-tag3-border);
+  background: var(--enhancedUI-color-tag3-background);
   height: 20px;
   line-height: initial;
   white-space: nowrap;
@@ -464,9 +464,9 @@ FEATURES
 /* DESCRIPTION */
 
 .chat-message .message-content .domain-card .domain-card-move .description {
-  margin-bottom: var(--sleekUI-spacing-sm);
-  padding: 0 var(--sleekUI-spacing-sm);
-  color: var(--sleekUI-color-secondary);
+  margin-bottom: var(--enhancedUI-spacing-sm);
+  padding: 0 var(--enhancedUI-spacing-sm);
+  color: var(--enhancedUI-color-secondary);
   line-height: 20px;
 }
 
@@ -486,7 +486,7 @@ FEATURES
 
 .chat-message .message-content .description hr {
   height: 1px;
-  background-image: linear-gradient(90deg, transparent 0%, var(--sleekUI-color-border) 50%, transparent 100%);
+  background-image: linear-gradient(90deg, transparent 0%, var(--enhancedUI-color-border) 50%, transparent 100%);
 }
 
 /* ==================== 
@@ -498,15 +498,15 @@ REFRESH
 }
 
 .chat-message .message-content .refresh-message .subtitle {
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-sm);
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-sm);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 4px;
   background: none;
   white-space: nowrap;
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
 }
 
 /* ==================== 
@@ -550,21 +550,21 @@ ACTIONS
 }
 
 .chat-message .message-content .action .action-section .action-header .title {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-secondary) !important;
-  font-size: var(--sleekUI-font-size-lg);
-  font-weight: var(--sleekUI-font-weight-bold);
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-secondary) !important;
+  font-size: var(--enhancedUI-font-size-lg);
+  font-weight: var(--enhancedUI-font-weight-bold);
   text-transform: uppercase;
   text-align: start;
   text-overflow: ellipsis;
 }
 
 .chat-message .message-content .action .action-section .action-header .label {
-  color: var(--sleekUI-color-secondary) !important;
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-xs);
+  color: var(--enhancedUI-color-secondary) !important;
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-xs);
   font-weight: 400;
-  line-height: var(--sleekUI-spacing-sm);
+  line-height: var(--enhancedUI-spacing-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -576,9 +576,9 @@ ACTIONS
 
 .chat-message .message-content .action .description {
   padding: 12px;
-  border-top: 1px solid var(--sleekUI-color-roll-border);
+  border-top: 1px solid var(--enhancedUI-color-roll-border);
   line-height: 20px;
-  color: var(--sleekUI-color-secondary);
+  color: var(--enhancedUI-color-secondary);
 }
 
 /* ==================== 
@@ -595,7 +595,7 @@ DEATH MOVES
   margin: 0;
   padding: 0;
   position: relative;
-  border-bottom: 1px solid var(--sleekUI-color-roll-border);
+  border-bottom: 1px solid var(--enhancedUI-color-roll-border);
   overflow: hidden;
 }
 
@@ -621,21 +621,21 @@ DEATH MOVES
 }
 
 .chat-message .message-content .death-moves-list .death-move .death-label .header-label .title {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-secondary) !important;
-  font-size: var(--sleekUI-font-size-lg);
-  font-weight: var(--sleekUI-font-weight-bold);
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-secondary) !important;
+  font-size: var(--enhancedUI-font-size-lg);
+  font-weight: var(--enhancedUI-font-weight-bold);
   text-transform: uppercase;
   text-align: start;
   text-overflow: ellipsis;
 }
 
 .chat-message .message-content .death-moves-list .death-move .death-label .header-label .label {
-  color: var(--sleekUI-color-secondary) !important;
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-xs);
+  color: var(--enhancedUI-color-secondary) !important;
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-xs);
   font-weight: 400;
-  line-height: var(--sleekUI-spacing-sm);
+  line-height: var(--enhancedUI-spacing-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -648,8 +648,8 @@ DEATH MOVES
 .chat-message .message-content .death-moves-list .death-move .description {
   padding: 12px;
   line-height: 20px;
-  color: var(--sleekUI-color-secondary);
-  border-bottom: 1px solid var(--sleekUI-color-roll-border);
+  color: var(--enhancedUI-color-secondary);
+  border-bottom: 1px solid var(--enhancedUI-color-roll-border);
 }
 
 .chat-message .message-content .death-moves .result {
@@ -657,7 +657,7 @@ DEATH MOVES
   justify-content: center;
   width: 100%;
   padding: 12px;
-  color: var(--sleekUI-color-primary);
+  color: var(--enhancedUI-color-primary);
 }
 
 /* ==================== 
@@ -673,7 +673,7 @@ DOWNTIME
 }
 
 .chat-message .message-content .downtime-moves-list .downtime-move:not(:first-child) {
-  border-top: 1px solid var(--sleekUI-color-roll-border);
+  border-top: 1px solid var(--enhancedUI-color-roll-border);
 }
 
 .chat-message .message-content .downtime-moves-list .downtime-label {
@@ -709,21 +709,21 @@ DOWNTIME
 }
 
 .chat-message .message-content .downtime-moves-list .downtime-label .header-label .title {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-secondary) !important;
-  font-size: var(--sleekUI-font-size-lg);
-  font-weight: var(--sleekUI-font-weight-bold);
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-secondary) !important;
+  font-size: var(--enhancedUI-font-size-lg);
+  font-weight: var(--enhancedUI-font-weight-bold);
   text-transform: uppercase;
   text-align: start;
   text-overflow: ellipsis;
 }
 
 .chat-message .message-content .downtime-moves-list .downtime-label .header-label .label {
-  color: var(--sleekUI-color-secondary) !important;
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-xs);
+  color: var(--enhancedUI-color-secondary) !important;
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-xs);
   font-weight: 400;
-  line-height: var(--sleekUI-spacing-sm);
+  line-height: var(--enhancedUI-spacing-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -736,8 +736,8 @@ DOWNTIME
 .chat-message .message-content .downtime-moves-list .description {
   padding: 12px;
   line-height: 20px;
-  border-top: 1px solid var(--sleekUI-color-roll-border);
-  color: var(--sleekUI-color-secondary);
+  border-top: 1px solid var(--enhancedUI-color-roll-border);
+  color: var(--enhancedUI-color-secondary);
 }
 
 /* ==================== 
@@ -751,12 +751,12 @@ EFFECTS APPLIED
 
 .chat-message .message-content .effect-header span,
 .chat-message .message-content .actor-header span {
-  font-family: var(--sleekUI-font-primary) !important;
-  font-size: var(--sleekUI-font-size-sm);
+  font-family: var(--enhancedUI-font-primary) !important;
+  font-size: var(--enhancedUI-font-size-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 0;
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
 }
 
 .chat-message .message-content .effect-header::before,
@@ -771,9 +771,9 @@ EFFECTS APPLIED
 }
 
 .chat-message .message-content .effects-container .effect-target-container {
-  border: 1px solid var(--sleekUI-color-roll-border);
-  border-radius: var(--sleekUI-border-radius);
-  background: var(--sleekUI-color-roll-background-dark);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
+  background: var(--enhancedUI-color-roll-background-dark);
 }
 
 .chat-message .message-content .effects-container .effect-target-container .effect-label {
@@ -794,10 +794,10 @@ EFFECTS APPLIED
 }
 
 .chat-message .message-content .effects-container .effect-target-container .effect-label .title {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-secondary) !important;
-  font-size: var(--sleekUI-font-size-lg);
-  font-weight: var(--sleekUI-font-weight-bold);
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-secondary) !important;
+  font-size: var(--enhancedUI-font-size-lg);
+  font-weight: var(--enhancedUI-font-weight-bold);
   text-transform: uppercase;
   text-overflow: ellipsis;
   flex: 1;
@@ -811,12 +811,12 @@ EFFECTS APPLIED
 
 .chat-message .message-content .effects-container .effect-target-container .description {
   padding: 12px;
-  border-top: 1px solid var(--sleekUI-color-roll-border);
+  border-top: 1px solid var(--enhancedUI-color-roll-border);
 }
 
 .chat-message .message-content .effects-container .effect-target-container .description p {
   margin: 0;
-  color: var(--sleekUI-color-secondary);
+  color: var(--enhancedUI-color-secondary);
   line-height: 20px;
 }
 
@@ -827,9 +827,9 @@ EFFECTS APPLIED
 }
 
 .chat-message .message-content .targets-container .token-target-outer-container {
-  background: var(--sleekUI-color-roll-background-dark);
-  border: 1px solid var(--sleekUI-color-roll-border);
-  border-radius: var(--sleekUI-border-radius);
+  background: var(--enhancedUI-color-roll-background-dark);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
 }
 
 .chat-message .message-content .targets-container .token-target-container {
@@ -843,9 +843,9 @@ EFFECTS APPLIED
 }
 
 .chat-message .message-content .targets-container .token-target-container .title {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-secondary) !important;
-  font-size: var(--sleekUI-font-size-md);
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-secondary) !important;
+  font-size: var(--enhancedUI-font-size-md);
   font-weight: 500;
   text-transform: uppercase;
   text-overflow: ellipsis;
@@ -867,9 +867,9 @@ DAMAGE / HEALING
 }
 
 .chat-message .message-content .damage-summary .token-target-container {
-  background: var(--sleekUI-color-roll-background-dark);
-  border: 1px solid var(--sleekUI-color-roll-border);
-  border-radius: var(--sleekUI-border-radius);
+  background: var(--enhancedUI-color-roll-background-dark);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
   gap: 0;
 }
 
@@ -877,13 +877,13 @@ DAMAGE / HEALING
   margin: 0;
   padding: 4px;
   padding-left: 16px;
-  border-bottom: 1px solid var(--sleekUI-color-roll-border);
+  border-bottom: 1px solid var(--enhancedUI-color-roll-border);
 }
 
 .chat-message .message-content .damage-summary .token-target-container .actor-name {
-  color: var(--sleekUI-color-primary) !important;
-  font-family: var(--sleekUI-font-secondary) !important;
-  font-size: var(--sleekUI-font-size-md);
+  color: var(--enhancedUI-color-primary) !important;
+  font-family: var(--enhancedUI-font-secondary) !important;
+  font-size: var(--enhancedUI-font-size-md);
   font-weight: 500;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -904,7 +904,7 @@ DAMAGE / HEALING
   margin: 0;
   padding: 8px;
   padding-left: 32px;
-  color: var(--sleekUI-color-secondary);
+  color: var(--enhancedUI-color-secondary);
 }
 
 /* ==================== 
@@ -916,7 +916,7 @@ DIRECT DICE ROLL
 }
 
 .chat-message .message-content .dice-roll .dice-result .dice-formula {
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
   font-weight: 400;
   background: none;
 }
@@ -924,24 +924,24 @@ DIRECT DICE ROLL
 .chat-message .message-content .dice-roll .dice-result .dice-total {
   height: fit-content;
   padding: 8px;
-  background: var(--sleekUI-color-roll-background-dark);
-  border: 1px solid var(--sleekUI-color-roll-border);
-  border-radius: var(--sleekUI-border-radius);
-  font-family: var(--sleekUI-font-primary);
+  background: var(--enhancedUI-color-roll-background-dark);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
+  font-family: var(--enhancedUI-font-primary);
   font-size: 24px;
   font-weight: 800;
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
 }
 
 .chat-message .message-content .dice-roll .dice-result .dice-tooltip fieldset {
-  border: 1px solid var(--sleekUI-color-roll-border);
-  border-radius: var(--sleekUI-border-radius);
+  border: 1px solid var(--enhancedUI-color-roll-border);
+  border-radius: var(--enhancedUI-border-radius);
 }
 
 .chat-message .message-content .dice-roll .dice-result .dice-tooltip fieldset legend {
-  color: var(--sleekUI-color-roll);
+  color: var(--enhancedUI-color-roll);
 }
 
 .chat-message .message-content .dice-roll .dice-result .dice-tooltip fieldset .dice {
-  font-family: var(--sleekUI-font-primary);
+  font-family: var(--enhancedUI-font-primary);
 }

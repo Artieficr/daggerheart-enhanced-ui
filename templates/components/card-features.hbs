@@ -21,24 +21,24 @@
       <div class="card-resource">
 
         {{#if (eq item.system.resource.type 'die')}}
-        {{> "modules/daggerheart-sleek-ui/templates/components/res-die.hbs"}}
+        {{> "modules/daggerheart-enhanced-ui/templates/components/res-die.hbs"}}
         {{/if}}
 
         {{#if (eq item.system.resource.type 'diceValue')}}
-        {{> "modules/daggerheart-sleek-ui/templates/components/res-dice.hbs"}}
+        {{> "modules/daggerheart-enhanced-ui/templates/components/res-dice.hbs"}}
         {{/if}}
 
         {{#if (eq item.system.resource.type 'simple')}}
-        {{> "modules/daggerheart-sleek-ui/templates/components/res-simple.hbs"}}
+        {{> "modules/daggerheart-enhanced-ui/templates/components/res-simple.hbs"}}
         {{/if}}
 
         {{#if usesData}}
-        {{> "modules/daggerheart-sleek-ui/templates/components/res-uses.hbs"
+        {{> "modules/daggerheart-enhanced-ui/templates/components/res-uses.hbs"
         usesData=usesData}}
         {{/if}}
 
         {{#if hopeCost}}
-        {{> "modules/daggerheart-sleek-ui/templates/components/res-hope.hbs"
+        {{> "modules/daggerheart-enhanced-ui/templates/components/res-hope.hbs"
         hopeCost=hopeCost
         actorHope=@root.document.system.resources.hope.value}}
         {{/if}}

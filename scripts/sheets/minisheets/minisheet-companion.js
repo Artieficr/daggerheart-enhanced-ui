@@ -23,7 +23,7 @@ export function teardownCompanionMiniSheet() {
 
 export function registerCompanionMiniSheet() {
   if (game.system.id !== "daggerheart") return;
-  if (!game.settings.get("daggerheart-sleek-ui", "enableMinisheet")) return;
+  if (!game.settings.get("daggerheart-enhanced-ui", "enableMinisheet")) return;
 
   class CompanionMiniSheet {
     static currentActor = null;
@@ -41,7 +41,7 @@ export function registerCompanionMiniSheet() {
 
       const originalSetAnchor = mgr._setAnchor.bind(mgr);
       mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#sleek-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
+        if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
           const pad = this.constructor.TOOLTIP_MARGIN_PX;
           const pos = this.element.getBoundingClientRect();
           return this._setStyle({
@@ -111,7 +111,7 @@ export function registerCompanionMiniSheet() {
       const context = await this._prepareContext(this.currentActor);
       if (!this.currentActor) return;
 
-      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-sleek-ui/templates/sheets/companions/companion-minisheet.hbs", context);
+      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/companions/companion-minisheet.hbs", context);
       if (!this.currentActor) return;
 
       if (!this.element) {
@@ -224,7 +224,7 @@ export function registerCompanionMiniSheet() {
         document: actor,
         source: actor,
         actor,
-        showTooltip: game.settings.get("daggerheart-sleek-ui", "showTooltip"),
+        showTooltip: game.settings.get("daggerheart-enhanced-ui", "showTooltip"),
         partner,
         attack: actor.system.attack,
         attackDamage,
@@ -335,13 +335,13 @@ export function registerCompanionMiniSheet() {
   Hooks.on("updateActor", CompanionMiniSheet._onUpdateActor.bind(CompanionMiniSheet));
   Hooks.on("updateItem", CompanionMiniSheet._onUpdateItem.bind(CompanionMiniSheet));
 
-  Hooks.on("renderSleekCompanionSheet", (app) => {
+  Hooks.on("renderEnhancedCompanionSheet", (app) => {
     if (app.actor === CompanionMiniSheet.currentActor) {
       CompanionMiniSheet._teardown();
     }
   });
 
-  Hooks.on("closeSleekCompanionSheet", () => syncPinnedMinisheet());
+  Hooks.on("closeEnhancedCompanionSheet", () => syncPinnedMinisheet());
 
   _companionMiniSheetRef = CompanionMiniSheet;
 }

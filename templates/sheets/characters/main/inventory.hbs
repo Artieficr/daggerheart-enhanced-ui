@@ -6,7 +6,7 @@
       <h3>{{localize "DAGGERHEART.ACTIONS.TYPES.attack.name"}}</h3>
     </div>
     <ul class="favorites-list">
-      {{> "modules/daggerheart-sleek-ui/templates/components/card-weapon.hbs"
+      {{> "modules/daggerheart-enhanced-ui/templates/components/card-weapon.hbs"
       item=unarmedAttack.item
       tags=unarmedAttack.tags
       hopeCost=unarmedAttack.hopeCost
@@ -25,7 +25,7 @@
     </div>
     <ul class="favorites-list">
       {{#each weapons as |weaponData|}}
-      {{> "modules/daggerheart-sleek-ui/templates/components/card-weapon.hbs"
+      {{> "modules/daggerheart-enhanced-ui/templates/components/card-weapon.hbs"
       item=weaponData.item
       tags=weaponData.tags
       hopeCost=weaponData.hopeCost
@@ -45,7 +45,7 @@
     </div>
     <ul class="favorites-list">
       {{#each armors as |armorData|}}
-      {{> "modules/daggerheart-sleek-ui/templates/components/card-armor.hbs"
+      {{> "modules/daggerheart-enhanced-ui/templates/components/card-armor.hbs"
       item=armorData.item
       tags=armorData.tags
       hopeCost=armorData.hopeCost
@@ -65,7 +65,7 @@
     </div>
     <ul class="favorites-list">
       {{#each consumables as |itemData|}}
-      {{> "modules/daggerheart-sleek-ui/templates/components/card-item.hbs"
+      {{> "modules/daggerheart-enhanced-ui/templates/components/card-item.hbs"
       item=itemData.item
       tags=itemData.tags
       hopeCost=itemData.hopeCost
@@ -85,7 +85,7 @@
     </div>
     <ul class="favorites-list">
       {{#each items as |itemData|}}
-      {{> "modules/daggerheart-sleek-ui/templates/components/card-item.hbs"
+      {{> "modules/daggerheart-enhanced-ui/templates/components/card-item.hbs"
       item=itemData.item
       tags=itemData.tags
       hopeCost=itemData.hopeCost

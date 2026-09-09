@@ -51,7 +51,7 @@ export function teardownCharacterMiniSheet() {
 
 export function registerCharacterMiniSheet() {
   if (game.system.id !== "daggerheart") return;
-  if (!game.settings.get("daggerheart-sleek-ui", "enableMinisheet")) return;
+  if (!game.settings.get("daggerheart-enhanced-ui", "enableMinisheet")) return;
 
   class CharacterMiniSheet {
     static currentActor = null;
@@ -98,7 +98,7 @@ export function registerCharacterMiniSheet() {
 
       const originalSetAnchor = mgr._setAnchor.bind(mgr);
       mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#sleek-ui-sheet .minisheet") && !this.element?.closest(".favorites-window, .card-hand-window")) {
+        if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(".favorites-window, .card-hand-window")) {
           const pad = this.constructor.TOOLTIP_MARGIN_PX;
           const pos = this.element.getBoundingClientRect();
           return this._setStyle({
@@ -163,7 +163,7 @@ export function registerCharacterMiniSheet() {
       const context = await this._prepareContext(this.currentActor);
       if (!this.currentActor) return;
 
-      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-sleek-ui/templates/sheets/characters/minisheet.hbs", context);
+      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/characters/minisheet.hbs", context);
       if (!this.currentActor) return;
 
       if (!this.element) {
@@ -280,7 +280,7 @@ export function registerCharacterMiniSheet() {
       if (!this.currentActor || !this.element) return;
 
       const context = await this._prepareContext(this.currentActor);
-      await renderFavorites(this.element, this.currentActor, "modules/daggerheart-sleek-ui/templates/sheets/characters/main/favorites.hbs", context);
+      await renderFavorites(this.element, this.currentActor, "modules/daggerheart-enhanced-ui/templates/sheets/characters/main/favorites.hbs", context);
     }
 
     static _renderCardHand() {
@@ -322,9 +322,9 @@ export function registerCharacterMiniSheet() {
 
       let { weapons, armors, loadoutCards, quickAccess, quickAccessItems, unarmedAttack } = systemContext;
 
-      const isSleekSheet = actor.sheet?.constructor?.name === "SleekCharacterSheet";
+      const isEnhancedSheet = actor.sheet?.constructor?.name === "EnhancedCharacterSheet";
 
-      if (!isSleekSheet) {
+      if (!isEnhancedSheet) {
         weapons = actor.items.filter((i) => i.type === "weapon").map((item) => ({
           item,
           tags: [],
@@ -378,7 +378,7 @@ export function registerCharacterMiniSheet() {
         quickAccessItems = [];
       }
 
-      const favoritesDisplayMode = game.settings.get("daggerheart-sleek-ui", "favoritesDisplayMode");
+      const favoritesDisplayMode = game.settings.get("daggerheart-enhanced-ui", "favoritesDisplayMode");
 
       return {
         document: actor,
@@ -386,7 +386,7 @@ export function registerCharacterMiniSheet() {
         actor,
         hasExtraResources: systemContext.hasExtraResources,
         ownershipLevel: game.user.isGM ? CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER : actor.getUserLevel(game.user),
-        showTooltip: game.settings.get("daggerheart-sleek-ui", "showTooltip"),
+        showTooltip: game.settings.get("daggerheart-enhanced-ui", "showTooltip"),
         isMinisheet: true,
         isCharacterSheet: true,
         attributes: systemContext.attributes,
@@ -534,13 +534,13 @@ export function registerCharacterMiniSheet() {
   Hooks.on("updateItem", CharacterMiniSheet._onUpdateItem.bind(CharacterMiniSheet));
   Hooks.on("updateActiveEffect", CharacterMiniSheet._onUpdateActiveEffect.bind(CharacterMiniSheet));
 
-  Hooks.on("renderSleekCharacterSheet", (app) => {
+  Hooks.on("renderEnhancedCharacterSheet", (app) => {
     if (app.actor === CharacterMiniSheet.currentActor) {
       CharacterMiniSheet._teardown();
     }
   });
 
-  Hooks.on("closeSleekCharacterSheet", () => syncPinnedMinisheet());
+  Hooks.on("closeEnhancedCharacterSheet", () => syncPinnedMinisheet());
 
   _characterMiniSheetRef = CharacterMiniSheet;
 }

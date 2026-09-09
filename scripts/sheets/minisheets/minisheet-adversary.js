@@ -4,7 +4,7 @@ import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./m
 
 export function registerAdversaryMiniSheet() {
   if (game.system.id !== "daggerheart") return;
-  if (!game.settings.get("daggerheart-sleek-ui", "enableMinisheet")) return;
+  if (!game.settings.get("daggerheart-enhanced-ui", "enableMinisheet")) return;
 
   class AdversaryMiniSheet {
     static currentActor = null;
@@ -23,7 +23,7 @@ export function registerAdversaryMiniSheet() {
 
       const originalSetAnchor = mgr._setAnchor.bind(mgr);
       mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#sleek-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
+        if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
           const pad = this.constructor.TOOLTIP_MARGIN_PX;
           const pos = this.element.getBoundingClientRect();
           return this._setStyle({
@@ -133,7 +133,7 @@ export function registerAdversaryMiniSheet() {
       const context = await this._prepareContext(this.currentActor);
       if (!this.currentActor) return;
 
-      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-sleek-ui/templates/sheets/adversaries/adversary-minisheet.hbs", context);
+      const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/adversaries/adversary-minisheet.hbs", context);
       if (!this.currentActor) return;
 
       if (!this.element) {
@@ -261,7 +261,7 @@ export function registerAdversaryMiniSheet() {
         source: actor,
         actor,
         isNPC: true,
-        showTooltip: game.settings.get("daggerheart-sleek-ui", "showTooltip"),
+        showTooltip: game.settings.get("daggerheart-enhanced-ui", "showTooltip"),
         currentFear: game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Resources.Fear),
         adversaryFeatures: systemContext.adversaryFeatures ?? [],
         attackDamage,
@@ -348,7 +348,7 @@ export function registerAdversaryMiniSheet() {
     }
 
     // Card expand/collapse for feature cards in the features panel.
-    // Mirrors the logic in SleekAdversarySheet._attachCardListeners but without
+    // Mirrors the logic in EnhancedAdversarySheet._attachCardListeners but without
     // needing to persist openCards across re-renders (minisheet re-renders fully).
     static _attachCardListeners() {
       this.element.querySelectorAll(".card-text, .card-resource").forEach((nameContainer) => {
@@ -375,14 +375,14 @@ export function registerAdversaryMiniSheet() {
   Hooks.on("updateItem", AdversaryMiniSheet._onUpdateItem.bind(AdversaryMiniSheet));
 
   // Tear down when the full sheet opens for this actor
-  Hooks.on("renderSleekAdversarySheet", (app) => {
+  Hooks.on("renderEnhancedAdversarySheet", (app) => {
     if (app.actor === AdversaryMiniSheet.currentActor) {
       AdversaryMiniSheet._teardown();
     }
   });
 
   // Re-mount when the full sheet is closed and the token is still selected
-  Hooks.on("closeSleekAdversarySheet", (app) => {
+  Hooks.on("closeEnhancedAdversarySheet", (app) => {
     const actor = AdversaryMiniSheet._resolveActor();
     if (actor && app.actor === actor) {
       AdversaryMiniSheet.currentActor = actor;

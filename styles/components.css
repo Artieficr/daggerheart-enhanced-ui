@@ -2,25 +2,25 @@
    CARD BASICS
    ==================== */
 
-#sleek-ui-sheet .card-wrapper {
+#enhanced-ui-sheet .card-wrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-radius: var(--sleekUI-border-radius);
-  border: 1px solid var(--sleekUI-color-border);
-  background: var(--sleekUI-gradient-card);
+  border-radius: var(--enhancedUI-border-radius);
+  border: 1px solid var(--enhancedUI-color-border);
+  background: var(--enhancedUI-gradient-card);
   overflow: hidden;
 }
 
-#sleek-ui-sheet .card-wrapper:has(.card-container.header:hover) {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
+#enhanced-ui-sheet .card-wrapper:has(.card-container.header:hover) {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
 }
 
 /* ==================== 
    CARD HEADER
    ==================== */
 
-#sleek-ui-sheet .card-container.header {
+#enhanced-ui-sheet .card-container.header {
   display: flex;
   flex-direction: row;
   max-height: 48px;
@@ -31,36 +31,36 @@
    CARD DESCRIPTION
    ==================== */
 
-#sleek-ui-sheet .card-wrapper .card-container.description {
+#enhanced-ui-sheet .card-wrapper .card-container.description {
   display: none;
   flex-direction: column;
-  gap: var(--sleekUI-spacing-sm);
+  gap: var(--enhancedUI-spacing-sm);
 }
 
-#sleek-ui-sheet .card-container.description .separator-line {
+#enhanced-ui-sheet .card-container.description .separator-line {
   width: 100%;
   height: 1px;
-  background: var(--sleekUI-gradient-line-right);
+  background: var(--enhancedUI-gradient-line-right);
 }
 
 /* ==================== 
    ICON
    ==================== */
 
-#sleek-ui-sheet .card-container.header .card-icon {
+#enhanced-ui-sheet .card-container.header .card-icon {
   width: 82px;
   height: 48px;
-  mask-image: var(--sleekUI-gradient-mask-icon);
+  mask-image: var(--enhancedUI-gradient-mask-icon);
   position: relative;
   flex-shrink: 0;
   cursor: default;
 }
 
-#sleek-ui-sheet .card-container.header .card-icon[data-action] {
+#enhanced-ui-sheet .card-container.header .card-icon[data-action] {
   cursor: pointer;
 }
 
-#sleek-ui-sheet .card-container.header .card-icon .dice-roll {
+#enhanced-ui-sheet .card-container.header .card-icon .dice-roll {
   position: absolute;
   width: auto;
   height: 32px;
@@ -71,21 +71,21 @@
   cursor: default;
 }
 
-#sleek-ui-sheet .card-container.header .card-icon[data-action] .dice-roll {
+#enhanced-ui-sheet .card-container.header .card-icon[data-action] .dice-roll {
   cursor: pointer;
 }
 
-#sleek-ui-sheet .card-container.header .card-icon .icon {
+#enhanced-ui-sheet .card-container.header .card-icon .icon {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-#sleek-ui-sheet .card-container.header .card-icon[data-action]:hover .icon {
+#enhanced-ui-sheet .card-container.header .card-icon[data-action]:hover .icon {
   filter: brightness(0.2);
 }
 
-#sleek-ui-sheet .card-container.header .card-icon[data-action]:hover .dice-roll {
+#enhanced-ui-sheet .card-container.header .card-icon[data-action]:hover .dice-roll {
   opacity: 1;
   transform: translateX(-12px);
 }
@@ -94,7 +94,7 @@
    CARD HEADER CONTENT
    ==================== */
 
-#sleek-ui-sheet .card-container.header .card-header {
+#enhanced-ui-sheet .card-container.header .card-header {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -102,7 +102,7 @@
   width: 100%;
   /* height: 100%; */
   margin-left: -8px;
-  padding: var(--sleekUI-spacing-xs);
+  padding: var(--enhancedUI-spacing-xs);
   padding-left: 0;
   overflow: hidden;
 }
@@ -111,7 +111,7 @@
    CARD NAME + DETAILS
    ==================== */
 
-#sleek-ui-sheet .card-header .card-text {
+#enhanced-ui-sheet .card-header .card-text {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -121,56 +121,56 @@
   cursor: pointer;
 }
 
-#sleek-ui-sheet .card-text .separator {
-  margin: 0 var(--sleekUI-spacing-tiny);
+#enhanced-ui-sheet .card-text .separator {
+  margin: 0 var(--enhancedUI-spacing-tiny);
 }
 
 /* ==================== 
    CARD CONTROLS
    ==================== */
 
-#sleek-ui-sheet .card-header .card-controls {
+#enhanced-ui-sheet .card-header .card-controls {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--sleekUI-spacing-sm);
-  margin-left: var(--sleekUI-spacing-lg);
+  gap: var(--enhancedUI-spacing-sm);
+  margin-left: var(--enhancedUI-spacing-lg);
 }
 
-#sleek-ui-sheet .card-controls a {
+#enhanced-ui-sheet .card-controls a {
   width: 16px;
   height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--sleekUI-color-secondary);
+  color: var(--enhancedUI-color-secondary);
 }
 
-#sleek-ui-sheet .card-controls a:last-child {
+#enhanced-ui-sheet .card-controls a:last-child {
   width: 8px;
 }
 
-#sleek-ui-sheet .card-controls a:hover {
-  filter: drop-shadow(0 0 2px var(--sleekUI-color-primary));
-  color: var(--sleekUI-color-primary);
+#enhanced-ui-sheet .card-controls a:hover {
+  filter: drop-shadow(0 0 2px var(--enhancedUI-color-primary));
+  color: var(--enhancedUI-color-primary);
 }
 
-#sleek-ui-sheet .unequipped i {
+#enhanced-ui-sheet .unequipped i {
   opacity: 0.25;
 }
 
-#sleek-ui-sheet .card-controls .delete-item {
-  margin-right: var(--sleekUI-spacing-tiny);
+#enhanced-ui-sheet .card-controls .delete-item {
+  margin-right: var(--enhancedUI-spacing-tiny);
   transform: translateY(-1px);
 }
 
-#sleek-ui-sheet .card-controls .delete-item:hover {
+#enhanced-ui-sheet .card-controls .delete-item:hover {
   color: #b83636;
   filter: drop-shadow(0 0 2px #b83636);
   text-shadow: none;
 }
 
-#sleek-ui-sheet .card-controls .edit-doc {
+#enhanced-ui-sheet .card-controls .edit-doc {
   transform: translateY(-1px);
 }
 
@@ -178,145 +178,145 @@
    CARD DESCRIPTION
    ==================== */
 
-#sleek-ui-sheet .card-description {
-  padding: 0 var(--sleekUI-spacing-sm);
-  color: var(--sleekUI-color-secondary);
+#enhanced-ui-sheet .card-description {
+  padding: 0 var(--enhancedUI-spacing-sm);
+  color: var(--enhancedUI-color-secondary);
   line-height: 20px;
   display: flex;
   flex-direction: column;
-  gap: var(--sleekUI-spacing-xs);
+  gap: var(--enhancedUI-spacing-xs);
 }
 
-#sleek-ui-sheet a.content-link,
-#sleek-ui-sheet a.inline-roll {
-  border-radius: var(--sleekUI-border-radius-s);
+#enhanced-ui-sheet a.content-link,
+#enhanced-ui-sheet a.inline-roll {
+  border-radius: var(--enhancedUI-border-radius-s);
 }
 
-#sleek-ui-sheet a.content-link:hover {
+#enhanced-ui-sheet a.content-link:hover {
   font-weight: unset;
 }
 
-#sleek-ui-sheet .card-description button {
-  background: var(--sleekUI-color-background-input);
-  color: var(--sleekUI-color-primary);
+#enhanced-ui-sheet .card-description button {
+  background: var(--enhancedUI-color-background-input);
+  color: var(--enhancedUI-color-primary);
   border: none;
   transition: none;
 }
 
-#sleek-ui-sheet .card-description button:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .card-description button:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .card-description ul {
+#enhanced-ui-sheet .card-description ul {
   list-style: disc;
   margin: 0.5rem 0 0.5rem 1.5rem;
   padding-left: 0;
 }
 
-#sleek-ui-sheet .card-description ol {
+#enhanced-ui-sheet .card-description ol {
   list-style: decimal;
   margin: 0.5rem 0 0.5rem 1.5rem;
   padding-left: 0;
 }
 
-#sleek-ui-sheet .card-description li {
+#enhanced-ui-sheet .card-description li {
   display: list-item;
   margin-bottom: 0.2rem;
 }
 
-#sleek-ui-sheet .feature-box {
-  padding: var(--sleekUI-spacing-sm);
-  border-radius: var(--sleekUI-border-radius-s);
-  border: 1px solid var(--sleekUI-color-border);
-  background: var(--sleekUI-color-background-resourceHover);
-  margin-bottom: var(--sleekUI-spacing-tiny);
+#enhanced-ui-sheet .feature-box {
+  padding: var(--enhancedUI-spacing-sm);
+  border-radius: var(--enhancedUI-border-radius-s);
+  border: 1px solid var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-background-resourceHover);
+  margin-bottom: var(--enhancedUI-spacing-tiny);
 }
 
-#sleek-ui-sheet .feature-box:last-child {
+#enhanced-ui-sheet .feature-box:last-child {
   margin-bottom: 0;
 }
 
-#sleek-ui-sheet .feature-box p {
-  margin: var(--sleekUI-spacing-tiny) 0;
-  color: var(--sleekUI-color-secondary);
+#enhanced-ui-sheet .feature-box p {
+  margin: var(--enhancedUI-spacing-tiny) 0;
+  color: var(--enhancedUI-color-secondary);
 }
 
-#sleek-ui-sheet .feature-box strong {
-  color: var(--sleekUI-color-primary);
+#enhanced-ui-sheet .feature-box strong {
+  color: var(--enhancedUI-color-primary);
 }
 
-#sleek-ui-sheet hr {
+#enhanced-ui-sheet hr {
   height: 1px;
   margin: 0;
-  background-image: var(--sleekUI-gradient-line-middle);
+  background-image: var(--enhancedUI-gradient-line-middle);
 }
 
 /* ==================== 
    CARD BOTTOM
    ==================== */
 
-#sleek-ui-sheet .card-bottom {
+#enhanced-ui-sheet .card-bottom {
   display: flex;
   flex-direction: row;
-  gap: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-tiny);
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--sleekUI-spacing-sm);
-  padding-bottom: var(--sleekUI-spacing-sm);
+  padding: 0 var(--enhancedUI-spacing-sm);
+  padding-bottom: var(--enhancedUI-spacing-sm);
 }
 
-#sleek-ui-sheet .card-bottom .card-tags {
+#enhanced-ui-sheet .card-bottom .card-tags {
   display: flex;
   flex-direction: row;
   width: auto;
-  gap: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-tiny);
   flex-wrap: wrap;
 }
 
-#sleek-ui-sheet .card-bottom .card-actions {
+#enhanced-ui-sheet .card-bottom .card-actions {
   display: flex;
   flex-direction: row-reverse;
   width: auto;
-  gap: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-tiny);
   flex-wrap: wrap;
 }
 
-#sleek-ui-sheet .card-bottom .card-button {
+#enhanced-ui-sheet .card-bottom .card-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: var(--sleekUI-spacing-tiny);
-  background: var(--sleekUI-color-background-input);
+  gap: var(--enhancedUI-spacing-tiny);
+  background: var(--enhancedUI-color-background-input);
   border: none;
-  border-radius: var(--sleekUI-border-radius-s);
-  padding: var(--sleekUI-spacing-xs);
+  border-radius: var(--enhancedUI-border-radius-s);
+  padding: var(--enhancedUI-spacing-xs);
   transition: none;
 }
 
-#sleek-ui-sheet .card-bottom .card-button:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .card-bottom .card-button:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .card-bottom .card-button.inactive {
+#enhanced-ui-sheet .card-bottom .card-button.inactive {
   cursor: default;
 }
 
-#sleek-ui-sheet .card-bottom .card-button.inactive:hover {
+#enhanced-ui-sheet .card-bottom .card-button.inactive:hover {
   box-shadow: none;
-  background: var(--sleekUI-color-background-input);
+  background: var(--enhancedUI-color-background-input);
 }
 
 /* ==================== 
    RESOURCES
    ==================== */
 
-#sleek-ui-sheet .card-resource {
+#enhanced-ui-sheet .card-resource {
   display: flex;
   flex-direction: row;
-  gap: var(--sleekUI-spacing-xs);
+  gap: var(--enhancedUI-spacing-xs);
   width: 100%;
   height: 100%;
   justify-content: flex-end;
@@ -324,75 +324,75 @@
   cursor: pointer;
 }
 
-#sleek-ui-sheet .features .card-resource {
+#enhanced-ui-sheet .features .card-resource {
   width: auto;
 }
 
-#sleek-ui-sheet .resource {
+#enhanced-ui-sheet .resource {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: var(--sleekUI-spacing-tiny);
-  padding: var(--sleekUI-spacing-xs) var(--sleekUI-spacing-sm);
+  gap: var(--enhancedUI-spacing-tiny);
+  padding: var(--enhancedUI-spacing-xs) var(--enhancedUI-spacing-sm);
   height: 100%;
-  background: var(--sleekUI-color-background-input);
-  border-radius: var(--sleekUI-border-radius-s);
+  background: var(--enhancedUI-color-background-input);
+  border-radius: var(--enhancedUI-border-radius-s);
   min-width: 36px;
   white-space: nowrap;
 }
 
-#sleek-ui-sheet .resource i {
-  font-size: var(--sleekUI-font-size-sm);
-  color: var(--sleekUI-color-secondary);
-  margin-left: var(--sleekUI-spacing-tiny);
+#enhanced-ui-sheet .resource i {
+  font-size: var(--enhancedUI-font-size-sm);
+  color: var(--enhancedUI-color-secondary);
+  margin-left: var(--enhancedUI-spacing-tiny);
 }
 
 /* ==================== 
    RESOURCE - SIMPLE
    ==================== */
 
-#sleek-ui-sheet .resource.simple-resource {
+#enhanced-ui-sheet .resource.simple-resource {
   cursor: pointer;
 }
 
-#sleek-ui-sheet .resource.simple-resource:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .resource.simple-resource:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
 /* ==================== 
 RESOURCE - USES
 ==================== */
 
-#sleek-ui-sheet .resource.uses-resource {
+#enhanced-ui-sheet .resource.uses-resource {
   cursor: pointer;
 }
 
-#sleek-ui-sheet .resource.uses-resource:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .resource.uses-resource:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
 /* ==================== 
 RESOURCE - DIE
 ==================== */
 
-#sleek-ui-sheet .resource.die-resource {
+#enhanced-ui-sheet .resource.die-resource {
   gap: 0;
   cursor: pointer;
 }
 
-#sleek-ui-sheet .resource.die-resource:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .resource.die-resource:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .resource.die-resource .die-value {
-  padding-right: var(--sleekUI-spacing-xs);
+#enhanced-ui-sheet .resource.die-resource .die-value {
+  padding-right: var(--enhancedUI-spacing-xs);
 }
 
-#sleek-ui-sheet .resource.die-resource .die-value-empty {
+#enhanced-ui-sheet .resource.die-resource .die-value-empty {
   display: none;
 }
 
@@ -400,42 +400,42 @@ RESOURCE - DIE
 RESOURCE - DICE
 ==================== */
 
-#sleek-ui-sheet .resource.dice-resource {
-  gap: var(--sleekUI-spacing-md);
+#enhanced-ui-sheet .resource.dice-resource {
+  gap: var(--enhancedUI-spacing-md);
 }
 
-#sleek-ui-sheet .resource.dice-resource:has(.dice-roll:hover) {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .resource.dice-resource:has(.dice-roll:hover) {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-roll {
+#enhanced-ui-sheet .resource.dice-resource .dice-roll {
   cursor: pointer;
   width: 16px;
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-roll i {
+#enhanced-ui-sheet .resource.dice-resource .dice-roll i {
   display: none;
-  font-size: var(--sleekUI-font-size-md);
-  color: var(--sleekUI-color-primary);
+  font-size: var(--enhancedUI-font-size-md);
+  color: var(--enhancedUI-color-primary);
   margin: 0;
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-roll:hover i {
+#enhanced-ui-sheet .resource.dice-resource .dice-roll:hover i {
   display: block;
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-roll:hover img {
+#enhanced-ui-sheet .resource.dice-resource .dice-roll:hover img {
   display: none;
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-value-row {
+#enhanced-ui-sheet .resource.dice-resource .dice-value-row {
   display: flex;
   flex-direction: row;
-  gap: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-tiny);
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-value {
+#enhanced-ui-sheet .resource.dice-resource .dice-value {
   display: flex;
   width: 20px;
   justify-content: center;
@@ -444,33 +444,33 @@ RESOURCE - DICE
   position: relative;
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-mark {
+#enhanced-ui-sheet .resource.dice-resource .dice-mark {
   position: absolute;
   width: 16px;
   height: 16px;
   left: -4px;
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-mark i {
+#enhanced-ui-sheet .resource.dice-resource .dice-mark i {
   color: #e84747;
   font-size: 16px;
 }
 
-#sleek-ui-sheet .resource.dice-resource .dice-value:hover {
-  text-shadow: 0 0 4px var(--sleekUI-color-tertiary);
+#enhanced-ui-sheet .resource.dice-resource .dice-value:hover {
+  text-shadow: 0 0 4px var(--enhancedUI-color-tertiary);
 }
 
 /* ==================== 
    RESOURCE - HOPE
    ==================== */
 
-#sleek-ui-sheet .resource.hope-resource {
-  gap: var(--sleekUI-spacing-xs);
+#enhanced-ui-sheet .resource.hope-resource {
+  gap: var(--enhancedUI-spacing-xs);
   background: none;
 }
 
-#sleek-ui-sheet .resource .hope-icon-full,
-#sleek-ui-sheet .resource .hope-icon-empty {
+#enhanced-ui-sheet .resource .hope-icon-full,
+#enhanced-ui-sheet .resource .hope-icon-empty {
   width: 10px;
   height: 10px;
 }
@@ -479,42 +479,42 @@ RESOURCE - DICE
 RESOURCE - RECALL
 ==================== */
 
-#sleek-ui-sheet .resource.recall-resource {
-  gap: var(--sleekUI-spacing-xs);
+#enhanced-ui-sheet .resource.recall-resource {
+  gap: var(--enhancedUI-spacing-xs);
   cursor: pointer;
 }
 
-#sleek-ui-sheet .resource.recall-resource:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .resource.recall-resource:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
 /* ==================== 
 RESOURCE - QUANTITY
 ==================== */
 
-#sleek-ui-sheet .item .card-container.header .card-header {
+#enhanced-ui-sheet .item .card-container.header .card-header {
   margin-left: -16px;
 }
 
-#sleek-ui-sheet .item .card-text {
+#enhanced-ui-sheet .item .card-text {
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  gap: var(--sleekUI-spacing-sm);
+  gap: var(--enhancedUI-spacing-sm);
 }
 
-#sleek-ui-sheet .resource.quantity-resource {
+#enhanced-ui-sheet .resource.quantity-resource {
   width: 42px;
   padding: 0;
   cursor: pointer;
 }
 
-#sleek-ui-sheet .resource.quantity-resource:hover {
-  border: 1px solid var(--sleekUI-color-border);
+#enhanced-ui-sheet .resource.quantity-resource:hover {
+  border: 1px solid var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .resource.quantity-resource .resource-counter {
+#enhanced-ui-sheet .resource.quantity-resource .resource-counter {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -525,42 +525,42 @@ RESOURCE - QUANTITY
 ITEM ROLL DAMAGE
 ==================== */
 
-#sleek-ui-sheet .roll-damage,
-#sleek-ui-sheet .equip-btn {
+#enhanced-ui-sheet .roll-damage,
+#enhanced-ui-sheet .equip-btn {
   width: fit-content;
-  gap: var(--sleekUI-spacing-tiny);
-  padding: var(--sleekUI-spacing-xs) var(--sleekUI-spacing-sm);
-  background: var(--sleekUI-color-background-input);
-  border-radius: var(--sleekUI-border-radius-s);
-  color: var(--sleekUI-color-primary);
+  gap: var(--enhancedUI-spacing-tiny);
+  padding: var(--enhancedUI-spacing-xs) var(--enhancedUI-spacing-sm);
+  background: var(--enhancedUI-color-background-input);
+  border-radius: var(--enhancedUI-border-radius-s);
+  color: var(--enhancedUI-color-primary);
   cursor: pointer;
 }
 
-#sleek-ui-sheet .roll-damage i,
-#sleek-ui-sheet .equip-btn i {
-  color: var(--sleekUI-color-secondary);
+#enhanced-ui-sheet .roll-damage i,
+#enhanced-ui-sheet .equip-btn i {
+  color: var(--enhancedUI-color-secondary);
 }
 
-#sleek-ui-sheet .roll-damage:hover,
-#sleek-ui-sheet .equip-btn:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
-  background: var(--sleekUI-color-border);
+#enhanced-ui-sheet .roll-damage:hover,
+#enhanced-ui-sheet .equip-btn:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
 }
 
 /* ==================== 
 ITEM ARMOR SLOTS
 ==================== */
 
-#sleek-ui-sheet .armor .resource-bar {
+#enhanced-ui-sheet .armor .resource-bar {
   width: 75px;
   gap: 1px;
 }
 
-#sleek-ui-sheet .armor .resource-pip {
+#enhanced-ui-sheet .armor .resource-pip {
   width: 100px;
 }
 
-#sleek-ui-sheet .armor .resource-pip.empty:hover {
+#enhanced-ui-sheet .armor .resource-pip.empty:hover {
   background: none;
 }
 
@@ -568,42 +568,42 @@ ITEM ARMOR SLOTS
 ITEM EQUIPPED
 ==================== */
 
-#sleek-ui-sheet .card-wrapper.card-equipped {
-  border: 1px solid var(--sleekUI-color-border-equipped);
+#enhanced-ui-sheet .card-wrapper.card-equipped {
+  border: 1px solid var(--enhancedUI-color-border-equipped);
 }
 
-#sleek-ui-sheet .card-wrapper.card-equipped:has(.card-container.header:hover) {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border-equipped);
+#enhanced-ui-sheet .card-wrapper.card-equipped:has(.card-container.header:hover) {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border-equipped);
 }
 
-#sleek-ui-sheet .card-wrapper.domains.card-equipped:has(.card-container.header:hover) {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
+#enhanced-ui-sheet .card-wrapper.domains.card-equipped:has(.card-container.header:hover) {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .card-controls i.equipped {
-  color: var(--sleekUI-color-tertiary);
+#enhanced-ui-sheet .card-controls i.equipped {
+  color: var(--enhancedUI-color-tertiary);
 }
 
 /* ==================== 
 COMPACT CARDS
 ==================== */
 
-#sleek-ui-sheet .compact.card-wrapper {
+#enhanced-ui-sheet .compact.card-wrapper {
   position: relative;
   width: 100%;
   overflow: visible;
 }
 
-#sleek-ui-sheet .compact.card-wrapper .card-icon {
+#enhanced-ui-sheet .compact.card-wrapper .card-icon {
   width: 56px;
-  border-radius: var(--sleekUI-border-radius) 0 0 var(--sleekUI-border-radius);
+  border-radius: var(--enhancedUI-border-radius) 0 0 var(--enhancedUI-border-radius);
 }
 
-#sleek-ui-sheet .compact .card-container.header .card-icon .dice-roll {
+#enhanced-ui-sheet .compact .card-container.header .card-icon .dice-roll {
   left: 22px;
 }
 
-#sleek-ui-sheet .compact .card-header .card-text {
+#enhanced-ui-sheet .compact .card-header .card-text {
   text-align: left;
   flex: 1;
   display: flex;
@@ -612,18 +612,18 @@ COMPACT CARDS
   overflow: hidden;
 }
 
-#sleek-ui-sheet .compact .card-text-name {
+#enhanced-ui-sheet .compact .card-text-name {
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
 }
 
-#sleek-ui-sheet .compact .card-resource {
+#enhanced-ui-sheet .compact .card-resource {
   flex-shrink: 0;
   width: fit-content;
 }
 
-#sleek-ui-sheet .compact .hover-area {
+#enhanced-ui-sheet .compact .hover-area {
   position: absolute;
   right: 0;
   width: 35%;
@@ -631,16 +631,16 @@ COMPACT CARDS
   z-index: 5;
 }
 
-#sleek-ui-sheet .compact .hover-area.remove {
+#enhanced-ui-sheet .compact .hover-area.remove {
   width: 6%;
   right: -4px;
 }
 
-#sleek-ui-sheet .compact .hover-area .hover-resources {
+#enhanced-ui-sheet .compact .hover-area .hover-resources {
   position: absolute;
   display: flex;
   justify-content: flex-end;
-  gap: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-tiny);
   right: 8px;
   top: 8px;
   bottom: 8px;
@@ -650,24 +650,24 @@ COMPACT CARDS
   transition: all 0.2s ease;
 }
 
-#sleek-ui-sheet .compact .hover-area .hover-resources .resource-counter {
+#enhanced-ui-sheet .compact .hover-area .hover-resources .resource-counter {
   display: block;
   white-space: nowrap;
 }
 
-#sleek-ui-sheet .compact .hover-area.force-hover .hover-resources {
+#enhanced-ui-sheet .compact .hover-area.force-hover .hover-resources {
   opacity: 1;
   visibility: visible;
   transform: translateX(0);
 }
 
-#sleek-ui-sheet .compact .hover-area:hover .hover-resources {
+#enhanced-ui-sheet .compact .hover-area:hover .hover-resources {
   opacity: 1;
   visibility: visible;
   transform: translateX(0);
 }
 
-#sleek-ui-sheet .compact .hover-resources .resource {
+#enhanced-ui-sheet .compact .hover-resources .resource {
   width: fit-content;
 }
 
@@ -675,11 +675,11 @@ COMPACT CARDS
 QUICK ACCESS
 ==================== */
 
-#sleek-ui-sheet .compact .hover-area .remove-quick-access {
+#enhanced-ui-sheet .compact .hover-area .remove-quick-access {
   width: 12px;
   height: 12px;
-  font-size: var(--sleekUI-font-size-tiny);
-  color: var(--sleekUI-color-primary);
+  font-size: var(--enhancedUI-font-size-tiny);
+  color: var(--enhancedUI-color-primary);
   background: #b83636;
   border-radius: 50%;
   cursor: pointer;
@@ -692,11 +692,11 @@ QUICK ACCESS
   align-items: center;
 }
 
-#sleek-ui-sheet .compact .hover-area:hover .remove-quick-access {
+#enhanced-ui-sheet .compact .hover-area:hover .remove-quick-access {
   display: flex;
 }
 
-#sleek-ui-sheet .divider {
+#enhanced-ui-sheet .divider {
   position: relative;
   display: flex;
   flex-direction: row;
@@ -706,26 +706,26 @@ QUICK ACCESS
   cursor: pointer;
 }
 
-#sleek-ui-sheet .divider .divider-line {
+#enhanced-ui-sheet .divider .divider-line {
   width: 100%;
   height: 1px;
-  background: var(--sleekUI-gradient-line-middle);
+  background: var(--enhancedUI-gradient-line-middle);
 }
 
-#sleek-ui-sheet .compact.divider .hover-area.remove {
+#enhanced-ui-sheet .compact.divider .hover-area.remove {
   width: 25%;
 }
 
-#sleek-ui-sheet .compact.divider .hover-area .remove-quick-access {
+#enhanced-ui-sheet .compact.divider .hover-area .remove-quick-access {
   top: 0;
   right: -3;
 }
 
-#sleek-ui-sheet .favorites-header h3 {
+#enhanced-ui-sheet .favorites-header h3 {
   position: relative;
 }
 
-#sleek-ui-sheet .favorites-header .add-divider {
+#enhanced-ui-sheet .favorites-header .add-divider {
   display: none;
   width: 12px;
   height: 12px;
@@ -738,22 +738,22 @@ QUICK ACCESS
   right: -16px;
 }
 
-#sleek-ui-sheet .favorites-header:hover .add-divider {
+#enhanced-ui-sheet .favorites-header:hover .add-divider {
   display: flex;
 }
 
-#sleek-ui-sheet .favorites-header.quick-access-header:hover::after {
+#enhanced-ui-sheet .favorites-header.quick-access-header:hover::after {
   background: linear-gradient(260deg, rgba(79, 89, 137, 0) 0%, rgba(79, 89, 137, 1) 82%, rgba(79, 89, 137, 0) 0%);
 }
 
-#sleek-ui-sheet .favorites-header .add-divider:hover {
-  filter: drop-shadow(0 0 2px var(--sleekUI-color-primary));
-  color: var(--sleekUI-color-primary);
+#enhanced-ui-sheet .favorites-header .add-divider:hover {
+  filter: drop-shadow(0 0 2px var(--enhancedUI-color-primary));
+  color: var(--enhancedUI-color-primary);
 }
 
-#sleek-ui-sheet .compact.weapon.quick-access::after,
-#sleek-ui-sheet .compact.armor.quick-access::after,
-#sleek-ui-sheet .compact.domains.quick-access::after {
+#enhanced-ui-sheet .compact.weapon.quick-access::after,
+#enhanced-ui-sheet .compact.armor.quick-access::after,
+#enhanced-ui-sheet .compact.domains.quick-access::after {
   content: "";
   position: absolute;
   top: 0;
@@ -761,21 +761,21 @@ QUICK ACCESS
   width: 100%;
   height: 100%;
   z-index: 2;
-  border-radius: var(--sleekUI-border-radius);
+  border-radius: var(--enhancedUI-border-radius);
   background: black;
   filter: opacity(0.5);
   pointer-events: none;
 }
 
-#sleek-ui-sheet .compact.weapon.quick-access.card-equipped::after,
-#sleek-ui-sheet .compact.weapon.quick-access.card-unarmed::after,
-#sleek-ui-sheet .compact.armor.quick-access.card-equipped::after,
-#sleek-ui-sheet .compact.domains.quick-access.card-equipped::after {
+#enhanced-ui-sheet .compact.weapon.quick-access.card-equipped::after,
+#enhanced-ui-sheet .compact.weapon.quick-access.card-unarmed::after,
+#enhanced-ui-sheet .compact.armor.quick-access.card-equipped::after,
+#enhanced-ui-sheet .compact.domains.quick-access.card-equipped::after {
   display: none;
 }
 
-#sleek-ui-sheet .compact.domains.card-equipped,
-#sleek-ui-sheet .compact.weapon:not(.quick-access),
-#sleek-ui-sheet .compact.armor:not(.quick-access) {
-  border: 1px solid var(--sleekUI-color-border);
+#enhanced-ui-sheet .compact.domains.card-equipped,
+#enhanced-ui-sheet .compact.weapon:not(.quick-access),
+#enhanced-ui-sheet .compact.armor:not(.quick-access) {
+  border: 1px solid var(--enhancedUI-color-border);
 }

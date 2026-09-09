@@ -260,11 +260,11 @@ function showActorPickerContextMenu(event, onRemove) {
 // ─── MINISHEET COLLAPSE STATE ─────────────────────────────────────────────────
 
 export function isMinisheetCollapsed() {
-  return game.user.getFlag("daggerheart-sleek-ui", "minisheetCollapsed") ?? false;
+  return game.user.getFlag("daggerheart-enhanced-ui", "minisheetCollapsed") ?? false;
 }
 
 export function setMinisheetCollapsed(value) {
-  game.user.setFlag("daggerheart-sleek-ui", "minisheetCollapsed", value);
+  game.user.setFlag("daggerheart-enhanced-ui", "minisheetCollapsed", value);
 }
 
 export function triggerMinisheetToggle() {
@@ -273,11 +273,11 @@ export function triggerMinisheetToggle() {
     reopenBtn.click();
     return;
   }
-  document.querySelector("#sleek-ui-sheet .toggle-minisheet.close")?.click();
+  document.querySelector("#enhanced-ui-sheet .toggle-minisheet.close")?.click();
 }
 
 export function registerMinisheetKeybinding() {
-  game.keybindings.register("daggerheart-sleek-ui", "toggleMinisheet", {
+  game.keybindings.register("daggerheart-enhanced-ui", "toggleMinisheet", {
     name: "Toggle minisheet open/closed",
     editable: [{ key: "KeyC", modifiers: ["Alt"] }],
     onDown: () => triggerMinisheetToggle(),
@@ -841,9 +841,9 @@ function _attachQuickAccessListeners(element, actor) {
       event.stopPropagation();
       const itemUuid = el.dataset.itemUuid;
       if (!itemUuid) return;
-      const quickAccessItems = actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+      const quickAccessItems = actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
       await actor.setFlag(
-        "daggerheart-sleek-ui",
+        "daggerheart-enhanced-ui",
         "quickAccess",
         quickAccessItems.filter((uuid) => uuid !== itemUuid),
       );
@@ -853,9 +853,9 @@ function _attachQuickAccessListeners(element, actor) {
   element.querySelectorAll("[data-action='addQuickAccessDivider']").forEach((el) => {
     el.addEventListener("click", async (event) => {
       event.stopPropagation();
-      const quickAccessItems = actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+      const quickAccessItems = actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
       quickAccessItems.unshift(`divider-${foundry.utils.randomID()}`);
-      await actor.setFlag("daggerheart-sleek-ui", "quickAccess", quickAccessItems);
+      await actor.setFlag("daggerheart-enhanced-ui", "quickAccess", quickAccessItems);
     });
   });
 }

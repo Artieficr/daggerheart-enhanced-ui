@@ -2,12 +2,12 @@
 PORTRAIT
 ==================== */
 
-#sleek-ui-sheet .main-content.companion .header-content {
+#enhanced-ui-sheet .main-content.companion .header-content {
   z-index: 5;
-  padding-top: var(--sleekUI-spacing-md);
+  padding-top: var(--enhancedUI-spacing-md);
 }
 
-#sleek-ui-sheet .portrait.companion {
+#enhanced-ui-sheet .portrait.companion {
   min-height: 250px;
   max-height: 250px;
   overflow: hidden;
@@ -18,55 +18,55 @@ PORTRAIT
 INFORMATION
 ==================== */
 
-#sleek-ui-sheet .character-information.companion .character-level {
+#enhanced-ui-sheet .character-information.companion .character-level {
   pointer-events: none;
   max-height: 100%;
   justify-content: center;
-  gap: var(--sleekUI-spacing-xs);
+  gap: var(--enhancedUI-spacing-xs);
 }
 
-#sleek-ui-sheet .values-container.evasion.companion {
+#enhanced-ui-sheet .values-container.evasion.companion {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 1px solid var(--sleekUI-color-border);
-  border-radius: var(--sleekUI-border-radius);
-  padding: 0 var(--sleekUI-spacing-md);
-  gap: var(--sleekUI-spacing-xs);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
+  padding: 0 var(--enhancedUI-spacing-md);
+  gap: var(--enhancedUI-spacing-xs);
 }
 
-#sleek-ui-sheet .header-content.partner {
-  gap: var(--sleekUI-spacing-xs);
+#enhanced-ui-sheet .header-content.partner {
+  gap: var(--enhancedUI-spacing-xs);
 }
 
 /* ==================== 
 PARTNER
 ==================== */
 
-#sleek-ui-sheet .card-container.header.partner .card-header {
+#enhanced-ui-sheet .card-container.header.partner .card-header {
   padding: 0;
 }
 
-#sleek-ui-sheet .card-container.header.partner .card-icon {
+#enhanced-ui-sheet .card-container.header.partner .card-icon {
   width: 48px !important;
   height: 42px;
 }
 
-#sleek-ui-sheet .card-container.header.partner .card-icon:hover .icon {
+#enhanced-ui-sheet .card-container.header.partner .card-icon:hover .icon {
   filter: none;
 }
 
-#sleek-ui-sheet .card-container.header.partner .partner-label {
+#enhanced-ui-sheet .card-container.header.partner .partner-label {
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0 var(--sleekUI-spacing-xs);
-  border-left: 1px solid var(--sleekUI-color-border);
+  padding: 0 var(--enhancedUI-spacing-xs);
+  border-left: 1px solid var(--enhancedUI-color-border);
   cursor: pointer;
 }
 
-#sleek-ui-sheet .card-text:has(.no-partner) {
+#enhanced-ui-sheet .card-text:has(.no-partner) {
   height: 42px;
   margin-left: 20px;
 }
@@ -75,36 +75,36 @@ PARTNER
 ACTIONS
 ==================== */
 
-#sleek-ui-sheet .companion .actions {
+#enhanced-ui-sheet .companion .actions {
   display: flex;
   flex-direction: row;
-  gap: var(--sleekUI-spacing-xs);
+  gap: var(--enhancedUI-spacing-xs);
 }
 
-#sleek-ui-sheet .companion .action-roll {
+#enhanced-ui-sheet .companion .action-roll {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 72px;
   height: 48px;
   text-align: center;
-  padding: var(--sleekUI-spacing-sm);
-  background: var(--sleekUI-gradient-card);
-  border-radius: var(--sleekUI-border-radius);
-  border: 1px solid var(--sleekUI-color-border);
+  padding: var(--enhancedUI-spacing-sm);
+  background: var(--enhancedUI-gradient-card);
+  border-radius: var(--enhancedUI-border-radius);
+  border: 1px solid var(--enhancedUI-color-border);
   cursor: pointer;
 }
 
-#sleek-ui-sheet .companion .action-roll:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
+#enhanced-ui-sheet .companion .action-roll:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .companion .card-container.header .card-icon {
+#enhanced-ui-sheet .companion .card-container.header .card-icon {
   width: 56px;
   cursor: pointer;
 }
 
-#sleek-ui-sheet .companion .card-container.header .card-icon .dice-roll {
+#enhanced-ui-sheet .companion .card-container.header .card-icon .dice-roll {
   left: 20px;
 }
 
@@ -112,8 +112,8 @@ ACTIONS
 EXPERIENCES
 ==================== */
 
-#sleek-ui-sheet .experiences-container {
+#enhanced-ui-sheet .experiences-container {
   display: flex;
   flex-direction: column;
-  gap: var(--sleekUI-spacing-sm);
+  gap: var(--enhancedUI-spacing-sm);
 }

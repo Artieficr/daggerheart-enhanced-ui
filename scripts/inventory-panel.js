@@ -2,7 +2,7 @@
  * Inventory panel — the "actual tabletop cards stay cards, everything else
  * is just inventory" companion to card-hand.js. Weapons/armor/consumables/
  * loot used to render as cards inside the Hand (a leftover from before that
- * distinction was drawn); they live here instead now, using sleek-ui's own
+ * distinction was drawn); they live here instead now, using enhanced-ui's own
  * existing compact-row card partials (card-weapon.hbs/card-armor.hbs/
  * card-item.hbs) and listener machinery (attachFavoritesListeners) rather
  * than the Card Hand's big-card visuals — these were never meant to look
@@ -12,7 +12,7 @@
 import { formatWeaponDamageDisplay, resolveUnarmedAttack } from "./helpers.js";
 import { attachFavoritesListeners } from "./sheets/minisheets/utils-minisheet.js";
 
-const MODULE_ID = "daggerheart-sleek-ui";
+const MODULE_ID = "daggerheart-enhanced-ui";
 
 export function registerInventorySettings() {
   // Deliberately config:false — exposed as an on-the-fly popover next to the
@@ -61,12 +61,13 @@ export function registerInventorySettings() {
 
   // Not a user-facing toggle — mirrors card-hand.js's cardHandOpen: remembers
   // whether Inventory was left open so it doesn't need reopening after every
-  // minisheet remount. Defaults open, same reasoning as the Hand.
+  // minisheet remount. Defaults closed — a fresh install shouldn't greet a
+  // player with the panel already open.
   game.settings.register(MODULE_ID, "inventoryOpen", {
     scope: "client",
     config: false,
     type: Boolean,
-    default: true,
+    default: false,
   });
 }
 
@@ -83,7 +84,7 @@ function buildItemData(item, extra = {}) {
 }
 
 /**
- * Reads actor.items directly rather than going through sleek-ui's own
+ * Reads actor.items directly rather than going through enhanced-ui's own
  * (expensive) full sheet context — same performance-conscious approach
  * card-hand.js's buildHandCards uses. The tradeoff: no enrichHTML on
  * descriptions and no hope-cost/uses-data parsing (both settle to sensible
@@ -156,7 +157,7 @@ export async function renderInventoryWindow(minisheetElement, actor) {
   const scrollTop = invWindow.querySelector(".favorites")?.scrollTop ?? 0;
 
   const context = buildInventoryContext(actor);
-  const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-sleek-ui/templates/sheets/characters/main/inventory.hbs", context);
+  const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/characters/main/inventory.hbs", context);
   invWindow.innerHTML = html;
 
   const newList = invWindow.querySelector(".favorites");

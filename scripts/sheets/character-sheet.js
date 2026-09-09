@@ -10,7 +10,7 @@ export function registerCharacterSheet() {
 
   const DaggerheartCharacterSheet = daggerheartSheet.cls;
 
-  class SleekCharacterSheet extends DaggerheartCharacterSheet {
+  class EnhancedCharacterSheet extends DaggerheartCharacterSheet {
     tabs = {};
     floatingTabs = null;
     collapsedCategories = [];
@@ -22,7 +22,7 @@ export function registerCharacterSheet() {
     static DEFAULT_OPTIONS = foundry.utils.mergeObject(
       super.DEFAULT_OPTIONS,
       {
-        classes: ["daggerheart", "sheet", "actor", "sleek-ui"],
+        classes: ["daggerheart", "sheet", "actor", "enhanced-ui"],
         window: { title: "ACTOR.TypeCharacter", controls: [] },
         position: { width: 860, height: 900 },
         actions: {
@@ -35,10 +35,10 @@ export function registerCharacterSheet() {
           addToQuickAccess: this._onAddToQuickAccess,
           removeFromQuickAccess: this._onRemoveFromQuickAccess,
           addQuickAccessDivider: this._onAddQuickAccessDivider,
-          cancelBeastform: SleekCharacterSheet._onCancelBeastform,
-          useUnarmedAttack: SleekCharacterSheet._onUseUnarmedAttack,
-          toggleResourceManagement: SleekCharacterSheet._onToggleResourceManagement,
-          toggleArmorMangement: SleekCharacterSheet._onToggleArmorManagement,
+          cancelBeastform: EnhancedCharacterSheet._onCancelBeastform,
+          useUnarmedAttack: EnhancedCharacterSheet._onUseUnarmedAttack,
+          toggleResourceManagement: EnhancedCharacterSheet._onToggleResourceManagement,
+          toggleArmorMangement: EnhancedCharacterSheet._onToggleArmorManagement,
         },
         dragDrop: [
           {
@@ -52,10 +52,10 @@ export function registerCharacterSheet() {
 
     static PARTS = {
       sidebar: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/characters/sheet-sidebar.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/characters/sheet-sidebar.hbs",
       },
       mainSheet: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/characters/sheet-main.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/characters/sheet-main.hbs",
       },
     };
 
@@ -75,10 +75,10 @@ export function registerCharacterSheet() {
       const context = await super._prepareContext(options);
       await this._prepareHeaderContext(context, options);
 
-      context.tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
-      context.quickAccess = game.settings.get("daggerheart-sleek-ui", "favoritesDisplayMode") === "quickAccess";
-      context.showTooltip = game.settings.get("daggerheart-sleek-ui", "showTooltip");
-      context.currencyLabel = game.settings.get("daggerheart-sleek-ui", "currencyLabel");
+      context.tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
+      context.quickAccess = game.settings.get("daggerheart-enhanced-ui", "favoritesDisplayMode") === "quickAccess";
+      context.showTooltip = game.settings.get("daggerheart-enhanced-ui", "showTooltip");
+      context.currencyLabel = game.settings.get("daggerheart-enhanced-ui", "currencyLabel");
       context.ownershipLevel = game.user.isGM ? CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER : this.actor.getUserLevel(game.user);
       context.inParty = this.actor.parties.size > 0;
 
@@ -118,7 +118,7 @@ export function registerCharacterSheet() {
       }
 
       if (options.isFirstRender && this.collapsedCategories.length === 0) {
-        this.collapsedCategories = this.actor.getFlag("daggerheart-sleek-ui", "collapsedCategories") || [];
+        this.collapsedCategories = this.actor.getFlag("daggerheart-enhanced-ui", "collapsedCategories") || [];
       }
 
       context.isCharacterSheet = true;
@@ -594,7 +594,7 @@ export function registerCharacterSheet() {
     }
 
     async _prepareQuickAccessData(context) {
-      const quickAccessUuids = this.actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+      const quickAccessUuids = this.actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
       const quickAccessItems = [];
 
       for (const uuid of quickAccessUuids) {
@@ -633,12 +633,12 @@ export function registerCharacterSheet() {
     _onRender(context, options) {
       super._onRender(context, options);
 
-      this.element.id = "sleek-ui-sheet";
+      this.element.id = "enhanced-ui-sheet";
       this._element = this.element;
 
       this.element.addEventListener("mousemove", dismissHoverTooltip);
 
-      const tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
+      const tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
 
       if (tabsPosition === "floating") {
         if (!this.floatingTabs) {
@@ -1108,7 +1108,7 @@ export function registerCharacterSheet() {
           this.collapsedCategories.splice(index, 1);
         }
       }
-      this.actor.setFlag("daggerheart-sleek-ui", "collapsedCategories", [...this.collapsedCategories]);
+      this.actor.setFlag("daggerheart-enhanced-ui", "collapsedCategories", [...this.collapsedCategories]);
     }
 
     static async _onUseAction(event, target) {
@@ -1148,7 +1148,7 @@ export function registerCharacterSheet() {
       if (!item) return;
 
       if (item.parent === this.actor) {
-        SleekCharacterSheet.draggedItem = {
+        EnhancedCharacterSheet.draggedItem = {
           itemId: item.id,
           actorId: this.actor.id,
           itemName: item.name,
@@ -1177,7 +1177,7 @@ export function registerCharacterSheet() {
           event.preventDefault();
           event.stopPropagation();
 
-          const quickAccessItems = this.actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+          const quickAccessItems = this.actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
           const draggedUuid = data.uuid;
 
           const dropTarget = event.target.closest(".compact.card-wrapper");
@@ -1194,7 +1194,7 @@ export function registerCharacterSheet() {
           quickAccessItems.splice(currentIndex, 1);
           quickAccessItems.splice(targetIndex, 0, draggedUuid);
 
-          await this.actor.setFlag("daggerheart-sleek-ui", "quickAccess", quickAccessItems);
+          await this.actor.setFlag("daggerheart-enhanced-ui", "quickAccess", quickAccessItems);
           return false;
         }
       }
@@ -1214,7 +1214,7 @@ export function registerCharacterSheet() {
         event.preventDefault();
         event.stopPropagation();
 
-        const quickAccessItems = this.actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+        const quickAccessItems = this.actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
         const draggedUuid = item?.uuid || data.uuid;
 
         if (quickAccessItems.includes(draggedUuid)) {
@@ -1232,7 +1232,7 @@ export function registerCharacterSheet() {
           quickAccessItems.splice(currentIndex, 1);
           quickAccessItems.splice(targetIndex, 0, draggedUuid);
 
-          await this.actor.setFlag("daggerheart-sleek-ui", "quickAccess", quickAccessItems);
+          await this.actor.setFlag("daggerheart-enhanced-ui", "quickAccess", quickAccessItems);
           return false;
         }
 
@@ -1250,7 +1250,7 @@ export function registerCharacterSheet() {
           quickAccessItems.push(item.uuid);
         }
 
-        await this.actor.setFlag("daggerheart-sleek-ui", "quickAccess", quickAccessItems);
+        await this.actor.setFlag("daggerheart-enhanced-ui", "quickAccess", quickAccessItems);
         return false;
       }
 
@@ -1403,7 +1403,7 @@ export function registerCharacterSheet() {
       const itemUuid = target.dataset.itemUuid;
       if (!itemUuid) return;
 
-      const quickAccessItems = this.actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+      const quickAccessItems = this.actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
 
       if (quickAccessItems.includes(itemUuid)) {
         ui.notifications.warn("Item is already in Quick Access");
@@ -1411,25 +1411,25 @@ export function registerCharacterSheet() {
       }
 
       quickAccessItems.push(itemUuid);
-      await this.actor.setFlag("daggerheart-sleek-ui", "quickAccess", quickAccessItems);
+      await this.actor.setFlag("daggerheart-enhanced-ui", "quickAccess", quickAccessItems);
     }
 
     static async _onRemoveFromQuickAccess(event, target) {
       const itemUuid = target.dataset.itemUuid;
       if (!itemUuid) return;
 
-      const quickAccessItems = this.actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+      const quickAccessItems = this.actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
       const filtered = quickAccessItems.filter((uuid) => uuid !== itemUuid);
 
-      await this.actor.setFlag("daggerheart-sleek-ui", "quickAccess", filtered);
+      await this.actor.setFlag("daggerheart-enhanced-ui", "quickAccess", filtered);
     }
 
     static async _onAddQuickAccessDivider(event, target) {
-      const quickAccessItems = this.actor.getFlag("daggerheart-sleek-ui", "quickAccess") || [];
+      const quickAccessItems = this.actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
       const dividerUuid = `divider-${foundry.utils.randomID()}`;
 
       quickAccessItems.unshift(dividerUuid);
-      await this.actor.setFlag("daggerheart-sleek-ui", "quickAccess", quickAccessItems);
+      await this.actor.setFlag("daggerheart-enhanced-ui", "quickAccess", quickAccessItems);
     }
 
     static async _onCancelBeastform(event, target) {
@@ -1475,17 +1475,17 @@ export function registerCharacterSheet() {
     }
   }
 
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", SleekCharacterSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", EnhancedCharacterSheet, {
     types: ["character"],
     makeDefault: true,
-    label: "DH Sleek UI",
+    label: "DH Enhanced UI",
   });
 
   Hooks.on("preCreateItem", async (item, data, options, userId) => {
-    if (!SleekCharacterSheet.draggedItem) return;
+    if (!EnhancedCharacterSheet.draggedItem) return;
     if (userId !== game.user.id) return;
 
-    const dragData = SleekCharacterSheet.draggedItem;
+    const dragData = EnhancedCharacterSheet.draggedItem;
 
     if (item.parent?.type === "character" && item.parent?.id !== dragData.actorId) {
       setTimeout(async () => {
@@ -1498,12 +1498,12 @@ export function registerCharacterSheet() {
           }
         }
 
-        SleekCharacterSheet.draggedItem = null;
+        EnhancedCharacterSheet.draggedItem = null;
       }, 50);
     }
   });
 
   document.addEventListener("dragend", () => {
-    SleekCharacterSheet.draggedItem = null;
+    EnhancedCharacterSheet.draggedItem = null;
   });
 }

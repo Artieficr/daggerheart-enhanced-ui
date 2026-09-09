@@ -2,7 +2,7 @@
 SIDEBAR
 ==================== */
 
-#sleek-ui-sheet .adversary .dead {
+#enhanced-ui-sheet .adversary .dead {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -14,61 +14,61 @@ SIDEBAR
   pointer-events: none;
 }
 
-#sleek-ui-sheet .adversary .dead i {
+#enhanced-ui-sheet .adversary .dead i {
   scale: 6;
-  color: var(--sleekUI-color-primary);
+  color: var(--enhancedUI-color-primary);
 }
 
-#sleek-ui-sheet .adversary-info {
+#enhanced-ui-sheet .adversary-info {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: fit-content;
   justify-content: flex-start;
   align-items: center;
-  gap: var(--sleekUI-spacing-sm);
-  padding: var(--sleekUI-spacing-sm) var(--sleekUI-spacing-md);
+  gap: var(--enhancedUI-spacing-sm);
+  padding: var(--enhancedUI-spacing-sm) var(--enhancedUI-spacing-md);
   text-align: center;
   margin-top: -32px;
-  color: var(--sleekUI-color-secondary);
+  color: var(--enhancedUI-color-secondary);
   line-height: 20px;
   cursor: default;
   overflow-y: auto;
   scrollbar-width: none;
 }
 
-#sleek-ui-sheet .motivesAndTactics {
+#enhanced-ui-sheet .motivesAndTactics {
   display: flex;
   flex-direction: column;
-  margin: var(--sleekUI-spacing-sm) 0;
+  margin: var(--enhancedUI-spacing-sm) 0;
 }
 
-#sleek-ui-sheet .info-header {
+#enhanced-ui-sheet .info-header {
   display: flex;
   align-items: center;
-  gap: var(--sleekUI-spacing-xs);
+  gap: var(--enhancedUI-spacing-xs);
   width: 100%;
 }
 
-#sleek-ui-sheet .info-header::before {
+#enhanced-ui-sheet .info-header::before {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--sleekUI-gradient-line-left);
+  background: var(--enhancedUI-gradient-line-left);
 }
 
-#sleek-ui-sheet .info-header::after {
+#enhanced-ui-sheet .info-header::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--sleekUI-gradient-line-right);
+  background: var(--enhancedUI-gradient-line-right);
 }
 
-#sleek-ui-sheet .actor-experiences {
+#enhanced-ui-sheet .actor-experiences {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-tiny);
   justify-content: center;
 }
 
@@ -76,78 +76,78 @@ SIDEBAR
 HEADER
 ==================== */
 
-#sleek-ui-sheet .adversary-difficulty {
+#enhanced-ui-sheet .adversary-difficulty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
   height: 100%;
   max-height: 90px;
-  padding: var(--sleekUI-spacing-xs) var(--sleekUI-spacing-md);
-  border: 1px solid var(--sleekUI-color-border);
-  border-radius: var(--sleekUI-border-radius);
+  padding: var(--enhancedUI-spacing-xs) var(--enhancedUI-spacing-md);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
 }
 
-#sleek-ui-sheet .adversary-difficulty .level-value {
+#enhanced-ui-sheet .adversary-difficulty .level-value {
   transform: translateY(4px);
 }
 
-#sleek-ui-sheet .reaction {
-  background: var(--sleekUI-gradient-card);
+#enhanced-ui-sheet .reaction {
+  background: var(--enhancedUI-gradient-card);
   cursor: pointer;
 }
 
-#sleek-ui-sheet .reaction:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
+#enhanced-ui-sheet .reaction:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
 }
 
 /* ==================== 
 FEATURES
 ==================== */
 
-#sleek-ui-sheet .values-row.attack {
+#enhanced-ui-sheet .values-row.attack {
   display: flex;
   flex-direction: row;
   width: 100%;
   height: 50px;
 }
 
-#sleek-ui-sheet .values-row.attack .attack-bonus {
-  padding: 0 var(--sleekUI-spacing-lg);
+#enhanced-ui-sheet .values-row.attack .attack-bonus {
+  padding: 0 var(--enhancedUI-spacing-lg);
 }
 
-#sleek-ui-sheet .actor-attack .card-container.header .card-header,
-#sleek-ui-sheet .actor-attack .card-container.header .card-text,
-#sleek-ui-sheet .actor-attack .card-container.header .card-resource {
+#enhanced-ui-sheet .actor-attack .card-container.header .card-header,
+#enhanced-ui-sheet .actor-attack .card-container.header .card-text,
+#enhanced-ui-sheet .actor-attack .card-container.header .card-resource {
   cursor: default;
 }
 
-#sleek-ui-sheet .actor-attack .card-container.header .card-resource .actor-attack-roll {
+#enhanced-ui-sheet .actor-attack .card-container.header .card-resource .actor-attack-roll {
   cursor: pointer;
-  font-family: var(--sleekUI-font-primary);
-  font-size: var(--sleekUI-font-size-md);
+  font-family: var(--enhancedUI-font-primary);
+  font-size: var(--enhancedUI-font-size-md);
 }
 
-#sleek-ui-sheet .adversary .card-container.header .card-icon {
+#enhanced-ui-sheet .adversary .card-container.header .card-icon {
   width: 64px;
 }
 
-#sleek-ui-sheet .adversary .card-container.header .card-icon .dice-roll {
+#enhanced-ui-sheet .adversary .card-container.header .card-icon .dice-roll {
   left: 24px;
 }
 
-#sleek-ui-sheet .resource.fear-resource {
+#enhanced-ui-sheet .resource.fear-resource {
   background: none;
   flex-direction: row-reverse;
 }
 
-#sleek-ui-sheet .resource.fear-resource .fear-icon-full i {
+#enhanced-ui-sheet .resource.fear-resource .fear-icon-full i {
   margin: 0;
   color: #a45dff;
   filter: drop-shadow(0 0 4px #0000ff);
 }
 
-#sleek-ui-sheet .resource.fear-resource .fear-icon-empty i {
+#enhanced-ui-sheet .resource.fear-resource .fear-icon-empty i {
   margin: 0;
   opacity: 0.2;
 }

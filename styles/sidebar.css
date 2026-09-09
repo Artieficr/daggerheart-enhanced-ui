@@ -2,17 +2,17 @@
    PORTRAIT
    ==================== */
 
-#sleek-ui-sheet .portrait {
+#enhanced-ui-sheet .portrait {
   width: 100%;
   min-height: 350px;
   max-height: 350px;
   object-fit: cover;
   object-position: top;
-  mask-image: var(--sleekUI-gradient-mask-portrait);
+  mask-image: var(--enhancedUI-gradient-mask-portrait);
   position: relative;
 }
 
-#sleek-ui-sheet .portrait img {
+#enhanced-ui-sheet .portrait img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -22,15 +22,15 @@
   will-change: transform;
 }
 
-#sleek-ui-sheet .portrait:hover img {
+#enhanced-ui-sheet .portrait:hover img {
   transform: scale(1.02);
 }
 
-#sleek-ui-sheet .portrait.deathroll img {
+#enhanced-ui-sheet .portrait.deathroll img {
   filter: grayscale(1) brightness(0.5);
 }
 
-#sleek-ui-sheet .deathroll-btn {
+#enhanced-ui-sheet .deathroll-btn {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -41,12 +41,12 @@
   left: 10%;
 }
 
-#sleek-ui-sheet .deathroll-btn i {
+#enhanced-ui-sheet .deathroll-btn i {
   scale: 6;
-  color: var(--sleekUI-color-primary);
+  color: var(--enhancedUI-color-primary);
 }
 
-#sleek-ui-sheet .deathroll-btn:hover {
+#enhanced-ui-sheet .deathroll-btn:hover {
   text-shadow: 0 0 16px red;
 }
 
@@ -54,39 +54,39 @@
    BEASTFORM
    ==================== */
 
-#sleek-ui-sheet .portrait:has(.beastform-portrait) {
+#enhanced-ui-sheet .portrait:has(.beastform-portrait) {
   pointer-events: none;
 }
 
-#sleek-ui-sheet .cancel-beastform-btn {
+#enhanced-ui-sheet .cancel-beastform-btn {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: var(--sleekUI-spacing-md);
+  gap: var(--enhancedUI-spacing-md);
   height: 32px;
-  margin: 0 var(--sleekUI-spacing-sm);
-  border: 1px solid var(--sleekUI-color-border);
-  border-radius: var(--sleekUI-border-radius);
+  margin: 0 var(--enhancedUI-spacing-sm);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
   position: absolute;
   top: 290px;
   right: 0px;
   left: 0px;
-  background: var(--sleekUI-gradient-card);
-  background-color: var(--sleekUI-color-background-dark);
+  background: var(--enhancedUI-gradient-card);
+  background-color: var(--enhancedUI-color-background-dark);
   backdrop-filter: blur(5px);
   cursor: pointer;
   z-index: 10;
 }
 
-#sleek-ui-sheet .cancel-beastform-btn:hover {
-  box-shadow: 0px 0px 9px -1px var(--sleekUI-color-border);
+#enhanced-ui-sheet .cancel-beastform-btn:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
 }
 
 /* ==================== 
    SETTINGS BUTTON
    ==================== */
-#sleek-ui-sheet .settings-button {
+#enhanced-ui-sheet .settings-button {
   width: 32px;
   height: 32px;
   padding: 0;
@@ -101,21 +101,21 @@
   bottom: 8px;
   left: 8px;
   z-index: 5;
-  border-radius: var(--sleekUI-border-radius);
-  background: var(--sleekUI-color-background-secondary);
-  color: var(--sleekUI-color-secondary);
+  border-radius: var(--enhancedUI-border-radius);
+  background: var(--enhancedUI-color-background-secondary);
+  color: var(--enhancedUI-color-secondary);
 }
 
-#sleek-ui-sheet .settings-button:hover {
-  background: var(--sleekUI-color-background-dark);
-  color: var(--sleekUI-color-tertiary);
+#enhanced-ui-sheet .settings-button:hover {
+  background: var(--enhancedUI-color-background-dark);
+  color: var(--enhancedUI-color-tertiary);
 }
 
 /* ==================== 
    FAVORITES
    ==================== */
 
-#sleek-ui-sheet .favorites {
+#enhanced-ui-sheet .favorites {
   width: 100%;
   height: fit-content;
   overflow-y: auto;
@@ -129,54 +129,54 @@
   z-index: 1;
 }
 
-#sleek-ui-sheet .favorites-container {
+#enhanced-ui-sheet .favorites-container {
   display: flex;
   flex-direction: column;
-  gap: var(--sleekUI-spacing-tiny);
-  padding: var(--sleekUI-spacing-sm);
+  gap: var(--enhancedUI-spacing-tiny);
+  padding: var(--enhancedUI-spacing-sm);
 }
 
-#sleek-ui-sheet .favorites-header {
+#enhanced-ui-sheet .favorites-header {
   display: flex;
   align-items: center;
-  gap: var(--sleekUI-spacing-xs);
-  margin-bottom: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-xs);
+  margin-bottom: var(--enhancedUI-spacing-tiny);
 }
 
-#sleek-ui-sheet .favorites-header::before {
+#enhanced-ui-sheet .favorites-header::before {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--sleekUI-gradient-line-left);
+  background: var(--enhancedUI-gradient-line-left);
 }
 
-#sleek-ui-sheet .favorites-header::after {
+#enhanced-ui-sheet .favorites-header::after {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--sleekUI-gradient-line-right);
+  background: var(--enhancedUI-gradient-line-right);
 }
 
-#sleek-ui-sheet .favorites-header .add-divider i {
+#enhanced-ui-sheet .favorites-header .add-divider i {
   transform: translateY(-3px);
 }
 
-#sleek-ui-sheet .favorites-list {
+#enhanced-ui-sheet .favorites-list {
   display: flex;
   flex-direction: column;
-  gap: var(--sleekUI-spacing-tiny);
+  gap: var(--enhancedUI-spacing-tiny);
 }
 
-#sleek-ui-sheet .favorites-list .drag-area {
+#enhanced-ui-sheet .favorites-list .drag-area {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 48px;
-  border-radius: var(--sleekUI-border-radius);
-  border: 1px dashed var(--sleekUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
+  border: 1px dashed var(--enhancedUI-color-border);
 }
 
-#sleek-ui-sheet .favorites-list .drag-area h3 {
-  color: var(--sleekUI-color-border) !important;
+#enhanced-ui-sheet .favorites-list .drag-area h3 {
+  color: var(--enhancedUI-color-border) !important;
 }

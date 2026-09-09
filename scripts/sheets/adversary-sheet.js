@@ -10,7 +10,7 @@ export function registerAdversarySheet() {
 
   const DaggerheartAdversarySheet = daggerheartSheet.cls;
 
-  class SleekAdversarySheet extends DaggerheartAdversarySheet {
+  class EnhancedAdversarySheet extends DaggerheartAdversarySheet {
     collapsedCategories = [];
     openCards = new Set();
     tabs = {};
@@ -19,12 +19,12 @@ export function registerAdversarySheet() {
     static DEFAULT_OPTIONS = foundry.utils.mergeObject(
       super.DEFAULT_OPTIONS,
       {
-        classes: ["daggerheart", "sheet", "actor", "sleek-ui", "sleek-adversary"],
+        classes: ["daggerheart", "sheet", "actor", "enhanced-ui", "enhanced-adversary"],
         window: { controls: [] },
         position: { width: 750, height: 750 },
         actions: {
-          useActorAttack: SleekAdversarySheet._onUseActorAttack,
-          toggleCategory: SleekAdversarySheet._onToggleCategory,
+          useActorAttack: EnhancedAdversarySheet._onUseActorAttack,
+          toggleCategory: EnhancedAdversarySheet._onToggleCategory,
         },
       },
       { inplace: false },
@@ -32,10 +32,10 @@ export function registerAdversarySheet() {
 
     static PARTS = {
       sidebar: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/adversaries/adversary-sheet-sidebar.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/adversaries/adversary-sheet-sidebar.hbs",
       },
       mainSheet: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/adversaries/adversary-sheet-main.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/adversaries/adversary-sheet-main.hbs",
       },
       limited: {
         template: "systems/daggerheart/templates/sheets/actors/character/limited.hbs", // Use system's limited template
@@ -53,8 +53,8 @@ export function registerAdversarySheet() {
     async _prepareContext(options) {
       const context = await super._prepareContext(options);
 
-      context.tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
-      context.showTooltip = game.settings.get("daggerheart-sleek-ui", "showTooltip");
+      context.tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
+      context.showTooltip = game.settings.get("daggerheart-enhanced-ui", "showTooltip");
 
       await this._prepareNotesContext(context, options);
 
@@ -88,7 +88,7 @@ export function registerAdversarySheet() {
       context.hasExperiences = Object.keys(this.actor.system.experiences ?? {}).length > 0;
 
       if (options.isFirstRender && !this.collapsedCategories) {
-        this.collapsedCategories = this.actor.getFlag("daggerheart-sleek-ui", "collapsedCategories") || [];
+        this.collapsedCategories = this.actor.getFlag("daggerheart-enhanced-ui", "collapsedCategories") || [];
       }
       context.collapsedCategories = this.collapsedCategories || [];
 
@@ -241,12 +241,12 @@ export function registerAdversarySheet() {
     _onRender(context, options) {
       super._onRender(context, options);
 
-      this.element.id = "sleek-ui-sheet";
+      this.element.id = "enhanced-ui-sheet";
       this._element = this.element;
 
       this.element.addEventListener("mousemove", dismissHoverTooltip);
 
-      const tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
+      const tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
 
       if (tabsPosition === "floating") {
         if (!this.floatingTabs) {
@@ -572,7 +572,7 @@ export function registerAdversarySheet() {
           this.collapsedCategories.splice(index, 1);
         }
       }
-      this.actor.setFlag("daggerheart-sleek-ui", "collapsedCategories", [...this.collapsedCategories]);
+      this.actor.setFlag("daggerheart-enhanced-ui", "collapsedCategories", [...this.collapsedCategories]);
     }
 
     async render(options = {}, _options = {}) {
@@ -587,10 +587,10 @@ export function registerAdversarySheet() {
     }
   }
 
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", SleekAdversarySheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", EnhancedAdversarySheet, {
     types: ["adversary"],
     makeDefault: true,
-    label: "DH Sleek UI",
+    label: "DH Enhanced UI",
   });
 
   Hooks.on("updateSetting", (setting) => {
@@ -600,7 +600,7 @@ export function registerAdversarySheet() {
       .filter((t) => t.actor?.type === "adversary")
       .forEach((t) => {
         const sheet = t.actor?.sheet;
-        if (sheet instanceof SleekAdversarySheet && sheet.rendered) {
+        if (sheet instanceof EnhancedAdversarySheet && sheet.rendered) {
           sheet.render();
         }
       });

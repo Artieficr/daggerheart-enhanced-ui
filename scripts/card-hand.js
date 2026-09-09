@@ -1,14 +1,14 @@
 import { formatWeaponDamageDisplay } from "./helpers.js";
 import { refreshCharacterMiniSheet } from "./sheets/minisheets/minisheet-character.js";
 
-const MODULE_ID = "daggerheart-sleek-ui";
+const MODULE_ID = "daggerheart-enhanced-ui";
 
 /* ====================
    SETTINGS
    ==================== */
 
 export function registerCardHandSettings() {
-  // Replaces sleek-ui's own boolean "Enable Quick Access" setting. Down to
+  // Replaces enhanced-ui's own boolean "Enable Quick Access" setting. Down to
   // two choices now — "Card Hand" as a separate third option was folded into
   // Standard once Standard grew its own Inventory button, since a player
   // never needs Quick Access, Standard's Inventory, AND Standard's Hand
@@ -40,8 +40,8 @@ export function registerCardHandSettings() {
     scope: "client",
     config: true,
     type: String,
-    choices: { above: "Above", right: "Right" },
-    default: "above",
+    choices: { right: "Right", above: "Above" },
+    default: "right",
     onChange: () => applyCardHandPosition(),
   });
 
@@ -117,7 +117,7 @@ function setStoredChildOrder(actor, anchorUuid, order) {
 
 export function applyCardHandPosition() {
   const position = game.settings.get(MODULE_ID, "cardHandPosition");
-  document.querySelectorAll("#sleek-ui-sheet .card-hand-window-container").forEach((el) => {
+  document.querySelectorAll("#enhanced-ui-sheet .card-hand-window-container").forEach((el) => {
     el.classList.remove("pos-above", "pos-right");
     el.classList.add(`pos-${position}`);
   });
@@ -159,11 +159,11 @@ export function registerCardHandSettingsUI() {
    template.js in their source), not reimplemented. Kept synchronous/no
    TextEditor.enrichHTML on purpose (that was the source of the lag: the
    previous version enriched every item's description on every render,
-   twice, via the full sleek-ui sheet context).
+   twice, via the full enhanced-ui sheet context).
    ==================== */
 
-const ASSET_ROOT = "modules/daggerheart-sleek-ui/assets/cardhand/imgs";
-const DIVIDER_SRC = "modules/daggerheart-sleek-ui/assets/cardhand/improved/domain-divider.png";
+const ASSET_ROOT = "modules/daggerheart-enhanced-ui/assets/cardhand/imgs";
+const DIVIDER_SRC = "modules/daggerheart-enhanced-ui/assets/cardhand/improved/domain-divider.png";
 
 // Ported from Card Hand's Improved template (their actual per-domain colors
 // for the title-divider hexagon), not the Default template's per-domain
@@ -266,7 +266,7 @@ function itemHasActions(item) {
 }
 
 /* ====================
-   DATA PREP — reads actor.items directly, no dependency on sleek-ui's own
+   DATA PREP — reads actor.items directly, no dependency on enhanced-ui's own
    (expensive) full sheet context. Cheap enough to call on every render.
    ==================== */
 
@@ -386,7 +386,7 @@ function buildFeatureGroups(actor) {
 
 /**
  * Direct port of Card Hand's ImprovedTemplate.renderCard(item). Adapted
- * only to source the weapon damage string from sleek-ui's own
+ * only to source the weapon damage string from enhanced-ui's own
  * formatWeaponDamageDisplay (handles both the current damage.main schema
  * and the legacy damage.parts one Card Hand's own _getDamageFormula only
  * supports — using theirs verbatim risked silently showing no damage on
@@ -945,7 +945,7 @@ async function useHandCard(card, actor) {
     // proxies straight to its sole feature.
     const uuids = (card.dataset.memberUuids || "").split(",").filter(Boolean);
     const members = (await Promise.all(uuids.map((uuid) => fromUuid(uuid)))).filter(Boolean);
-    if (members.length) showFeatureGroupOverlay(members, actor, card.closest("#sleek-ui-sheet"));
+    if (members.length) showFeatureGroupOverlay(members, actor, card.closest("#enhanced-ui-sheet"));
   } else {
     const uuid = card.dataset.itemUuid;
     const item = uuid ? await fromUuid(uuid) : null;

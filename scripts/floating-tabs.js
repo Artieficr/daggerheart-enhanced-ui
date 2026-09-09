@@ -12,7 +12,7 @@ export class FloatingTabs extends foundry.applications.api.HandlebarsApplication
   static PARTS = {
     tabs: {
       template:
-        "modules/daggerheart-sleek-ui/templates/components/tabs-floating.hbs",
+        "modules/daggerheart-enhanced-ui/templates/components/tabs-floating.hbs",
     },
   };
 

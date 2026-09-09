@@ -10,7 +10,7 @@ export function registerEnvironmentSheet() {
 
   const DaggerheartEnvironmentSheet = daggerheartSheet.cls;
 
-  class SleekEnvironmentSheet extends DaggerheartEnvironmentSheet {
+  class EnhancedEnvironmentSheet extends DaggerheartEnvironmentSheet {
     collapsedCategories = [];
     openCards = new Set();
     tabs = {};
@@ -19,11 +19,11 @@ export function registerEnvironmentSheet() {
     static DEFAULT_OPTIONS = foundry.utils.mergeObject(
       super.DEFAULT_OPTIONS,
       {
-        classes: ["daggerheart", "sheet", "actor", "sleek-ui", "sleek-environment"],
+        classes: ["daggerheart", "sheet", "actor", "enhanced-ui", "enhanced-environment"],
         window: { controls: [] },
         position: { width: 540, height: 900 },
         actions: {
-          toggleCategory: SleekEnvironmentSheet._onToggleCategory,
+          toggleCategory: EnhancedEnvironmentSheet._onToggleCategory,
         },
       },
       { inplace: false },
@@ -31,7 +31,7 @@ export function registerEnvironmentSheet() {
 
     static PARTS = {
       mainSheet: {
-        template: "modules/daggerheart-sleek-ui/templates/sheets/environments/environment-sheet-main.hbs",
+        template: "modules/daggerheart-enhanced-ui/templates/sheets/environments/environment-sheet-main.hbs",
       },
       limited: {
         template: "systems/daggerheart/templates/sheets/actors/environment/limited.hbs",
@@ -49,8 +49,8 @@ export function registerEnvironmentSheet() {
     async _prepareContext(options) {
       const context = await super._prepareContext(options);
 
-      context.tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
-      context.showTooltip = game.settings.get("daggerheart-sleek-ui", "showTooltip");
+      context.tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
+      context.showTooltip = game.settings.get("daggerheart-enhanced-ui", "showTooltip");
 
       await this._prepareNotesContext(context, options);
 
@@ -82,7 +82,7 @@ export function registerEnvironmentSheet() {
       context.currentFear = game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Resources.Fear);
 
       if (options.isFirstRender && !this.collapsedCategories) {
-        this.collapsedCategories = this.actor.getFlag("daggerheart-sleek-ui", "collapsedCategories") || [];
+        this.collapsedCategories = this.actor.getFlag("daggerheart-enhanced-ui", "collapsedCategories") || [];
       }
       context.collapsedCategories = this.collapsedCategories || [];
 
@@ -209,12 +209,12 @@ export function registerEnvironmentSheet() {
     _onRender(context, options) {
       super._onRender(context, options);
 
-      this.element.id = "sleek-ui-sheet";
+      this.element.id = "enhanced-ui-sheet";
       this._element = this.element;
 
       this.element.addEventListener("mousemove", dismissHoverTooltip);
 
-      const tabsPosition = game.settings.get("daggerheart-sleek-ui", "tabsPosition");
+      const tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
 
       if (tabsPosition === "floating") {
         if (!this.floatingTabs) {
@@ -382,7 +382,7 @@ export function registerEnvironmentSheet() {
           this.collapsedCategories.splice(index, 1);
         }
       }
-      this.actor.setFlag("daggerheart-sleek-ui", "collapsedCategories", [...this.collapsedCategories]);
+      this.actor.setFlag("daggerheart-enhanced-ui", "collapsedCategories", [...this.collapsedCategories]);
     }
 
     async render(options = {}, _options = {}) {
@@ -397,10 +397,10 @@ export function registerEnvironmentSheet() {
     }
   }
 
-  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", SleekEnvironmentSheet, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(Actor, "daggerheart", EnhancedEnvironmentSheet, {
     types: ["environment"],
     makeDefault: true,
-    label: "DH Sleek UI",
+    label: "DH Enhanced UI",
   });
 
   Hooks.on("updateSetting", (setting) => {
@@ -410,7 +410,7 @@ export function registerEnvironmentSheet() {
       .filter((t) => t.actor?.type === "environment")
       .forEach((t) => {
         const sheet = t.actor?.sheet;
-        if (sheet instanceof SleekEnvironmentSheet && sheet.rendered) {
+        if (sheet instanceof EnhancedEnvironmentSheet && sheet.rendered) {
           sheet.render();
         }
       });
