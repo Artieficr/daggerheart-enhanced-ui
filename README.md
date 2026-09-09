@@ -1,7 +1,10 @@
-# Daggerheart Enhanced UI
+# Description
+
 ![Description](.github/assets/mini-sheet-cards-widgets.png)
 
-## Credits
+Alternative actor sheets with UI/UX improvements for Foundryborne's Daggerheart System.
+
+# Credits
 
 This module incorporates code and assets from other projects, restyled to match its own UI:
 
@@ -12,10 +15,6 @@ This module incorporates code and assets from other projects, restyled to match 
   public license — see [LICENSE](LICENSE) for details.
 - **Countdown Tracker widget** — adapted from [Improved Countdowns](https://git.geeks.gay/cosmo/dh-improved-countdowns)
   by CPTN Cosmo, MIT licensed — see [LICENSE](LICENSE).
-
----
-
-Alternative actor sheets with UI/UX improvements for Foundryborne's Daggerheart System
 
 # Features
 
