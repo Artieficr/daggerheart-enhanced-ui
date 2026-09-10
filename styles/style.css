@@ -219,6 +219,16 @@
   gap: var(--enhancedUI-spacing-md);
   padding: var(--enhancedUI-spacing-md);
   padding-top: var(--enhancedUI-spacing-xl);
+  /* .header-content and .tab-content are siblings under .main-content, not
+     ancestor/descendant — .tab-content's own scrollbar-gutter:stable (see
+     tabs.css) only reserves space inside itself, so without a matching
+     reservation here this header's right-aligned content (the difficulty
+     box, etc.) drifts further right than the tab content below it.
+     overflow:hidden makes scrollbar-gutter apply to a box that never
+     actually scrolls — it just needs to not be the default `visible` — so
+     this reserves the identical gutter width with nothing to clip. */
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 
 #enhanced-ui-sheet .tab-content {
