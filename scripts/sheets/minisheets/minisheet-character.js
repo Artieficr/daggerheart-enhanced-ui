@@ -14,12 +14,16 @@ import {
   renderFavorites,
   attachDowntimeListeners,
   attachActorPickerListeners,
+  patchMinisheetTooltipManager,
+  mountEffectsDisplay,
+  unmountEffectsDisplay,
 } from "./utils-minisheet.js";
 
 import { applyMinisheetScale } from "../../settings.js";
 import { toggleResourceManagement, toggleArmorManagement, formatWeaponDamageDisplay, getBeastformPortrait, resolveUnarmedAttack } from "../../helpers.js";
 import { renderCardHandWindow, getCardHandOpenState, setCardHandOpenState, renderCardHandReorderPopover } from "../../card-hand.js";
 import { renderInventoryWindow, renderInventoryFilterPopover, getInventoryOpenState, setInventoryOpenState } from "../../inventory-panel.js";
+import { renderEffectsPanel } from "../../effects-panel.js";
 import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
 import { buildActorPickerContext, syncPinnedMinisheet } from "./minisheet-pin.js";
 
@@ -55,6 +59,8 @@ export function registerCharacterMiniSheet() {
 
   class CharacterMiniSheet {
     static currentActor = null;
+    // See the identical note on _render() below.
+    static _renderGeneration = 0;
     static element = null;
     static _tooltipPatched = false;
     static _effectsObserver = null;
@@ -62,63 +68,26 @@ export function registerCharacterMiniSheet() {
     static _outsideClickListener = null;
 
     static _mountEffectsDisplay() {
-      const effectsEl = document.getElementById("effects-display");
-      if (!effectsEl) return;
-
-      const minisheet = this.element?.querySelector(".minisheet.character");
-      if (!minisheet) return;
-
-      this._effectsOriginalParent = effectsEl.parentElement;
-      minisheet.appendChild(effectsEl);
-      effectsEl.removeAttribute("hidden");
-
-      this._effectsObserver = new MutationObserver(() => effectsEl.removeAttribute("hidden"));
-      this._effectsObserver.observe(effectsEl, { attributes: true, attributeFilter: ["hidden"] });
+      mountEffectsDisplay(this, ".minisheet.character");
     }
 
     static _unmountEffectsDisplay() {
-      const effectsEl = document.getElementById("effects-display");
-
-      if (this._effectsObserver) {
-        this._effectsObserver.disconnect();
-        this._effectsObserver = null;
-      }
-
-      if (effectsEl && this._effectsOriginalParent) {
-        this._effectsOriginalParent.appendChild(effectsEl);
-      }
-
-      this._effectsOriginalParent = null;
+      unmountEffectsDisplay(this);
     }
 
     static _patchTooltipManager() {
-      if (this._tooltipPatched) return;
-      const mgr = game.tooltip;
-      if (!mgr) return;
-
-      const originalSetAnchor = mgr._setAnchor.bind(mgr);
-      mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(".favorites-window, .card-hand-window")) {
-          const pad = this.constructor.TOOLTIP_MARGIN_PX;
-          const pos = this.element.getBoundingClientRect();
-          return this._setStyle({
-            textAlign: "center",
-            left: pos.left - this.tooltip.offsetWidth / 2 + pos.width / 2,
-            bottom: window.innerHeight - pos.top + pad,
-          });
-        }
-        return originalSetAnchor(direction);
-      };
-
-      this._tooltipPatched = true;
+      patchMinisheetTooltipManager(this, { excludeSelector: ".favorites-window, .card-hand-window" });
     }
 
     static _onUpdateActor(actor) {
-      if (actor === this.currentActor) this._render();
+      if (actor?.uuid === this.currentActor?.uuid) this._render();
     }
 
     static _onUpdateItem(item) {
-      if (item.parent !== this.currentActor) return;
+      // .uuid, not === — more robust against an unlinked token's synthetic
+      // actor object potentially not being the same reference as
+      // currentActor even when it's the same logical actor.
+      if (item.parent?.uuid !== this.currentActor?.uuid) return;
       if (item === this.currentActor.system.armor) {
         this._render();
       } else {
@@ -130,6 +99,11 @@ export function registerCharacterMiniSheet() {
 
     static async _render() {
       if (!this.currentActor) return;
+
+      // Guards against a slower, earlier-started render overwriting a
+      // faster, later-started one's already-current result with stale data
+      // — see the identical, more detailed note in minisheet-adversary.js.
+      const generation = ++this._renderGeneration;
 
       // Preserve open-window state across re-renders. ".favorites-window"
       // alone would also match the Inventory window (it carries that class
@@ -161,10 +135,10 @@ export function registerCharacterMiniSheet() {
       if (wasInMinisheet) document.body.appendChild(effectsEl);
 
       const context = await this._prepareContext(this.currentActor);
-      if (!this.currentActor) return;
+      if (!this.currentActor || generation !== this._renderGeneration) return;
 
       const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/characters/minisheet.hbs", context);
-      if (!this.currentActor) return;
+      if (!this.currentActor || generation !== this._renderGeneration) return;
 
       if (!this.element) {
         this._injectContainer();
@@ -245,6 +219,7 @@ export function registerCharacterMiniSheet() {
       this._patchTooltipManager(); // skip in party minisheet, it doesn't have this
       renderCardHandWindow(this.element, this.currentActor);
       renderInventoryWindow(this.element, this.currentActor);
+      renderEffectsPanel(this.element, this.currentActor);
 
       if (collapsed) {
         const height = this.element.offsetHeight;
@@ -519,10 +494,16 @@ export function registerCharacterMiniSheet() {
       document.addEventListener("click", this._outsideClickListener);
     }
     static _onUpdateActiveEffect(effect, _changed, _options, _userId) {
-      // Effects can be embedded on the actor directly, or on an item owned by the actor.
-      // Either way, check whether they ultimately belong to the current actor.
-      const parentActor = effect.parent?.parent ?? effect.parent;
-      if (parentActor === this.currentActor) this._render();
+      // Effects can be embedded on the actor directly, or on an item owned by
+      // the actor — `effect.parent instanceof Actor` distinguishes the two
+      // cases. NOT `effect.parent?.parent ?? effect.parent`: for an unlinked
+      // token's synthetic actor, Actor#parent returns the TokenDocument
+      // (always truthy, unlike a world actor's undefined), so that pattern
+      // silently resolved to the token instead of the actor and never
+      // matched. Compared by .uuid, not ===, for the same reason as
+      // _onUpdateItem above.
+      const parentActor = effect.parent instanceof Actor ? effect.parent : effect.parent?.parent;
+      if (parentActor?.uuid === this.currentActor?.uuid) this._render();
     }
   }
 
@@ -532,7 +513,12 @@ export function registerCharacterMiniSheet() {
   // and lets a pinned actor take over with no token controlled at all.
   Hooks.on("updateActor", CharacterMiniSheet._onUpdateActor.bind(CharacterMiniSheet));
   Hooks.on("updateItem", CharacterMiniSheet._onUpdateItem.bind(CharacterMiniSheet));
+  // create/delete too, not just update — the Effects & Conditions bar needs
+  // to pick up a status effect the instant it's applied/removed, not only
+  // when an existing effect's own data changes.
+  Hooks.on("createActiveEffect", CharacterMiniSheet._onUpdateActiveEffect.bind(CharacterMiniSheet));
   Hooks.on("updateActiveEffect", CharacterMiniSheet._onUpdateActiveEffect.bind(CharacterMiniSheet));
+  Hooks.on("deleteActiveEffect", CharacterMiniSheet._onUpdateActiveEffect.bind(CharacterMiniSheet));
 
   Hooks.on("renderEnhancedCharacterSheet", (app) => {
     if (app.actor === CharacterMiniSheet.currentActor) {

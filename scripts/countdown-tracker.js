@@ -3,12 +3,13 @@
  * countdown tracker UI, ported from CPTN Cosmo's Improved Countdowns
  * (https://git.geeks.gay/cosmo/dh-improved-countdowns, MIT — see LICENSE)
  * and restyled to match Enhanced UI's own design tokens instead of the
- * original's bespoke dark-glass palette. Functionality (drag, lock,
- * minimize, per-countdown increment/decrement, add-new, all the visual
- * customization settings) is preserved as-is; only presentation and the
- * settings-registration/visibility-toggle plumbing were adapted to this
- * module's own conventions (module id, settings ownership shape, vanilla
- * DOM instead of jQuery for the renderSettingsConfig visibility toggling).
+ * original's bespoke dark-glass palette. Functionality (lock, minimize,
+ * per-countdown increment/decrement, add-new, all the visual customization
+ * settings) is preserved as-is; presentation, the settings-registration/
+ * visibility-toggle plumbing (module id, settings ownership shape, vanilla
+ * DOM instead of jQuery for the renderSettingsConfig visibility toggling),
+ * and dragging (now `hud-drag.js`'s `attachHudDragHandle`, shared with the
+ * Party Overview widget) were adapted to this module's own conventions.
  *
  * Data source is the Daggerheart system's own world setting
  * (`game.settings.get("daggerheart", "Countdowns")`) and system API
@@ -16,12 +17,12 @@
  * system integration point, not tied to the original module's namespace,
  * so that part ports unchanged.
  */
+import { attachHudDragHandle } from "./hud-drag.js";
+
 const MODULE_ID = "daggerheart-enhanced-ui";
 const TEMPLATE = "modules/daggerheart-enhanced-ui/templates/countdown-tracker.hbs";
 
-/* ====================
-   SETTINGS
-   ==================== */
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
 
 export function registerCountdownTrackerSettings() {
   game.settings.register(MODULE_ID, "countdownPosition", {
@@ -273,9 +274,7 @@ export function registerCountdownTrackerSettingsUI() {
   });
 }
 
-/* ====================
-   WIDGET
-   ==================== */
+// ─── WIDGET ──────────────────────────────────────────────────────────────────
 
 let CountdownTrackerApp;
 
@@ -289,23 +288,6 @@ export function registerCountdownTracker() {
 
     constructor(options = {}) {
       super(options);
-      this._dragData = {
-        isDragging: false,
-        startX: 0,
-        startY: 0,
-        startLeft: 0,
-        startBottom: 0,
-        width: 0,
-        height: 0,
-      };
-      // Bound once and reused for both addEventListener and
-      // removeEventListener — binding fresh in each call (as the original
-      // module's own code does) produces a different function reference
-      // every time, so removeEventListener never actually matches what was
-      // added and the mousemove/mouseup listeners silently pile up on
-      // window with every drag.
-      this._onDraggingBound = this.#onDragging.bind(this);
-      this._onDragEndBound = this.#onDragEnd.bind(this);
 
       // Every re-render (e.g. clicking +/- edits the countdown setting,
       // which fires DhRefresh, which re-renders this whole app) replaces
@@ -522,60 +504,17 @@ export function registerCountdownTracker() {
     }
 
     #setupDragging() {
-      if (game.settings.get(MODULE_ID, "countdownLocked")) return;
-
       const dragHandle = this.element.querySelector(".drag-handle");
       if (!dragHandle) return;
 
-      dragHandle.addEventListener("mousedown", this.#onDragStart.bind(this));
-    }
-
-    #onDragStart(e) {
-      if (e.button !== 0) return;
-
-      this._dragData.isDragging = true;
-      this._dragData.startX = e.clientX;
-      this._dragData.startY = e.clientY;
-
-      const rect = this.element.getBoundingClientRect();
-      this._dragData.startLeft = rect.left;
-      this._dragData.startBottom = window.innerHeight - rect.bottom;
-      this._dragData.width = rect.width;
-      this._dragData.height = rect.height;
-
-      this.element.style.cursor = "grabbing";
-
-      window.addEventListener("mousemove", this._onDraggingBound);
-      window.addEventListener("mouseup", this._onDragEndBound);
-    }
-
-    #onDragging(e) {
-      if (!this._dragData.isDragging) return;
-
-      const dx = e.clientX - this._dragData.startX;
-      const dy = e.clientY - this._dragData.startY;
-
-      const maxLeft = Math.max(0, window.innerWidth - this._dragData.width);
-      const maxBottom = Math.max(0, window.innerHeight - this._dragData.height);
-      const newLeft = Math.max(0, Math.min(this._dragData.startLeft + dx, maxLeft));
-      const newBottom = Math.max(0, Math.min(this._dragData.startBottom - dy, maxBottom));
-
-      this.element.style.left = `${newLeft}px`;
-      this.element.style.bottom = `${newBottom}px`;
-    }
-
-    #onDragEnd() {
-      if (!this._dragData.isDragging) return;
-      this._dragData.isDragging = false;
-      this.element.style.cursor = "";
-
-      window.removeEventListener("mousemove", this._onDraggingBound);
-      window.removeEventListener("mouseup", this._onDragEndBound);
-
-      const rect = this.element.getBoundingClientRect();
-      const pos = { left: rect.left, bottom: window.innerHeight - rect.bottom };
-
-      game.settings.set(MODULE_ID, "countdownPosition", pos);
+      attachHudDragHandle(dragHandle, this.element, {
+        getLocked: () => game.settings.get(MODULE_ID, "countdownLocked"),
+        onDragStart: () => (this.element.style.cursor = "grabbing"),
+        onDragEnd: (pos) => {
+          this.element.style.cursor = "";
+          game.settings.set(MODULE_ID, "countdownPosition", pos);
+        },
+      });
     }
 
     async close(options) {

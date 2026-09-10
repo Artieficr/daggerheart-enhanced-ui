@@ -1,7 +1,22 @@
-import { hideMacrobar, showMacrobar, collapseMinisheet, injectReopenButton, removeReopenButton, isMinisheetCollapsed, setMinisheetCollapsed, attachResourceListeners, attachToggleResourceListeners, attachActorPickerListeners } from "./utils-minisheet.js";
+import {
+  hideMacrobar,
+  showMacrobar,
+  collapseMinisheet,
+  injectReopenButton,
+  removeReopenButton,
+  isMinisheetCollapsed,
+  setMinisheetCollapsed,
+  attachResourceListeners,
+  attachToggleResourceListeners,
+  attachActorPickerListeners,
+  patchMinisheetTooltipManager,
+  mountEffectsDisplay,
+  unmountEffectsDisplay,
+} from "./utils-minisheet.js";
 import { applyMinisheetScale } from "../../settings.js";
 import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
 import { buildActorPickerContext, syncPinnedMinisheet } from "./minisheet-pin.js";
+import { renderEffectsPanel } from "../../effects-panel.js";
 
 // Static-only class scoped inside registerCompanionMiniSheet()'s closure —
 // module-scope reference needed so minisheet-pin.js's coordinator (and this
@@ -31,88 +46,62 @@ export function registerCompanionMiniSheet() {
     static _tooltipPatched = false;
     static _effectsObserver = null;
     static _effectsOriginalParent = null;
+    // See the identical, more detailed note in minisheet-adversary.js.
+    static _renderGeneration = 0;
 
     // ─── TOOLTIP PATCH ────────────────────────────────────────────────────────
 
     static _patchTooltipManager() {
-      if (this._tooltipPatched) return;
-      const mgr = game.tooltip;
-      if (!mgr) return;
-
-      const originalSetAnchor = mgr._setAnchor.bind(mgr);
-      mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
-          const pad = this.constructor.TOOLTIP_MARGIN_PX;
-          const pos = this.element.getBoundingClientRect();
-          return this._setStyle({
-            textAlign: "center",
-            left: pos.left - this.tooltip.offsetWidth / 2 + pos.width / 2,
-            bottom: window.innerHeight - pos.top + pad,
-          });
-        }
-        return originalSetAnchor(direction);
-      };
-
-      this._tooltipPatched = true;
+      patchMinisheetTooltipManager(this);
     }
 
     // ─── EFFECTS DISPLAY ─────────────────────────────────────────────────────
 
     static _mountEffectsDisplay() {
-      const effectsEl = document.getElementById("effects-display");
-      if (!effectsEl) return;
-
-      const minisheet = this.element?.querySelector(".minisheet.companion");
-      if (!minisheet) return;
-
-      this._effectsOriginalParent = effectsEl.parentElement;
-      minisheet.appendChild(effectsEl);
-      effectsEl.removeAttribute("hidden");
-
-      this._effectsObserver = new MutationObserver(() => effectsEl.removeAttribute("hidden"));
-      this._effectsObserver.observe(effectsEl, { attributes: true, attributeFilter: ["hidden"] });
+      mountEffectsDisplay(this, ".minisheet.companion");
     }
 
     static _unmountEffectsDisplay() {
-      const effectsEl = document.getElementById("effects-display");
-
-      if (this._effectsObserver) {
-        this._effectsObserver.disconnect();
-        this._effectsObserver = null;
-      }
-
-      if (effectsEl && this._effectsOriginalParent) {
-        this._effectsOriginalParent.appendChild(effectsEl);
-      }
-
-      this._effectsOriginalParent = null;
+      unmountEffectsDisplay(this);
     }
 
     // ─── HOOKS ────────────────────────────────────────────────────────────────
 
     static _onUpdateActor(actor) {
-      if (actor === this.currentActor) this._render();
+      if (actor?.uuid === this.currentActor?.uuid) this._render();
     }
 
     static _onUpdateItem(item) {
-      if (item.parent !== this.currentActor) return;
+      // .uuid, not === — more robust against an unlinked token's synthetic
+      // actor object potentially not being the same reference as
+      // currentActor even when it's the same logical actor.
+      if (item.parent?.uuid !== this.currentActor?.uuid) return;
       this._render();
+    }
+
+    static _onUpdateActiveEffect(effect) {
+      // See the identical, detailed note in minisheet-adversary.js — a
+      // plain truthiness fallback here silently resolves to the TOKEN
+      // rather than the actor for any unlinked token.
+      const parentActor = effect.parent instanceof Actor ? effect.parent : effect.parent?.parent;
+      if (parentActor?.uuid === this.currentActor?.uuid) this._render();
     }
 
     // ─── RENDER ───────────────────────────────────────────────────────────────
 
     static async _render() {
       if (!this.currentActor) return;
+      const generation = ++this._renderGeneration;
 
       const effectsEl = document.getElementById("effects-display");
       const wasInMinisheet = effectsEl && this.element?.contains(effectsEl);
       if (wasInMinisheet) document.body.appendChild(effectsEl);
 
       const context = await this._prepareContext(this.currentActor);
-      if (!this.currentActor) return;
+      if (!this.currentActor || generation !== this._renderGeneration) return;
 
       const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/companions/companion-minisheet.hbs", context);
-      if (!this.currentActor) return;
+      if (!this.currentActor || generation !== this._renderGeneration) return;
 
       if (!this.element) {
         this._injectContainer();
@@ -159,6 +148,7 @@ export function registerCompanionMiniSheet() {
 
       this._attachListeners();
       this._patchTooltipManager();
+      renderEffectsPanel(this.element, this.currentActor);
 
       if (collapsed) {
         const height = this.element.offsetHeight;
@@ -334,6 +324,10 @@ export function registerCompanionMiniSheet() {
   // note and minisheet-pin.js's own header comment.
   Hooks.on("updateActor", CompanionMiniSheet._onUpdateActor.bind(CompanionMiniSheet));
   Hooks.on("updateItem", CompanionMiniSheet._onUpdateItem.bind(CompanionMiniSheet));
+  // create/delete too — see the identical note in minisheet-character.js.
+  Hooks.on("createActiveEffect", CompanionMiniSheet._onUpdateActiveEffect.bind(CompanionMiniSheet));
+  Hooks.on("updateActiveEffect", CompanionMiniSheet._onUpdateActiveEffect.bind(CompanionMiniSheet));
+  Hooks.on("deleteActiveEffect", CompanionMiniSheet._onUpdateActiveEffect.bind(CompanionMiniSheet));
 
   Hooks.on("renderEnhancedCompanionSheet", (app) => {
     if (app.actor === CompanionMiniSheet.currentActor) {

@@ -1,5 +1,25 @@
 import { FloatingTabs } from "../floating-tabs.js";
-import { attachQuantityListeners, dismissHoverTooltip, formatWeaponDamageDisplay, getBeastformPortrait, recallDomainCardFromVault, resolveUnarmedAttack, toggleArmorManagement, toggleResourceManagement } from "../helpers.js";
+import {
+  attachDieResourceListeners,
+  attachHopeLabelListener,
+  attachQuantityListeners,
+  attachSimpleResourceListeners,
+  attachUsesResourceListeners,
+  dismissHoverTooltip,
+  formatWeaponDamageDisplay,
+  getBeastformPortrait,
+  modifyActorResource,
+  prepareActorEffectsData,
+  prepareActorInventoryData,
+  recallDomainCardFromVault,
+  resolveUnarmedAttack,
+  setCardDescriptionOpen,
+  toggleActorHope,
+  toggleActorResource,
+  toggleArmorManagement,
+  toggleCardDescription,
+  toggleResourceManagement,
+} from "../helpers.js";
 
 export function registerCharacterSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -331,136 +351,11 @@ export function registerCharacterSheet() {
     }
 
     async _prepareInventoryData(context) {
-      const createBaseData = async (item) => {
-        let hopeCost = 0;
-        let usesData = null;
-
-        if (item.system.actions) {
-          for (const action of [...item.system.actions]) {
-            if (action.cost) {
-              for (const cost of action.cost) {
-                if (cost.key === "hope") {
-                  hopeCost = Math.max(hopeCost, cost.value);
-                }
-              }
-            }
-
-            if (action.uses && action.uses.max && !usesData) {
-              const max = parseInt(action.uses.max);
-              usesData = {
-                current: action.uses.value,
-                max: max,
-                remaining: max - action.uses.value,
-                recovery: action.uses.recovery,
-                actionId: action._id,
-              };
-            }
-          }
-        }
-
-        const enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(item.system.description, { relativeTo: item });
-
-        return { hopeCost, usesData, enrichedDescription };
-      };
-
-      const createWeaponData = async (item) => {
-        const base = await createBaseData(item);
-        const attack = item.system.attack;
-        const rollData = item.getRollData?.() ?? {};
-        const damage = formatWeaponDamageDisplay(attack, { rollData });
-
-        const homebrewWeaponFeatures = game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Homebrew)?.itemFeatures?.weaponFeatures ?? {};
-        const allWeaponFeatures = { ...CONFIG.DH.ITEM.weaponFeatures, ...homebrewWeaponFeatures };
-        const homebrewWeaponKeys = new Set(Object.keys(homebrewWeaponFeatures));
-        const features = (item.system.weaponFeatures || []).flatMap((wf) => {
-          const config = allWeaponFeatures[wf.value];
-          if (!config) return [];
-          const isHomebrew = homebrewWeaponKeys.has(wf.value);
-          return [
-            {
-              name: game.i18n.localize(config.label ?? config.name),
-              description: isHomebrew ? (config.description ?? "") : game.i18n.localize(config.description),
-            },
-          ];
-        });
-
-        const tags = [
-          {
-            label: item.system.secondary ? game.i18n.localize("DAGGERHEART.ITEMS.Weapon.secondaryWeapon.full") : game.i18n.localize("DAGGERHEART.ITEMS.Weapon.primaryWeapon.full"),
-            tagClass: "tag-green",
-          },
-          {
-            label: attack?.roll?.trait ? attack.roll.trait.charAt(0).toUpperCase() + attack.roll.trait.slice(1) : "",
-            tagClass: "tag-blue",
-          },
-          {
-            label: game.i18n.localize(`DAGGERHEART.CONFIG.Range.${attack.range}.name`),
-            tagClass: "tag-blue",
-          },
-          {
-            label: game.i18n.localize(`DAGGERHEART.CONFIG.Burden.${item.system.burden}`),
-            tagClass: "tag-blue",
-          },
-          {
-            label: damage,
-            tagClass: "tag-blue",
-          },
-        ].filter((tag) => tag.label);
-
-        return { item, tags, features, damage, ...base };
-      };
-
-      const createArmorData = async (item) => {
-        const base = await createBaseData(item);
-
-        const homebrewArmorFeatures = game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Homebrew)?.itemFeatures?.armorFeatures ?? {};
-        const allArmorFeatures = { ...CONFIG.DH.ITEM.armorFeatures, ...homebrewArmorFeatures };
-        const homebrewArmorKeys = new Set(Object.keys(homebrewArmorFeatures));
-        const features = (item.system.armorFeatures || []).flatMap((af) => {
-          const config = allArmorFeatures[af.value];
-          if (!config) return [];
-          const isHomebrew = homebrewArmorKeys.has(af.value);
-          return [
-            {
-              name: game.i18n.localize(config.label ?? config.name),
-              description: isHomebrew ? (config.description ?? "") : game.i18n.localize(config.description),
-            },
-          ];
-        });
-
-        const tags = [
-          {
-            label: `${game.i18n.localize("DAGGERHEART.ITEMS.Armor.baseScore")}: ${item.system.armor.max}`,
-            tagClass: "tag-blue",
-          },
-          {
-            label: `${game.i18n.localize("DAGGERHEART.ITEMS.Armor.baseThresholds.base")}: ${item.system.baseThresholds.major} / ${item.system.baseThresholds.severe}`,
-            tagClass: "tag-blue",
-          },
-        ];
-
-        return { item, tags, marks: item.system.armor, features, ...base };
-      };
-
-      const createConsumableData = async (item) => {
-        const base = await createBaseData(item);
-        return { item, tags: [], quantity: item.system.quantity, ...base };
-      };
-
-      const createLootData = async (item) => {
-        const base = await createBaseData(item);
-        return { item, tags: [], quantity: item.system.quantity, ...base };
-      };
-
-      const weapons = this.actor.items.filter((i) => i.type === "weapon").sort((a, b) => a.sort - b.sort);
-      const armors = this.actor.items.filter((i) => i.type === "armor").sort((a, b) => a.sort - b.sort);
-      const consumables = this.actor.items.filter((i) => i.type === "consumable").sort((a, b) => a.sort - b.sort);
-      const loots = this.actor.items.filter((i) => i.type === "loot").sort((a, b) => a.sort - b.sort);
-
-      context.weapons = await Promise.all(weapons.map((item) => createWeaponData(item)));
-      context.armors = await Promise.all(armors.map((item) => createArmorData(item)));
-      context.consumables = await Promise.all(consumables.map((item) => createConsumableData(item)));
-      context.loots = await Promise.all(loots.map((item) => createLootData(item)));
+      const inventory = await prepareActorInventoryData(this.actor);
+      context.weapons = inventory.weapons;
+      context.armors = inventory.armors;
+      context.consumables = inventory.consumables;
+      context.loots = inventory.loots;
 
       const unarmed = resolveUnarmedAttack(this.actor);
       if (unarmed) {
@@ -498,77 +393,9 @@ export function registerCharacterSheet() {
     }
 
     async _prepareEffectsData(context) {
-      const getItemTypeName = (type) => {
-        const typeMap = {
-          feature: "Feature",
-          domainCard: "Domain Card",
-          weapon: "Weapon",
-          armor: "Armor",
-          consumable: "Consumable",
-          loot: "Loot",
-          character: "Character",
-        };
-        return typeMap[type] || "Unknown";
-      };
-
-      const createEffectData = async (effect) => {
-        const infoTags = [];
-        const resourceTags = [];
-
-        let sourceItem = null;
-
-        if (effect.origin) {
-          sourceItem = await fromUuid(effect.origin);
-        }
-
-        if (!sourceItem && effect.parent) {
-          sourceItem = effect.parent;
-        }
-
-        if (sourceItem) {
-          const sourceTypeName = getItemTypeName(sourceItem.type);
-          infoTags.push({
-            label: `${sourceTypeName}: ${sourceItem.name}`,
-            uuid: sourceItem.uuid,
-            tagClass: "tag-green",
-          });
-        }
-
-        if (effect.statuses && effect.statuses.size > 0) {
-          effect.statuses.forEach((status) => {
-            resourceTags.push({
-              label: status.charAt(0).toUpperCase() + status.slice(1),
-              uuid: "",
-              tagClass: "tag-blue",
-            });
-          });
-        }
-
-        const isTemporary = effect.isTemporary || effect.duration?.rounds != null || (effect.duration?.seconds != null && effect.duration.seconds > 0) || effect.duration?.turns != null;
-
-        resourceTags.push({
-          label: isTemporary ? "Temporary" : "Passive",
-          uuid: "",
-          tagClass: "tag-blue",
-        });
-
-        let description = effect.description;
-        if (description && /^[A-Z][A-Z_]+\./.test(description)) {
-          description = game.i18n.localize(description);
-        }
-        const enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(description, {
-          relativeTo: effect,
-        });
-
-        return { item: effect, infoTags, resourceTags, enrichedDescription };
-      };
-
-      const allEffects = Array.from(this.actor.allApplicableEffects());
-      const activeEffects = allEffects.filter((e) => !e.disabled);
-      const inactiveEffects = allEffects.filter((e) => e.disabled);
-
-      context.activeEffects = await Promise.all(activeEffects.map((effect) => createEffectData(effect)));
-      context.inactiveEffects = await Promise.all(inactiveEffects.map((effect) => createEffectData(effect)));
+      const { activeEffects, inactiveEffects } = await prepareActorEffectsData(this.actor);
+      context.activeEffects = activeEffects;
+      context.inactiveEffects = inactiveEffects;
     }
 
     async _prepareBiographyData(context) {
@@ -690,9 +517,7 @@ export function registerCharacterSheet() {
         if (header) {
           const cardWrapper = header.closest(".card-wrapper");
           const description = cardWrapper?.querySelector(".card-container.description");
-          if (description) {
-            description.style.display = "flex";
-          }
+          setCardDescriptionOpen(description, true, { animate: false });
         }
       });
     }
@@ -720,10 +545,10 @@ export function registerCharacterSheet() {
 
       this._attachHopeListener(htmlElement);
       this._attachResourceListeners(htmlElement);
-      this._attachUsesListeners(htmlElement);
+      attachUsesResourceListeners(htmlElement);
       this._attachCardListeners(htmlElement);
-      this._attachSimpleResourceListeners(htmlElement);
-      this._attachDieResourceListeners(htmlElement);
+      attachSimpleResourceListeners(htmlElement);
+      attachDieResourceListeners(htmlElement);
       this._attachDiceResourceListeners(htmlElement);
       this._attachRecallListeners(htmlElement);
       this._attachDamageRollListeners(htmlElement);
@@ -758,28 +583,7 @@ export function registerCharacterSheet() {
     }
 
     _attachHopeListener(htmlElement) {
-      const hopeLabel = htmlElement.querySelector(".hope-container h3");
-      if (!hopeLabel) return;
-
-      hopeLabel.addEventListener("click", async () => {
-        const currentHope = this.actor.system.resources.hope.value;
-        const maxHope = this.actor.system.resources.hope.max;
-        if (currentHope < maxHope) {
-          await this.actor.update({
-            "system.resources.hope.value": currentHope + 1,
-          });
-        }
-      });
-
-      hopeLabel.addEventListener("contextmenu", async (event) => {
-        event.preventDefault();
-        const currentHope = this.actor.system.resources.hope.value;
-        if (currentHope > 0) {
-          await this.actor.update({
-            "system.resources.hope.value": currentHope - 1,
-          });
-        }
-      });
+      attachHopeLabelListener(htmlElement, this.actor);
     }
 
     _attachResourceListeners(htmlElement) {
@@ -794,128 +598,6 @@ export function registerCharacterSheet() {
           event.preventDefault();
           this.constructor._onToggleResource.call(this, event, element);
         });
-      });
-    }
-
-    _attachUsesListeners(htmlElement) {
-      const usesResources = htmlElement.querySelectorAll(".uses-resource");
-      usesResources.forEach((element) => {
-        element.addEventListener("click", async (event) => {
-          const itemUuid = element.closest("[data-item-uuid]")?.dataset.itemUuid;
-          const actionId = element.dataset.actionId;
-
-          if (!itemUuid || !actionId) return;
-
-          const item = await fromUuid(itemUuid);
-          if (!item) return;
-
-          const action = item.system.actions?.get(actionId);
-          if (!action || !action.uses) return;
-
-          const newValue = Math.max(0, action.uses.value - 1);
-          await action.update({ "uses.value": newValue });
-        });
-
-        element.addEventListener(
-          "contextmenu",
-          async (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            const itemUuid = element.closest("[data-item-uuid]")?.dataset.itemUuid;
-            const actionId = element.dataset.actionId;
-
-            if (!itemUuid || !actionId) return;
-
-            const item = await fromUuid(itemUuid);
-            if (!item) return;
-
-            const action = item.system.actions?.get(actionId);
-            if (!action || !action.uses) return;
-
-            const newValue = Math.min(action.uses.max, action.uses.value + 1);
-            await action.update({ "uses.value": newValue });
-          },
-          true,
-        );
-      });
-    }
-
-    _attachSimpleResourceListeners(htmlElement) {
-      const simpleResources = htmlElement.querySelectorAll(".simple-resource");
-      simpleResources.forEach((element) => {
-        element.addEventListener("click", async (event) => {
-          const itemUuid = element.dataset.itemUuid;
-          if (!itemUuid) return;
-
-          const item = await fromUuid(itemUuid);
-          if (!item) return;
-
-          const maxValue = parseInt(element.dataset.max) || 0;
-          const currentValue = item.system.resource.value || 0;
-          const newValue = Math.min(maxValue, currentValue + 1);
-
-          await item.update({ "system.resource.value": newValue });
-        });
-
-        element.addEventListener(
-          "contextmenu",
-          async (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            const itemUuid = element.dataset.itemUuid;
-            if (!itemUuid) return;
-
-            const item = await fromUuid(itemUuid);
-            if (!item) return;
-
-            const currentValue = item.system.resource.value || 0;
-            const newValue = Math.max(0, currentValue - 1);
-
-            await item.update({ "system.resource.value": newValue });
-          },
-          true,
-        );
-      });
-    }
-
-    _attachDieResourceListeners(htmlElement) {
-      const dieResources = htmlElement.querySelectorAll(".die-resource");
-      dieResources.forEach((element) => {
-        element.addEventListener("click", async (event) => {
-          const itemUuid = element.dataset.itemUuid;
-          if (!itemUuid) return;
-
-          const item = await fromUuid(itemUuid);
-          if (!item) return;
-
-          const dieFaces = parseInt(element.dataset.dieFaces.replace("d", "")) || 6;
-          const currentValue = item.system.resource.value || 0;
-          const newValue = (currentValue + 1) % (dieFaces + 1);
-
-          await item.update({ "system.resource.value": newValue });
-        });
-
-        element.addEventListener(
-          "contextmenu",
-          async (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            const itemUuid = element.dataset.itemUuid;
-            if (!itemUuid) return;
-
-            const item = await fromUuid(itemUuid);
-            if (!item) return;
-
-            const currentValue = item.system.resource.value || 0;
-            const newValue = Math.max(0, currentValue - 1);
-
-            await item.update({ "system.resource.value": newValue });
-          },
-          true,
-        );
       });
     }
 
@@ -954,9 +636,8 @@ export function registerCharacterSheet() {
           const description = cardWrapper.querySelector(".card-container.description");
           const itemUuid = nameContainer.closest("[data-item-uuid]")?.dataset.itemUuid;
           if (description && itemUuid) {
-            const isCurrentlyHidden = description.style.display === "none" || !description.style.display;
-            description.style.display = isCurrentlyHidden ? "flex" : "none";
-            if (isCurrentlyHidden) {
+            const isNowOpen = toggleCardDescription(description);
+            if (isNowOpen) {
               this.openCards.add(itemUuid);
             } else {
               this.openCards.delete(itemUuid);
@@ -1034,57 +715,20 @@ export function registerCharacterSheet() {
       });
     }
 
+    // Thin delegates — Foundry's own ApplicationV2 action-delegation calls
+    // these by name (registered in DEFAULT_OPTIONS.actions above), bound to
+    // this sheet instance, so they can't be replaced by the shared
+    // helpers.js functions directly; the actual logic lives there.
     static async _onToggleHope(event, target) {
-      const clickedValue = parseInt(target.dataset.value);
-      const currentHope = this.actor.system.resources.hope.value;
-      const newHope = clickedValue === currentHope ? currentHope - 1 : clickedValue;
-      await this.actor.update({ "system.resources.hope.value": newHope });
+      return toggleActorHope(this.actor, target);
     }
 
     static async _onModifyResource(event, target) {
-      event.preventDefault();
-      const resource = target.dataset.resource;
-      let amount = parseInt(target.dataset.amount);
-
-      if (event.type === "contextmenu") {
-        amount = -amount;
-      }
-
-      const currentValue = foundry.utils.getProperty(this.actor, resource);
-      const maxPath = resource.replace(".value", ".max");
-      const maxValue = resource === "system.armor.system.armor.current" ? this.actor.system.armorScore : foundry.utils.getProperty(this.actor, maxPath);
-
-      const newValue = Math.max(0, Math.min(maxValue, currentValue + amount));
-
-      if (resource === "system.armorScore.value") {
-        await this.actor.system.updateArmorValue({ value: amount });
-      } else if (resource === "system.armor.system.armor.current") {
-        await this.actor.items.get(this.actor.system.armor._id).update({ "system.armor.current": newValue });
-      } else {
-        await this.actor.update({ [resource]: newValue });
-      }
+      return modifyActorResource(event, this.actor, target);
     }
 
     static async _onToggleResource(event, target) {
-      const resource = target.dataset.resource;
-      const clickedValue = parseInt(target.dataset.value);
-
-      if (resource === "system.armorScore.value") {
-        const currentValue = foundry.utils.getProperty(this.actor, "system.armorScore.value");
-        const newValue = clickedValue === currentValue ? currentValue - 1 : clickedValue;
-        const delta = newValue - currentValue;
-        await this.actor.system.updateArmorValue({ value: delta });
-      } else if (resource === "system.armor.system.armor.current") {
-        const currentValue = foundry.utils.getProperty(this.actor, resource);
-        const newValue = clickedValue === currentValue ? currentValue - 1 : clickedValue;
-        await this.actor.items.get(this.actor.system.armor._id).update({
-          "system.armor.current": Math.max(0, newValue),
-        });
-      } else {
-        const currentValue = foundry.utils.getProperty(this.actor, resource);
-        const newValue = clickedValue === currentValue ? currentValue - 1 : clickedValue;
-        await this.actor.update({ [resource]: Math.max(0, newValue) });
-      }
+      return toggleActorResource(event, this.actor, target);
     }
 
     static async _onToggleCategory(event, target) {
@@ -1351,18 +995,14 @@ export function registerCharacterSheet() {
           mainSheet.querySelectorAll(".card-container.description").forEach((desc) => {
             const wrapper = desc.closest(".card-wrapper");
             const uuid = wrapper?.querySelector("[data-item-uuid]")?.dataset.itemUuid;
-            if (uuid !== itemUuid) {
-              desc.style.display = "none";
-            }
+            if (uuid !== itemUuid) setCardDescriptionOpen(desc, false, { animate: false });
           });
 
           const targetHeader = mainSheet.querySelector(`.card-container.header[data-item-uuid="${itemUuid}"]`);
           if (targetHeader) {
             const cardWrapper = targetHeader.closest(".card-wrapper");
             const description = cardWrapper?.querySelector(".card-container.description");
-            if (description) {
-              description.style.display = "flex";
-            }
+            setCardDescriptionOpen(description, true, { animate: false });
           }
         }
 

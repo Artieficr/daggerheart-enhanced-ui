@@ -129,6 +129,16 @@
   z-index: 1;
 }
 
+/* scrollbar-width:none alone doesn't hide the scrollbar in this Foundry
+   build's Chromium/Electron shell (only Firefox honors it) — the visible
+   WebKit-style scrollbar it falls back to then reserves its own width,
+   shifting this list's cards sideways whenever a favorites/features panel
+   grows tall enough to need one (e.g. expanding a card's description). */
+#enhanced-ui-sheet .favorites::-webkit-scrollbar {
+  display: none;
+  width: 0;
+}
+
 #enhanced-ui-sheet .favorites-container {
   display: flex;
   flex-direction: column;

@@ -89,6 +89,11 @@
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
+  /* Reserves the scrollbar's gutter whether or not content is actually tall
+     enough to need one, so expanding a card's description (and any other
+     content-height change) never narrows this column and shifts its
+     contents sideways right as the scrollbar appears. */
+  scrollbar-gutter: stable;
 }
 
 #enhanced-ui-sheet .tab-pane {

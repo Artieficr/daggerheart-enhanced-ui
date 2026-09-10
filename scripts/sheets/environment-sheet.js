@@ -1,5 +1,5 @@
 import { FloatingTabs } from "../floating-tabs.js";
-import { dismissHoverTooltip } from "../helpers.js";
+import { attachUsesResourceListeners, dismissHoverTooltip, enrichGMNotes, setCardDescriptionOpen, toggleCardDescription } from "../helpers.js";
 
 export function registerEnvironmentSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -133,6 +133,7 @@ export function registerEnvironmentSheet() {
           }
 
           const enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(item.system.description, { relativeTo: item, rollData: this.actor.getRollData() });
+          const enrichedGMNotes = await enrichGMNotes(item);
 
           const tags = [
             {
@@ -147,6 +148,7 @@ export function registerEnvironmentSheet() {
             fearCost,
             usesData,
             enrichedDescription,
+            enrichedGMNotes,
           };
         }),
       );
@@ -240,9 +242,7 @@ export function registerEnvironmentSheet() {
         if (header) {
           const cardWrapper = header.closest(".card-wrapper");
           const description = cardWrapper?.querySelector(".card-container.description");
-          if (description) {
-            description.style.display = "flex";
-          }
+          setCardDescriptionOpen(description, true, { animate: false });
         }
       });
     }
@@ -250,7 +250,7 @@ export function registerEnvironmentSheet() {
     _attachPartListeners(partId, htmlElement, options) {
       super._attachPartListeners?.(partId, htmlElement, options);
       this._attachCardListeners(htmlElement);
-      this._attachUsesListeners(htmlElement);
+      attachUsesResourceListeners(htmlElement);
       this._attachActionListeners(htmlElement);
       this._attachBasicTabListeners(htmlElement);
     }
@@ -268,60 +268,14 @@ export function registerEnvironmentSheet() {
           const itemUuid = nameContainer.closest("[data-item-uuid]")?.dataset.itemUuid;
 
           if (description && itemUuid) {
-            const isCurrentlyHidden = description.style.display === "none" || !description.style.display;
-            description.style.display = isCurrentlyHidden ? "flex" : "none";
-            if (isCurrentlyHidden) {
+            const isNowOpen = toggleCardDescription(description);
+            if (isNowOpen) {
               this.openCards.add(itemUuid);
             } else {
               this.openCards.delete(itemUuid);
             }
           }
         });
-      });
-    }
-
-    _attachUsesListeners(htmlElement) {
-      const usesResources = htmlElement.querySelectorAll(".uses-resource");
-      usesResources.forEach((element) => {
-        element.addEventListener("click", async (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          const itemUuid = element.closest("[data-item-uuid]")?.dataset.itemUuid;
-          const actionId = element.dataset.actionId;
-          if (!itemUuid || !actionId) return;
-
-          const item = await fromUuid(itemUuid);
-          if (!item) return;
-
-          const action = item.system.actions?.get(actionId);
-          if (!action || !action.uses) return;
-
-          const newValue = Math.max(0, action.uses.value - 1);
-          await action.update({ "uses.value": newValue });
-        });
-
-        element.addEventListener(
-          "contextmenu",
-          async (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            const itemUuid = element.closest("[data-item-uuid]")?.dataset.itemUuid;
-            const actionId = element.dataset.actionId;
-            if (!itemUuid || !actionId) return;
-
-            const item = await fromUuid(itemUuid);
-            if (!item) return;
-
-            const action = item.system.actions?.get(actionId);
-            if (!action || !action.uses) return;
-
-            const newValue = Math.min(action.uses.max, action.uses.value + 1);
-            await action.update({ "uses.value": newValue });
-          },
-          true,
-        );
       });
     }
 

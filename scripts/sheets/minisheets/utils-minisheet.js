@@ -1,6 +1,19 @@
 // ─── MACROBAR ────────────────────────────────────────────────────────────────
 
-import { attachQuantityListeners, recallDomainCardFromVault, resolveUnarmedAttack } from "../../helpers.js";
+import {
+  attachDieResourceListeners,
+  attachHopeLabelListener,
+  attachQuantityListeners,
+  attachSimpleResourceListeners,
+  attachUsesResourceListeners,
+  modifyActorResource,
+  recallDomainCardFromVault,
+  resolveUnarmedAttack,
+  setCardDescriptionOpen,
+  toggleActorHope,
+  toggleActorResource,
+  toggleCardDescription,
+} from "../../helpers.js";
 import { collapsedTransform } from "./minisheet-position.js";
 import { selectPinnedActor, setFavoriteActor, pruneStaleFavorites } from "./minisheet-pin.js";
 
@@ -18,41 +31,107 @@ export function showMacrobar() {
   hotbar.style.display = "";
 }
 
+// ─── TOOLTIP PATCH & EFFECTS DISPLAY ─────────────────────────────────────────
+// Shared by the Character/Companion/Adversary minisheets (each a static-only
+// class, so `host` below is the class itself, not an instance) — Party and
+// Environment are trimmed variants without an effects display and don't call
+// these. Per-minisheet-type state (`_tooltipPatched`/`_effectsObserver`/
+// `_effectsOriginalParent`) still lives as static fields on each host class,
+// not in here, since more than one minisheet type's static class can be
+// "live" at once (e.g. a pinned Companion alongside a selected Adversary
+// token) and each needs its own patch/mount bookkeeping.
+
+/**
+ * Monkey-patches `game.tooltip._setAnchor` once per host class so tooltips
+ * opened from inside that minisheet anchor upward from the bottom of the
+ * screen instead of Foundry's default direction. `excludeSelector` lets a
+ * host opt a floating window (e.g. the Card Hand) out of the override even
+ * though it's nested inside the minisheet's own DOM subtree.
+ */
+export function patchMinisheetTooltipManager(host, { excludeSelector = ".favorites-window" } = {}) {
+  if (host._tooltipPatched) return;
+  const mgr = game.tooltip;
+  if (!mgr) return;
+
+  const originalSetAnchor = mgr._setAnchor.bind(mgr);
+  mgr._setAnchor = function (direction) {
+    if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(excludeSelector)) {
+      const pad = this.constructor.TOOLTIP_MARGIN_PX;
+      const pos = this.element.getBoundingClientRect();
+      return this._setStyle({
+        textAlign: "center",
+        left: pos.left - this.tooltip.offsetWidth / 2 + pos.width / 2,
+        bottom: window.innerHeight - pos.top + pad,
+      });
+    }
+    return originalSetAnchor(direction);
+  };
+
+  host._tooltipPatched = true;
+}
+
+/**
+ * Physically relocates Foundry's global `#effects-display` element into the
+ * host's minisheet root while it's open (a real DOM-ownership handoff, not a
+ * copy) — `minisheetSelector` picks that root out of the host's own element
+ * (e.g. `.minisheet.character`). A `MutationObserver` keeps re-clearing the
+ * `hidden` attribute the system's own code toggles on it, since that element
+ * assumes it's still living in its usual native location.
+ */
+export function mountEffectsDisplay(host, minisheetSelector) {
+  const effectsEl = document.getElementById("effects-display");
+  if (!effectsEl) return;
+
+  const minisheet = host.element?.querySelector(minisheetSelector);
+  if (!minisheet) return;
+
+  host._effectsOriginalParent = effectsEl.parentElement;
+  minisheet.appendChild(effectsEl);
+  effectsEl.removeAttribute("hidden");
+
+  host._effectsObserver = new MutationObserver(() => effectsEl.removeAttribute("hidden"));
+  host._effectsObserver.observe(effectsEl, { attributes: true, attributeFilter: ["hidden"] });
+}
+
+/** Reverses `mountEffectsDisplay`, handing `#effects-display` back to its original parent. */
+export function unmountEffectsDisplay(host) {
+  const effectsEl = document.getElementById("effects-display");
+
+  if (host._effectsObserver) {
+    host._effectsObserver.disconnect();
+    host._effectsObserver = null;
+  }
+
+  if (effectsEl && host._effectsOriginalParent) {
+    host._effectsOriginalParent.appendChild(effectsEl);
+  }
+
+  host._effectsOriginalParent = null;
+}
+
 // ─── MINISHEET RESOURCE LISTENERS ────────────────────────────────────────────
 
 export function attachHopeListeners(element, actor) {
   element.querySelectorAll("[data-action='toggleHope']").forEach((el) => {
-    el.addEventListener("click", (event) => _onToggleHope.call({ actor }, event, el));
+    el.addEventListener("click", (event) => toggleActorHope(actor, el));
   });
 
-  const hopeLabel = element.querySelector(".hope-container h3");
-  if (hopeLabel) {
-    hopeLabel.addEventListener("click", async () => {
-      const current = actor.system.resources.hope.value;
-      const max = actor.system.resources.hope.max;
-      if (current < max) await actor.update({ "system.resources.hope.value": current + 1 });
-    });
-    hopeLabel.addEventListener("contextmenu", async (event) => {
-      event.preventDefault();
-      const current = actor.system.resources.hope.value;
-      if (current > 0) await actor.update({ "system.resources.hope.value": current - 1 });
-    });
-  }
+  attachHopeLabelListener(element, actor);
 }
 
 export function attachResourceListeners(element, actor) {
   element.querySelectorAll("[data-action='modifyResource']").forEach((el) => {
-    el.addEventListener("click", (event) => _onModifyResource.call({ actor }, event, el));
-    el.addEventListener("contextmenu", (event) => _onModifyResource.call({ actor }, event, el));
+    el.addEventListener("click", (event) => modifyActorResource(event, actor, el));
+    el.addEventListener("contextmenu", (event) => modifyActorResource(event, actor, el));
   });
 }
 
 export function attachToggleResourceListeners(element, actor) {
   element.querySelectorAll("[data-action='toggleResource']").forEach((el) => {
-    el.addEventListener("click", (event) => _onToggleResource.call({ actor }, event, el));
+    el.addEventListener("click", (event) => toggleActorResource(event, actor, el));
     el.addEventListener("contextmenu", (event) => {
       event.preventDefault();
-      _onToggleResource.call({ actor }, event, el);
+      toggleActorResource(event, actor, el);
     });
   });
 }
@@ -321,64 +400,6 @@ export function removeReopenButton() {
   document.getElementById("minisheet-reopen-btn")?.remove();
 }
 
-// ─── MINISHEET RESOURCE HANDLERS ─────────────────────────────────────────────
-
-async function _onToggleHope(event, target) {
-  const value = parseInt(target.dataset.value);
-  const current = this.actor.system.resources.hope.value;
-  const newValue = value === current ? current - 1 : value;
-  await this.actor.update({ "system.resources.hope.value": Math.max(0, newValue) });
-}
-
-async function _onModifyResource(event, target) {
-  event.preventDefault();
-  const resource = target.dataset.resource;
-  let amount = parseInt(target.dataset.amount);
-
-  if (event.type === "contextmenu") amount = -amount;
-
-  if (resource === "system.armorScore.value") {
-    await this.actor.system.updateArmorValue({ value: amount });
-  } else if (resource === "system.armor.system.armor.current") {
-    // backwards-compat branch
-    const armorItem = this.actor.items.get(this.actor.system.armor._id);
-    if (!armorItem) return;
-    const currentValue = armorItem.system.armor.current;
-    const maxValue = this.actor.system.armorScore;
-    const newValue = Math.max(0, Math.min(maxValue, currentValue + amount));
-    await armorItem.update({ "system.armor.current": newValue });
-  } else {
-    const currentValue = foundry.utils.getProperty(this.actor, resource);
-    const maxPath = resource.replace(".value", ".max");
-    const maxValue = foundry.utils.getProperty(this.actor, maxPath);
-    const newValue = Math.max(0, Math.min(maxValue, currentValue + amount));
-    await this.actor.update({ [resource]: newValue });
-  }
-}
-
-async function _onToggleResource(event, target) {
-  const resource = target.dataset.resource;
-  const clickedValue = parseInt(target.dataset.value);
-
-  if (resource === "system.armorScore.value") {
-    const currentValue = foundry.utils.getProperty(this.actor, "system.armorScore.value");
-    const newValue = clickedValue === currentValue ? currentValue - 1 : clickedValue;
-    const delta = newValue - currentValue;
-    await this.actor.system.updateArmorValue({ value: delta });
-  } else if (resource === "system.armor.system.armor.current") {
-    // backwards-compat branch
-    const armorItem = this.actor.items.get(this.actor.system.armor._id);
-    if (!armorItem) return;
-    const currentValue = armorItem.system.armor.current;
-    const newValue = Math.max(0, clickedValue === currentValue ? currentValue - 1 : clickedValue);
-    await armorItem.update({ "system.armor.current": newValue });
-  } else {
-    const currentValue = foundry.utils.getProperty(this.actor, resource);
-    const newValue = Math.max(0, clickedValue === currentValue ? currentValue - 1 : clickedValue);
-    await this.actor.update({ [resource]: newValue });
-  }
-}
-
 // ─── FAVORITES WINDOW ────────────────────────────────────────────────────────
 
 let _hoveredCompactCard = null;
@@ -409,6 +430,15 @@ export async function renderFavorites(element, actor, templatePath, context) {
 }
 
 export function attachFavoritesListeners(element, actor, { isMinisheet = false } = {}) {
+  // isMinisheet isn't always passed accurately by every call site (the
+  // Adversary/Environment minisheets' own features panels call this without
+  // it, since they handle card expand/collapse themselves and don't want
+  // _attachExpandCardListeners double-bound alongside their own — see
+  // minisheet-adversary.js's _attachCardListeners) — but useAction/"More
+  // Options" wiring needs to happen for them too. Detect the real minisheet
+  // context directly off the DOM instead of trusting the flag for those.
+  const inMinisheet = isMinisheet || !!element.closest("#enhanced-ui-sheet");
+
   if (isMinisheet) {
     _attachExpandCardListeners(element);
   } else {
@@ -418,14 +448,92 @@ export function attachFavoritesListeners(element, actor, { isMinisheet = false }
   _attachUseItemListeners(element, actor);
   _attachRollDamageListeners(element, actor);
   _attachToggleEquipListeners(element, actor);
-  _attachUsesListeners(element, actor);
-  _attachSimpleResourceListeners(element, actor);
-  _attachDieResourceListeners(element, actor);
+  attachUsesResourceListeners(element);
+  attachSimpleResourceListeners(element);
+  attachDieResourceListeners(element);
   _attachDiceResourceListeners(element, actor);
   _attachRecallListeners(element, actor);
   attachQuantityListeners(element);
   _attachQuickAccessListeners(element, actor);
-  if (isMinisheet) _attachUseActionListeners(element);
+  if (inMinisheet) _attachUseActionListeners(element);
+  _attachContextMenuListeners(element);
+}
+
+// ─── MORE OPTIONS (CONTEXT MENU) ─────────────────────────────────────────────
+
+/**
+ * The full sheets' own "More Options" (data-action="triggerContextMenu")
+ * works for free there because those ARE real ApplicationV2 sheet instances
+ * with their own inherited _createContextMenu/action-delegation from the
+ * daggerheart system's base sheet class. Minisheets are hand-rendered HTML,
+ * not ApplicationV2 instances, so that button was previously inert — no
+ * listener anywhere wired it up. Skips full-sheet content (its own native
+ * menu already handles that; binding a second one here would double it up)
+ * by checking for #enhanced-ui-sheet, the id unique to minisheet containers.
+ * Bound once per persistent element (dataset guard) since ContextMenu itself
+ * attaches a delegated listener to `element` — re-render calls into
+ * attachFavoritesListeners repeatedly against the SAME long-lived window
+ * node (e.g. .inventory-window), so re-binding on every call would stack
+ * duplicate menus.
+ */
+function _attachContextMenuListeners(element) {
+  if (!element.closest("#enhanced-ui-sheet")) return;
+  if (!element.querySelector("[data-action='triggerContextMenu']")) return;
+  if (element.dataset.contextMenuBound) return;
+  element.dataset.contextMenuBound = "true";
+
+  new CONFIG.ux.ContextMenu(element, ".card-container.header[data-item-uuid]", _minisheetCardMenuItems(), { jQuery: false, fixed: true });
+
+  element.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-action='triggerContextMenu']");
+    if (!trigger) return;
+    event.preventDefault();
+    event.stopPropagation();
+    CONFIG.ux.ContextMenu.triggerContextMenu(event);
+  });
+}
+
+function _minisheetCardMenuItems() {
+  const hasEditableDoc = (target) => {
+    const uuid = target.dataset.itemUuid;
+    return !!uuid && uuid !== "unarmed-attack";
+  };
+
+  return [
+    {
+      name: "Edit",
+      icon: '<i class="fa-solid fa-edit"></i>',
+      condition: hasEditableDoc,
+      callback: async (target) => {
+        const doc = await fromUuid(target.dataset.itemUuid);
+        doc?.sheet?.render(true);
+      },
+    },
+    {
+      name: "Duplicate",
+      icon: '<i class="fa-solid fa-copy"></i>',
+      condition: hasEditableDoc,
+      callback: async (target) => {
+        const doc = await fromUuid(target.dataset.itemUuid);
+        if (doc?.parent) await doc.constructor.create(doc.toObject(), { parent: doc.parent });
+      },
+    },
+    {
+      name: "Delete",
+      icon: '<i class="fa-solid fa-trash"></i>',
+      condition: hasEditableDoc,
+      callback: async (target) => {
+        const doc = await fromUuid(target.dataset.itemUuid);
+        if (!doc) return;
+
+        const confirmed = await foundry.applications.api.DialogV2.confirm({
+          window: { title: game.i18n.format("DAGGERHEART.APPLICATIONS.DeleteConfirmation.title", { type: game.i18n.localize(`TYPES.${doc.documentName}.${doc.type}`), name: doc.name }) },
+          content: game.i18n.format("DAGGERHEART.APPLICATIONS.DeleteConfirmation.text", { name: doc.name }),
+        });
+        if (confirmed) await doc.delete();
+      },
+    },
+  ];
 }
 
 // ─── FAVORITES HELPERS ───────────────────────────────────────────────────────
@@ -483,10 +591,7 @@ function _attachExpandCardListeners(element) {
       if (!cardWrapper || cardWrapper.dataset.itemUuid === "unarmed-attack") return;
 
       const description = cardWrapper.querySelector(".card-container.description");
-      if (description) {
-        const isHidden = description.style.display === "none" || !description.style.display;
-        description.style.display = isHidden ? "flex" : "none";
-      }
+      if (description) toggleCardDescription(description);
     });
   });
 }
@@ -563,14 +668,14 @@ function _attachNavigateToCardListeners(element, actor) {
           mainSheet.querySelectorAll(".card-container.description").forEach((desc) => {
             const wrapper = desc.closest(".card-wrapper");
             const uuid = wrapper?.querySelector("[data-item-uuid]")?.dataset.itemUuid;
-            if (uuid !== itemUuid) desc.style.display = "none";
+            if (uuid !== itemUuid) setCardDescriptionOpen(desc, false, { animate: false });
           });
 
           const targetHeader = mainSheet.querySelector(`.card-container.header[data-item-uuid="${itemUuid}"]`);
           if (targetHeader) {
             const cardWrapper = targetHeader.closest(".card-wrapper");
             const description = cardWrapper?.querySelector(".card-container.description");
-            if (description) description.style.display = "flex";
+            setCardDescriptionOpen(description, true, { animate: false });
           }
         }
         await new Promise((resolve) => setTimeout(resolve, 10));
@@ -697,91 +802,6 @@ function _attachToggleEquipListeners(element, actor) {
         await item.update({ "system.equipped": true });
       }
     });
-  });
-}
-
-function _attachUsesListeners(element, actor) {
-  element.querySelectorAll(".uses-resource").forEach((el) => {
-    el.addEventListener("click", async (event) => {
-      const itemUuid = el.closest("[data-item-uuid]")?.dataset.itemUuid;
-      const actionId = el.dataset.actionId;
-      if (!itemUuid || !actionId) return;
-      const item = await fromUuid(itemUuid);
-      if (!item) return;
-      const action = item.system.actions?.get(actionId);
-      if (!action?.uses) return;
-      await action.update({ "uses.value": Math.max(0, action.uses.value - 1) });
-    });
-    el.addEventListener(
-      "contextmenu",
-      async (event) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const itemUuid = el.closest("[data-item-uuid]")?.dataset.itemUuid;
-        const actionId = el.dataset.actionId;
-        if (!itemUuid || !actionId) return;
-        const item = await fromUuid(itemUuid);
-        if (!item) return;
-        const action = item.system.actions?.get(actionId);
-        if (!action?.uses) return;
-        await action.update({ "uses.value": Math.min(action.uses.max, action.uses.value + 1) });
-      },
-      true,
-    );
-  });
-}
-
-function _attachSimpleResourceListeners(element, actor) {
-  element.querySelectorAll(".simple-resource").forEach((el) => {
-    el.addEventListener("click", async (event) => {
-      const itemUuid = el.dataset.itemUuid;
-      if (!itemUuid) return;
-      const item = await fromUuid(itemUuid);
-      if (!item) return;
-      const maxValue = parseInt(el.dataset.max) || 0;
-      const newValue = Math.min(maxValue, (item.system.resource.value || 0) + 1);
-      await item.update({ "system.resource.value": newValue });
-    });
-    el.addEventListener(
-      "contextmenu",
-      async (event) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const itemUuid = el.dataset.itemUuid;
-        if (!itemUuid) return;
-        const item = await fromUuid(itemUuid);
-        if (!item) return;
-        await item.update({ "system.resource.value": Math.max(0, (item.system.resource.value || 0) - 1) });
-      },
-      true,
-    );
-  });
-}
-
-function _attachDieResourceListeners(element, actor) {
-  element.querySelectorAll(".die-resource").forEach((el) => {
-    el.addEventListener("click", async (event) => {
-      const itemUuid = el.dataset.itemUuid;
-      if (!itemUuid) return;
-      const item = await fromUuid(itemUuid);
-      if (!item) return;
-      const dieFaces = parseInt(el.dataset.dieFaces?.replace("d", "")) || 6;
-      const newValue = ((item.system.resource.value || 0) + 1) % (dieFaces + 1);
-      await item.update({ "system.resource.value": newValue });
-    });
-    el.addEventListener(
-      "contextmenu",
-      async (event) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const itemUuid = el.dataset.itemUuid;
-        if (!itemUuid) return;
-        const item = await fromUuid(itemUuid);
-        if (!item) return;
-        await item.update({ "system.resource.value": Math.max(0, (item.system.resource.value || 0) - 1) });
-      },
-      true,
-    );
   });
 }
 

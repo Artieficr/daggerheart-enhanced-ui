@@ -1,5 +1,5 @@
 import { FloatingTabs } from "../floating-tabs.js";
-import { dismissHoverTooltip } from "../helpers.js";
+import { dismissHoverTooltip, modifyActorResource, prepareActorEffectsData, setCardDescriptionOpen, toggleActorResource, toggleCardDescription } from "../helpers.js";
 
 export function registerCompanionSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -92,69 +92,9 @@ export function registerCompanionSheet() {
     }
 
     async _prepareEffectsData(context) {
-      const getItemTypeName = (type) => {
-        const typeMap = {
-          feature: "Feature",
-          companion: "Companion",
-        };
-        return typeMap[type] || "Unknown";
-      };
-
-      const createEffectData = async (effect) => {
-        const infoTags = [];
-        const resourceTags = [];
-        let sourceItem = null;
-
-        if (effect.origin) {
-          sourceItem = await fromUuid(effect.origin);
-        }
-        if (!sourceItem && effect.parent) {
-          sourceItem = effect.parent;
-        }
-        if (sourceItem) {
-          const sourceTypeName = getItemTypeName(sourceItem.type);
-          infoTags.push({
-            label: `${sourceTypeName}: ${sourceItem.name}`,
-            uuid: sourceItem.uuid,
-            tagClass: "tag-green",
-          });
-        }
-
-        if (effect.statuses && effect.statuses.size > 0) {
-          effect.statuses.forEach((status) => {
-            resourceTags.push({
-              label: status.charAt(0).toUpperCase() + status.slice(1),
-              uuid: "",
-              tagClass: "tag-blue",
-            });
-          });
-        }
-
-        const isTemporary = effect.isTemporary || effect.duration?.rounds != null || (effect.duration?.seconds != null && effect.duration.seconds > 0) || effect.duration?.turns != null;
-
-        resourceTags.push({
-          label: isTemporary ? "Temporary" : "Passive",
-          uuid: "",
-          tagClass: "tag-blue",
-        });
-
-        let description = effect.description;
-        if (description && /^[A-Z][A-Z_]+\./.test(description)) {
-          description = game.i18n.localize(description);
-        }
-        const enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(description, {
-          relativeTo: effect,
-        });
-
-        return { item: effect, infoTags, resourceTags, enrichedDescription };
-      };
-
-      const allEffects = Array.from(this.actor.allApplicableEffects());
-      const activeEffects = allEffects.filter((e) => !e.disabled);
-      const inactiveEffects = allEffects.filter((e) => e.disabled);
-
-      context.activeEffects = await Promise.all(activeEffects.map((effect) => createEffectData(effect)));
-      context.inactiveEffects = await Promise.all(inactiveEffects.map((effect) => createEffectData(effect)));
+      const { activeEffects, inactiveEffects } = await prepareActorEffectsData(this.actor);
+      context.activeEffects = activeEffects;
+      context.inactiveEffects = inactiveEffects;
     }
 
     _onRender(context, options) {
@@ -191,9 +131,7 @@ export function registerCompanionSheet() {
         if (header) {
           const cardWrapper = header.closest(".card-wrapper");
           const description = cardWrapper?.querySelector(".card-container.description");
-          if (description) {
-            description.style.display = "flex";
-          }
+          setCardDescriptionOpen(description, true, { animate: false });
         }
       });
     }
@@ -208,25 +146,17 @@ export function registerCompanionSheet() {
 
     _attachResourceListeners(htmlElement) {
       // Header click/right-click listeners for incrementing/decrementing
-      const resourceHeaders = htmlElement.querySelectorAll('[data-action="modifyResource"]');
-      resourceHeaders.forEach((element) => {
-        element.addEventListener("click", (event) => {
-          this.constructor._onModifyResource.call(this, event, element);
-        });
-        element.addEventListener("contextmenu", (event) => {
-          this.constructor._onModifyResource.call(this, event, element);
-        });
+      htmlElement.querySelectorAll('[data-action="modifyResource"]').forEach((element) => {
+        element.addEventListener("click", (event) => modifyActorResource(event, this.actor, element));
+        element.addEventListener("contextmenu", (event) => modifyActorResource(event, this.actor, element));
       });
 
       // Pip click/right-click listeners for toggling to specific values
-      const resourcePips = htmlElement.querySelectorAll('[data-action="toggleResource"]');
-      resourcePips.forEach((element) => {
-        element.addEventListener("click", (event) => {
-          this.constructor._onToggleResource.call(this, event, element);
-        });
+      htmlElement.querySelectorAll('[data-action="toggleResource"]').forEach((element) => {
+        element.addEventListener("click", (event) => toggleActorResource(event, this.actor, element));
         element.addEventListener("contextmenu", (event) => {
           event.preventDefault();
-          this.constructor._onToggleResource.call(this, event, element);
+          toggleActorResource(event, this.actor, element);
         });
       });
     }
@@ -259,9 +189,8 @@ export function registerCompanionSheet() {
           const itemUuid = nameContainer.closest("[data-item-uuid]")?.dataset.itemUuid;
 
           if (description && itemUuid) {
-            const isCurrentlyHidden = description.style.display === "none" || !description.style.display;
-            description.style.display = isCurrentlyHidden ? "flex" : "none";
-            if (isCurrentlyHidden) {
+            const isNowOpen = toggleCardDescription(description);
+            if (isNowOpen) {
               this.openCards.add(itemUuid);
             } else {
               this.openCards.delete(itemUuid);
@@ -284,31 +213,6 @@ export function registerCompanionSheet() {
           await this.render(true);
         });
       });
-    }
-
-    static async _onModifyResource(event, target) {
-      event.preventDefault();
-      const resource = target.dataset.resource;
-      let amount = parseInt(target.dataset.amount);
-
-      if (event.type === "contextmenu") {
-        amount = -amount;
-      }
-
-      const currentValue = foundry.utils.getProperty(this.actor, resource);
-      const maxPath = resource.replace(".value", ".max");
-      const maxValue = foundry.utils.getProperty(this.actor, maxPath);
-      const newValue = Math.max(0, Math.min(maxValue, currentValue + amount));
-
-      await this.actor.update({ [resource]: newValue });
-    }
-
-    static async _onToggleResource(event, target) {
-      const resource = target.dataset.resource;
-      const clickedValue = parseInt(target.dataset.value);
-      const currentValue = foundry.utils.getProperty(this.actor, resource);
-      const newValue = clickedValue === currentValue ? currentValue - 1 : clickedValue;
-      await this.actor.update({ [resource]: Math.max(0, newValue) });
     }
 
     static async _onUseActorAttack(event, target) {

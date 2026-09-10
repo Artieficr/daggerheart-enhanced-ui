@@ -32,9 +32,24 @@
    ==================== */
 
 #enhanced-ui-sheet .card-wrapper .card-container.description {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: var(--enhancedUI-spacing-sm);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+/* Set inline by toggleCardDescription/setCardDescriptionOpen (helpers.js) to
+   the card's own measured scrollHeight when open, so the transition above
+   always matches this card's actual content height instead of a hardcoded
+   guess — a short feature and a long one with GM notes both animate at the
+   same visual speed. `.no-transition` (also toggled by that same helper)
+   suppresses the transition for a non-interactive state restore (e.g. after
+   a re-render brings back a card the user already had open) so it snaps
+   back open instead of replaying the slide. */
+#enhanced-ui-sheet .card-wrapper .card-container.description.no-transition {
+  transition: none;
 }
 
 #enhanced-ui-sheet .card-container.description .separator-line {
@@ -128,6 +143,50 @@
 /* ==================== 
    CARD CONTROLS
    ==================== */
+
+/* Header-row action button, MINISHEET ONLY — just the FIRST action (not all
+   of them; card-npc-features.hbs only renders one here via {{#if @first}}),
+   visible without expanding the card. The full sheet keeps ALL actions in
+   their original .card-bottom .card-actions spot instead (same partial,
+   unconditional — which spot shows is a pure CSS split on #enhanced-ui-sheet,
+   the id unique to minisheet containers); the minisheet ALSO still has every
+   action available there once expanded, this is just a quick-access surface
+   for the first/most-common one. Hidden by default (bare selector, applies
+   to the full sheet) since a bare <div> would otherwise render as a visible
+   unstyled block there.
+   Deliberately no width clamp/ellipsis: most action names are short
+   ("Attack") and render fine as-is; an unusually long one just renders at
+   its natural width, an accepted rare edge case rather than more layout
+   machinery to fight. */
+.card-header-actions {
+  display: none;
+}
+
+#enhanced-ui-sheet .card-header-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  flex: none;
+  margin-left: var(--enhancedUI-spacing-sm);
+}
+
+#enhanced-ui-sheet .card-header-actions .card-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--enhancedUI-color-background-input);
+  border: none;
+  border-radius: var(--enhancedUI-border-radius-s);
+  padding: var(--enhancedUI-spacing-tiny) var(--enhancedUI-spacing-xs);
+  font-size: 12px;
+  white-space: nowrap;
+  transition: none;
+}
+
+#enhanced-ui-sheet .card-header-actions .card-button:hover {
+  box-shadow: 0px 0px 9px -1px var(--enhancedUI-color-border);
+  background: var(--enhancedUI-color-border);
+}
 
 #enhanced-ui-sheet .card-header .card-controls {
   display: flex;
@@ -223,6 +282,106 @@
 #enhanced-ui-sheet .card-description li {
   display: list-item;
   margin-bottom: 0.2rem;
+}
+
+/* GM Notes — only ever rendered for a GM viewer (enrichGMNotes() in
+   helpers.js returns "" for anyone else, so the block itself is absent from
+   a player's own rendered HTML, not just hidden by CSS).
+   No box/border/background — reuses the daggerheart system's OWN
+   divider-line label style instead (its item/effect edit sheet's
+   `header.gm-notes`, styles/daggerheart.css ~line 7232: a flex row with
+   ::before/::after pseudo-element lines flanking the text, each masked with
+   a fade near the label), so GM Notes looks identical here, in the full
+   sheet, in chat, and in the native hover tooltip. */
+#enhanced-ui-sheet .card-gm-notes {
+  margin: var(--enhancedUI-spacing-sm) var(--enhancedUI-spacing-sm) 0;
+}
+
+#enhanced-ui-sheet .card-gm-notes-label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c9a35c;
+}
+
+#enhanced-ui-sheet .card-gm-notes-label::before,
+#enhanced-ui-sheet .card-gm-notes-label::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid rgba(201, 163, 92, 0.35);
+}
+
+#enhanced-ui-sheet .card-gm-notes-content {
+  margin-top: var(--enhancedUI-spacing-tiny);
+  color: var(--enhancedUI-color-secondary);
+  line-height: 20px;
+}
+
+/* The daggerheart system's OWN gm-notes-section — not ours (that's
+   .card-gm-notes above). Built by Item#getEnrichedDescription() as
+   `fullDescription += gmNotesElement.outerHTML` with no separator at all,
+   so it runs straight into the preceding description text wherever that
+   method's output lands: chat cards (item.toChat()) and the native
+   document hover-tooltip both use it.
+   MUST be scoped, NOT left bare — the system's OWN item/effect edit sheet
+   (tab-description.hbs) uses this exact same class name for ITS gm-notes
+   wrapper too, so a bare `.gm-notes-section` rule leaks straight into it:
+   an empty GM Notes field there (normally invisible with no content) gets
+   a visible bordered/tinted box that isn't ours to style at all.
+   `.chat-message` (the individual message element), not `#chat-log` (the
+   log container) — the latter doesn't match anything in this Foundry
+   version (V13's sidebar/chat restructuring changed it), while
+   `.chat-message` is a far older, more stable class name across Foundry
+   versions. Not scoped under #enhanced-ui-sheet (that ID doesn't reach
+   chat/tooltips either — see CLAUDE.md's token-scoping note). Only
+   margin-top here (the spacing gap this was originally added for) — the
+   header divider-line styling below matches the same system source
+   .card-gm-notes-label above now reuses, so nothing else needs overriding;
+   not gated behind the themeChat setting, this is a spacing/style gap in
+   the system's own markup, not a reskin. */
+.chat-message .gm-notes-section,
+#tooltip .gm-notes-section,
+.locked-tooltip .gm-notes-section {
+  margin-top: 12px;
+}
+
+.chat-message .gm-notes-section > header,
+#tooltip .gm-notes-section > header,
+.locked-tooltip .gm-notes-section > header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c9a35c;
+  margin-bottom: 4px;
+}
+
+.chat-message .gm-notes-section > header::before,
+.chat-message .gm-notes-section > header::after,
+#tooltip .gm-notes-section > header::before,
+#tooltip .gm-notes-section > header::after,
+.locked-tooltip .gm-notes-section > header::before,
+.locked-tooltip .gm-notes-section > header::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid rgba(201, 163, 92, 0.35);
+}
+
+/* Dimmed treatment for a disabled/inactive ActiveEffect card — shared by
+   card-effects.hbs (root gets .inactive when item.disabled), so this
+   applies equally to the full sheet's own Effects tab and the minisheet
+   Effects & Conditions panel. */
+#enhanced-ui-sheet .card-wrapper.inactive {
+  opacity: 0.5;
 }
 
 #enhanced-ui-sheet .feature-box {

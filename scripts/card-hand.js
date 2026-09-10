@@ -3,9 +3,7 @@ import { refreshCharacterMiniSheet } from "./sheets/minisheets/minisheet-charact
 
 const MODULE_ID = "daggerheart-enhanced-ui";
 
-/* ====================
-   SETTINGS
-   ==================== */
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
 
 export function registerCardHandSettings() {
   // Replaces enhanced-ui's own boolean "Enable Quick Access" setting. Down to
@@ -153,14 +151,13 @@ export function registerCardHandSettingsUI() {
   });
 }
 
-/* ====================
-   CARD HAND'S OWN HELPERS — ported directly from their HandManager /
-   default-template.js (scripts/hand-manager.js, templates/default/default-
-   template.js in their source), not reimplemented. Kept synchronous/no
-   TextEditor.enrichHTML on purpose (that was the source of the lag: the
-   previous version enriched every item's description on every render,
-   twice, via the full enhanced-ui sheet context).
-   ==================== */
+// ─── CARD HAND'S OWN HELPERS ─────────────────────────────────────────────────
+// Ported directly from their HandManager / default-template.js
+// (scripts/hand-manager.js, templates/default/default-template.js in their
+// source), not reimplemented. Kept synchronous/no TextEditor.enrichHTML on
+// purpose (that was the source of the lag: the previous version enriched
+// every item's description on every render, twice, via the full enhanced-ui
+// sheet context).
 
 const ASSET_ROOT = "modules/daggerheart-enhanced-ui/assets/cardhand/imgs";
 const DIVIDER_SRC = "modules/daggerheart-enhanced-ui/assets/cardhand/improved/domain-divider.png";
@@ -265,10 +262,9 @@ function itemHasActions(item) {
   return false;
 }
 
-/* ====================
-   DATA PREP — reads actor.items directly, no dependency on enhanced-ui's own
-   (expensive) full sheet context. Cheap enough to call on every render.
-   ==================== */
+// ─── DATA PREP ────────────────────────────────────────────────────────────────
+// Reads actor.items directly, no dependency on enhanced-ui's own (expensive)
+// full sheet context. Cheap enough to call on every render.
 
 /**
  * Returns an ordered array of card entries: `{ kind: "item", item }` for
@@ -375,14 +371,13 @@ function buildFeatureGroups(actor) {
   return groups;
 }
 
-/* ====================
-   CARD FACE RENDERING — ported directly from Card Hand's own ImprovedTemplate
-   (templates/improved/improved-template.js in their source — the template
-   whose bottom-anchored, grow-upward text block actually fits long
-   descriptions, unlike the Default template's fixed 51/49 split). Uses
-   their actual banner/stress-cost art (same files Default uses) plus the
-   shared domain-divider.png, all copied into assets/cardhand/.
-   ==================== */
+// ─── CARD FACE RENDERING ─────────────────────────────────────────────────────
+// Ported directly from Card Hand's own ImprovedTemplate
+// (templates/improved/improved-template.js in their source — the template
+// whose bottom-anchored, grow-upward text block actually fits long
+// descriptions, unlike the Default template's fixed 51/49 split). Uses their
+// actual banner/stress-cost art (same files Default uses) plus the shared
+// domain-divider.png, all copied into assets/cardhand/.
 
 /**
  * Direct port of Card Hand's ImprovedTemplate.renderCard(item). Adapted
@@ -486,12 +481,11 @@ function renderCardFace(item, actor) {
   `;
 }
 
-/* ====================
-   RENDER — reconciles the DOM against the latest buildHandCards() result
-   instead of wiping and rebuilding every card on every call, so a filter
-   toggle (or any other actor-item change) animates cards in/out and lets the
-   fan reflow smoothly instead of jump-cutting. See reconcileCardHandList.
-   ==================== */
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+// Reconciles the DOM against the latest buildHandCards() result instead of
+// wiping and rebuilding every card on every call, so a filter toggle (or any
+// other actor-item change) animates cards in/out and lets the fan reflow
+// smoothly instead of jump-cutting. See reconcileCardHandList.
 
 function cardHandKey(card) {
   if (card.kind === "featureGroup") return `group:${card.anchorItem.uuid}`;
@@ -667,18 +661,17 @@ export function renderCardHandWindow(minisheetElement, actor) {
   applyCardHandFanLayout(handWindow);
 }
 
-/* ====================
-   REORDER POPOVER — a plain, title-only sortable list next to the Hand
-   button, replacing an earlier attempt at reordering by dragging the actual
-   fanned cards around live. That felt clunky in practice (rotated,
-   overlapping cards fighting a drag-up-to-use gesture at the same time) —
-   a simple list of rows is a much more standard, much more reliable
-   reorder UI, and doesn't need to touch the fan's own drag gesture at all.
-   Feature groups nest a second, per-group list one level in (click the
-   group's own row to open it) — reusing the exact same list-building and
-   drag-and-drop code, just pointed at a different set of rows and a
-   different persistence target (setStoredOrder vs setStoredChildOrder).
-   ==================== */
+// ─── REORDER POPOVER ─────────────────────────────────────────────────────────
+// A plain, title-only sortable list next to the Hand button, replacing an
+// earlier attempt at reordering by dragging the actual fanned cards around
+// live. That felt clunky in practice (rotated, overlapping cards fighting a
+// drag-up-to-use gesture at the same time) — a simple list of rows is a much
+// more standard, much more reliable reorder UI, and doesn't need to touch the
+// fan's own drag gesture at all. Feature groups nest a second, per-group list
+// one level in (click the group's own row to open it) — reusing the exact
+// same list-building and drag-and-drop code, just pointed at a different set
+// of rows and a different persistence target (setStoredOrder vs
+// setStoredChildOrder).
 
 /**
  * Native HTML5 drag-and-drop, not the custom mouse-gesture system the fan
@@ -903,12 +896,11 @@ export function applyCardHandFanLayout(rootEl) {
   });
 }
 
-/* ====================
-   INTERACTIONS — hover-to-focus is pure CSS (see card-hand.css); this wires
-   the other two Card Hand behaviors: drag-up-to-use, and right-click-to-
-   open-sheet. There is deliberately no click-to-use — Card Hand's own cards
-   only trigger on the drag-up gesture, exactly mirrored here.
-   ==================== */
+// ─── INTERACTIONS ─────────────────────────────────────────────────────────────
+// Hover-to-focus is pure CSS (see card-hand.css); this wires the other two
+// Card Hand behaviors: drag-up-to-use, and right-click-to-open-sheet. There
+// is deliberately no click-to-use — Card Hand's own cards only trigger on the
+// drag-up gesture, exactly mirrored here.
 
 /**
  * Right-click opens a sheet: for a feature group this is the anchor item's
@@ -1163,11 +1155,10 @@ function attachGrabGesture(card, actor) {
   card.addEventListener("touchstart", onStart, { passive: false });
 }
 
-/* ====================
-   DRAG-TO-CANVAS (optional extra, independent of the in-hand drag-up
-   gesture above) — kept for any owned item dragged via Foundry's own
-   native drag elsewhere (e.g. from the full sheet), unrelated to the hand.
-   ==================== */
+// ─── DRAG-TO-CANVAS ───────────────────────────────────────────────────────────
+// Optional extra, independent of the in-hand drag-up gesture above — kept
+// for any owned item dragged via Foundry's own native drag elsewhere (e.g.
+// from the full sheet), unrelated to the hand.
 
 export function registerCardHandRuntimeHooks() {
   Hooks.on("dropCanvasData", async (_canvas, data) => {

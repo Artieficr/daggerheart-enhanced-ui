@@ -340,19 +340,150 @@ CHARACTER INFORMATION
 }
 
 /* //////////////////////////////
-EFFECTS DISPLAY
+EFFECTS DISPLAY — the daggerheart system's own relocated tray. Still mounted
+into the minisheet by each minisheet file's _mountEffectsDisplay (untouched —
+that relocation owns some fiddly hidden-attribute/MutationObserver handling),
+but hidden here in favor of the Effects & Conditions bar below, which adds
+the effects/status split and the click-to-open detail panel the native tray
+doesn't have.
 ////////////////////////////// */
 
 #enhanced-ui-sheet .minisheet .effects-display {
+  display: none !important;
+}
+
+/* //////////////////////////////
+EFFECTS & CONDITIONS BAR — always-visible icon row above the minisheet,
+left-aligned above the portrait: active effects from features first, active
+status effects/conditions second, then any disabled ones dimmed at the end
+of the same row (never a separate "no effects" state — see renderEffectsPanel
+in effects-panel.js). Left-click the row for a slide-up detail panel;
+right-click a feature-effect icon toggles disabled/enabled, right-click a
+status/condition icon deletes it outright (matches the token HUD). Shared by
+the Character, Companion, and Adversary minisheets — Party/Environment
+actors have no per-actor effects concept, so they don't render this
+container at all.
+////////////////////////////// */
+
+#enhanced-ui-sheet .minisheet .effects-bar-container {
   position: absolute;
-  bottom: calc(100% + var(--enhancedUI-spacing-sm));
+  bottom: 100%;
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-bottom: var(--enhancedUI-spacing-sm);
+  padding-left: var(--enhancedUI-spacing-sm);
+  padding-right: var(--enhancedUI-spacing-sm);
+  pointer-events: none;
+}
+
+#enhanced-ui-sheet .minisheet .effects-bar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--enhancedUI-spacing-xs);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* The disabled-effects group — a genuinely separate group anchored to the
+   right edge of the minisheet, not just "later" in the same left-aligned
+   row. margin-left:auto pushes it all the way right regardless of whether
+   the active group (before it) is even present. */
+#enhanced-ui-sheet .minisheet .effects-bar.effects-bar-inactive {
+  margin-left: auto;
+}
+
+#enhanced-ui-sheet .minisheet .effects-bar-inactive .effect-icon,
+#enhanced-ui-sheet .minisheet .effects-bar-inactive .status-icon {
+  opacity: 0.4;
+}
+
+#enhanced-ui-sheet .minisheet .effects-bar .effect-icon,
+#enhanced-ui-sheet .minisheet .effects-bar .status-icon {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+
+#enhanced-ui-sheet .minisheet .effects-bar .effect-icon {
+  background: var(--enhancedUI-color-background-primary);
+  border: 1px solid var(--enhancedUI-color-border);
+  border-radius: var(--enhancedUI-border-radius);
+  overflow: hidden;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+#enhanced-ui-sheet .minisheet .effects-bar .effect-icon img {
   width: 100%;
-  border: none !important;
-  z-index: -1;
+  height: 100%;
+  object-fit: cover;
+}
+
+#enhanced-ui-sheet .minisheet .effects-bar .status-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 3px black);
+}
+
+#enhanced-ui-sheet .minisheet .effects-bar.active .effect-icon,
+#enhanced-ui-sheet .minisheet .effects-bar.active .status-icon {
+  outline: 2px solid var(--enhancedUI-color-accent, var(--enhancedUI-color-border));
+  outline-offset: 1px;
+}
+
+#enhanced-ui-sheet .minisheet .effects-window-container {
+  position: absolute;
+  bottom: calc(100% + 48px);
+  left: 0;
+  width: 420px;
+  max-width: calc(100vw - 2 * var(--enhancedUI-spacing-md));
+  overflow: hidden;
+  pointer-events: none;
+}
+
+#enhanced-ui-sheet .minisheet .effects-window-container:has(.effects-window.active) {
+  pointer-events: unset;
+}
+
+#enhanced-ui-sheet .minisheet .effects-window {
+  max-height: 0;
+  opacity: 0;
+  overflow-y: auto;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  background: var(--enhancedUI-color-background-primary);
+  backdrop-filter: blur(8px);
+  border-radius: var(--enhancedUI-border-radius);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#enhanced-ui-sheet .minisheet .effects-window.active {
+  max-height: 420px;
+  opacity: 1;
+}
+
+#enhanced-ui-sheet .minisheet .effects-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--enhancedUI-spacing-sm);
+  padding: var(--enhancedUI-spacing-sm);
+}
+
+#enhanced-ui-sheet .minisheet .effects-panel-section h3 {
+  margin: 0 0 var(--enhancedUI-spacing-xs) 0;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+#enhanced-ui-sheet .minisheet .effects-panel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--enhancedUI-spacing-xs);
 }
 
 #enhanced-ui-sheet .minisheet .effects-display .effects-display-container {
@@ -530,12 +661,21 @@ ADVERSARY MINISHEET
 /* FEATURES */
 
 #enhanced-ui-sheet .minisheet.adversary .favorites-window-container {
-  width: 480px;
+  width: auto;
+  min-width: 480px;
+  max-width: 600px;
 }
 
 #enhanced-ui-sheet .minisheet.adversary .favorites-window {
   overflow-y: auto;
   scrollbar-width: none;
+}
+
+/* See sidebar.css's identical comment on .favorites::-webkit-scrollbar —
+   same fix, needed again here since this is a separate scrolling element. */
+#enhanced-ui-sheet .minisheet.adversary .favorites-window::-webkit-scrollbar {
+  display: none;
+  width: 0;
 }
 
 #enhanced-ui-sheet .minisheet.adversary .favorites-window .features-container {
@@ -551,10 +691,6 @@ ADVERSARY MINISHEET
 
 #enhanced-ui-sheet .minisheet.adversary .favorites-window .features-container .card-description {
   padding-bottom: var(--enhancedUI-spacing-sm);
-}
-
-#enhanced-ui-sheet .minisheet.adversary .favorites-window .features-container .card-bottom {
-  display: none;
 }
 
 /* //////////////////////////////
@@ -648,12 +784,21 @@ ENVIRONMENT MINISHEET
 }
 
 #enhanced-ui-sheet .minisheet.environment .favorites-window-container {
-  width: 480px;
+  width: auto;
+  min-width: 480px;
+  max-width: 600px;
 }
 
 #enhanced-ui-sheet .minisheet.environment .favorites-window {
   overflow-y: auto;
   scrollbar-width: none;
+}
+
+/* See sidebar.css's identical comment on .favorites::-webkit-scrollbar —
+   same fix, needed again here since this is a separate scrolling element. */
+#enhanced-ui-sheet .minisheet.environment .favorites-window::-webkit-scrollbar {
+  display: none;
+  width: 0;
 }
 
 #enhanced-ui-sheet .minisheet.environment .favorites-window .features-container {
@@ -665,10 +810,6 @@ ENVIRONMENT MINISHEET
 
 #enhanced-ui-sheet .minisheet.environment .favorites-window .features-container .card-description {
   padding-bottom: var(--enhancedUI-spacing-sm);
-}
-
-#enhanced-ui-sheet .minisheet.environment .favorites-window .features-container .card-bottom {
-  display: none;
 }
 
 #enhanced-ui-sheet .minisheet.environment .favorites-window .features-container .card-controls {

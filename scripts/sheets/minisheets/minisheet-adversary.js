@@ -1,6 +1,23 @@
-import { hideMacrobar, showMacrobar, collapseMinisheet, injectReopenButton, removeReopenButton, isMinisheetCollapsed, setMinisheetCollapsed, attachResourceListeners, attachToggleResourceListeners, attachFavoritesListeners, attachReactionRollListeners } from "./utils-minisheet.js";
+import {
+  hideMacrobar,
+  showMacrobar,
+  collapseMinisheet,
+  injectReopenButton,
+  removeReopenButton,
+  isMinisheetCollapsed,
+  setMinisheetCollapsed,
+  attachResourceListeners,
+  attachToggleResourceListeners,
+  attachFavoritesListeners,
+  attachReactionRollListeners,
+  patchMinisheetTooltipManager,
+  mountEffectsDisplay,
+  unmountEffectsDisplay,
+} from "./utils-minisheet.js";
 import { applyMinisheetScale } from "../../settings.js";
 import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
+import { toggleCardDescription } from "../../helpers.js";
+import { renderEffectsPanel } from "../../effects-panel.js";
 
 export function registerAdversaryMiniSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -13,61 +30,25 @@ export function registerAdversaryMiniSheet() {
     static _effectsObserver = null;
     static _effectsOriginalParent = null;
     static _outsideClickListener = null;
+    // Bumped at the top of every _render() call; checked again after each
+    // await inside it so a slower, earlier-started render can't clobber a
+    // faster, later-started one with stale data — see _render() below.
+    static _renderGeneration = 0;
 
     // ─── TOOLTIP PATCH ────────────────────────────────────────────────────────
 
     static _patchTooltipManager() {
-      if (this._tooltipPatched) return;
-      const mgr = game.tooltip;
-      if (!mgr) return;
-
-      const originalSetAnchor = mgr._setAnchor.bind(mgr);
-      mgr._setAnchor = function (direction) {
-        if (this.element?.closest("#enhanced-ui-sheet .minisheet") && !this.element?.closest(".favorites-window")) {
-          const pad = this.constructor.TOOLTIP_MARGIN_PX;
-          const pos = this.element.getBoundingClientRect();
-          return this._setStyle({
-            textAlign: "center",
-            left: pos.left - this.tooltip.offsetWidth / 2 + pos.width / 2,
-            bottom: window.innerHeight - pos.top + pad,
-          });
-        }
-        return originalSetAnchor(direction);
-      };
-
-      this._tooltipPatched = true;
+      patchMinisheetTooltipManager(this);
     }
 
     // ─── EFFECTS DISPLAY ─────────────────────────────────────────────────────
 
     static _mountEffectsDisplay() {
-      const effectsEl = document.getElementById("effects-display");
-      if (!effectsEl) return;
-
-      const minisheet = this.element?.querySelector(".minisheet.adversary");
-      if (!minisheet) return;
-
-      this._effectsOriginalParent = effectsEl.parentElement;
-      minisheet.appendChild(effectsEl);
-      effectsEl.removeAttribute("hidden");
-
-      this._effectsObserver = new MutationObserver(() => effectsEl.removeAttribute("hidden"));
-      this._effectsObserver.observe(effectsEl, { attributes: true, attributeFilter: ["hidden"] });
+      mountEffectsDisplay(this, ".minisheet.adversary");
     }
 
     static _unmountEffectsDisplay() {
-      const effectsEl = document.getElementById("effects-display");
-
-      if (this._effectsObserver) {
-        this._effectsObserver.disconnect();
-        this._effectsObserver = null;
-      }
-
-      if (effectsEl && this._effectsOriginalParent) {
-        this._effectsOriginalParent.appendChild(effectsEl);
-      }
-
-      this._effectsOriginalParent = null;
+      unmountEffectsDisplay(this);
     }
 
     // ─── HOOKS ────────────────────────────────────────────────────────────────
@@ -93,12 +74,30 @@ export function registerAdversaryMiniSheet() {
     }
 
     static _onUpdateActor(actor) {
-      if (actor === this.currentActor) this._render();
+      if (actor?.uuid === this.currentActor?.uuid) this._render();
     }
 
     static _onUpdateItem(item) {
-      if (item.parent !== this.currentActor) return;
+      // .uuid, not === — more robust against an unlinked token's synthetic
+      // actor object potentially not being the same reference as
+      // currentActor even when it's the same logical actor.
+      if (item.parent?.uuid !== this.currentActor?.uuid) return;
       this._render();
+    }
+
+    static _onUpdateActiveEffect(effect) {
+      // NOT `effect.parent?.parent ?? effect.parent` — that assumed a plain
+      // Actor's own .parent is always undefined/falsy, true for a world
+      // actor but NOT for an unlinked token's synthetic actor, whose
+      // .parent returns the TokenDocument (always truthy). That silently
+      // resolved parentActor to the TOKEN, not the actor, for every
+      // unlinked-token adversary (confirmed via console: effectParentUuid
+      // came back as "Scene.X.Token.Y", a token uuid with no ".Actor.Z"
+      // segment, so it never matched currentActor). Checking the actual
+      // type instead of truthiness fixes it regardless of token-linked/
+      // unlinked or world-actor origin.
+      const parentActor = effect.parent instanceof Actor ? effect.parent : effect.parent?.parent;
+      if (parentActor?.uuid === this.currentActor?.uuid) this._render();
     }
 
     // ─── ACTOR RESOLUTION ────────────────────────────────────────────────────
@@ -123,6 +122,17 @@ export function registerAdversaryMiniSheet() {
     static async _render() {
       if (!this.currentActor) return;
 
+      // A status effect applied via the token HUD can fire multiple hooks
+      // in quick succession (create/updateActiveEffect, possibly updateActor
+      // too), each calling _render() — with nothing guarding against it, an
+      // earlier-started call finishing its own awaits LAST would overwrite a
+      // later, more current call's already-rendered result with stale data
+      // (matches "doesn't show live, only after reopen" — reopening is a
+      // single uncontested render, so the race never has a chance to bite).
+      // Bump here, then bail out after each await below if a newer call has
+      // already started.
+      const generation = ++this._renderGeneration;
+
       // Preserve features window open state across re-renders
       const favWasActive = this.element?.querySelector(".favorites-window")?.classList.contains("active") ?? false;
 
@@ -131,10 +141,10 @@ export function registerAdversaryMiniSheet() {
       if (wasInMinisheet) document.body.appendChild(effectsEl);
 
       const context = await this._prepareContext(this.currentActor);
-      if (!this.currentActor) return;
+      if (!this.currentActor || generation !== this._renderGeneration) return;
 
       const html = await foundry.applications.handlebars.renderTemplate("modules/daggerheart-enhanced-ui/templates/sheets/adversaries/adversary-minisheet.hbs", context);
-      if (!this.currentActor) return;
+      if (!this.currentActor || generation !== this._renderGeneration) return;
 
       if (!this.element) {
         this._injectContainer();
@@ -188,6 +198,7 @@ export function registerAdversaryMiniSheet() {
 
       this._attachListeners();
       this._patchTooltipManager();
+      renderEffectsPanel(this.element, this.currentActor);
 
       if (collapsed) {
         const height = this.element.offsetHeight;
@@ -263,7 +274,13 @@ export function registerAdversaryMiniSheet() {
         isNPC: true,
         showTooltip: game.settings.get("daggerheart-enhanced-ui", "showTooltip"),
         currentFear: game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Resources.Fear),
-        adversaryFeatures: systemContext.adversaryFeatures ?? [],
+        // Re-tagged isMinisheet:true — card-npc-features.hbs's header action
+        // buttons are minisheet-only (the full sheet keeps its own copy in
+        // .card-bottom .card-actions instead); this is the same array the
+        // full sheet's own _prepareFeaturesData built, reused wholesale via
+        // actor.sheet._prepareContext({}) above, so it needs re-tagging here
+        // rather than at the source.
+        adversaryFeatures: (systemContext.adversaryFeatures ?? []).map((f) => ({ ...f, isMinisheet: true })),
         attackDamage,
         attackDamageType,
         attack: actor.system.attack,
@@ -359,10 +376,7 @@ export function registerAdversaryMiniSheet() {
           if (!cardWrapper) return;
 
           const description = cardWrapper.querySelector(".card-container.description");
-          if (description) {
-            const isHidden = description.style.display === "none" || !description.style.display;
-            description.style.display = isHidden ? "flex" : "none";
-          }
+          if (description) toggleCardDescription(description);
         });
       });
     }
@@ -373,6 +387,10 @@ export function registerAdversaryMiniSheet() {
   Hooks.on("controlToken", AdversaryMiniSheet._onControlToken.bind(AdversaryMiniSheet));
   Hooks.on("updateActor", AdversaryMiniSheet._onUpdateActor.bind(AdversaryMiniSheet));
   Hooks.on("updateItem", AdversaryMiniSheet._onUpdateItem.bind(AdversaryMiniSheet));
+  // create/delete too — see the identical note in minisheet-character.js.
+  Hooks.on("createActiveEffect", AdversaryMiniSheet._onUpdateActiveEffect.bind(AdversaryMiniSheet));
+  Hooks.on("updateActiveEffect", AdversaryMiniSheet._onUpdateActiveEffect.bind(AdversaryMiniSheet));
+  Hooks.on("deleteActiveEffect", AdversaryMiniSheet._onUpdateActiveEffect.bind(AdversaryMiniSheet));
 
   // Tear down when the full sheet opens for this actor
   Hooks.on("renderEnhancedAdversarySheet", (app) => {

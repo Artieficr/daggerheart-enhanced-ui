@@ -37,6 +37,16 @@ SIDEBAR
   scrollbar-width: none;
 }
 
+/* scrollbar-width:none alone doesn't hide the scrollbar in this Foundry
+   build's Chromium/Electron shell (only Firefox honors it) — the visible
+   WebKit-style scrollbar it falls back to then reserves its own width,
+   nudging this element's centered text sideways whenever content grows
+   tall enough to need it. */
+#enhanced-ui-sheet .adversary-info::-webkit-scrollbar {
+  display: none;
+  width: 0;
+}
+
 #enhanced-ui-sheet .motivesAndTactics {
   display: flex;
   flex-direction: column;

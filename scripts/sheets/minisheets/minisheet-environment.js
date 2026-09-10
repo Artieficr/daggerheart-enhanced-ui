@@ -1,6 +1,7 @@
 import { hideMacrobar, showMacrobar, collapseMinisheet, injectReopenButton, removeReopenButton, isMinisheetCollapsed, setMinisheetCollapsed, attachFavoritesListeners } from "./utils-minisheet.js";
 import { applyMinisheetScale } from "../../settings.js";
 import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
+import { toggleCardDescription } from "../../helpers.js";
 
 export function registerEnvironmentMiniSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -279,7 +280,8 @@ export function registerEnvironmentMiniSheet() {
         isNPC: true,
         showTooltip: game.settings.get("daggerheart-enhanced-ui", "showTooltip"),
         currentFear: game.settings.get(CONFIG.DH.id, CONFIG.DH.SETTINGS.gameSettings.Resources.Fear),
-        environmentFeatures: systemContext.environmentFeatures ?? [],
+        // See the identical note in minisheet-adversary.js's _prepareContext.
+        environmentFeatures: (systemContext.environmentFeatures ?? []).map((f) => ({ ...f, isMinisheet: true })),
       };
     }
 
@@ -423,10 +425,7 @@ export function registerEnvironmentMiniSheet() {
           if (!cardWrapper) return;
 
           const description = cardWrapper.querySelector(".card-container.description");
-          if (description) {
-            const isHidden = description.style.display === "none" || !description.style.display;
-            description.style.display = isHidden ? "flex" : "none";
-          }
+          if (description) toggleCardDescription(description);
         });
       });
     }

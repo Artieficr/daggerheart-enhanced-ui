@@ -3,6 +3,7 @@ import { registerSettings, applyMinisheetScale, applyTheme, applyThemeChat } fro
 import { registerMinisheetKeybinding } from "./sheets/minisheets/utils-minisheet.js";
 import { registerCardHandSettings, registerCardHandSettingsUI, applyCardHandPosition, registerCardHandRuntimeHooks } from "./card-hand.js";
 import { registerInventorySettings } from "./inventory-panel.js";
+import { registerEffectsSettings } from "./effects-panel.js";
 import { registerPartyOverview, registerPartyOverviewSettings, registerPartyOverviewSettingsUI } from "./party-overview.js";
 import { registerCountdownTracker, registerCountdownTrackerSettings, registerCountdownTrackerSettingsUI } from "./countdown-tracker.js";
 
@@ -27,6 +28,7 @@ Hooks.once("init", () => {
   registerCardHandSettings();
   registerCardHandSettingsUI();
   registerInventorySettings();
+  registerEffectsSettings();
   registerPartyOverviewSettings();
   registerPartyOverviewSettingsUI();
   registerCountdownTrackerSettings();

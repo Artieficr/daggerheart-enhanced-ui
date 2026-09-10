@@ -18,6 +18,7 @@
  * to add a picker.
  */
 import { getBeastformPortrait } from "./helpers.js";
+import { attachHudDragHandle } from "./hud-drag.js";
 
 const MODULE_ID = "daggerheart-enhanced-ui";
 const TEMPLATE = "modules/daggerheart-enhanced-ui/templates/sheets/party/party-overview.hbs";
@@ -27,9 +28,7 @@ const TEMPLATE = "modules/daggerheart-enhanced-ui/templates/sheets/party/party-o
 // the live instance without a full page reload.
 let activeInstance = null;
 
-/* ====================
-   SETTINGS
-   ==================== */
+// ─── SETTINGS ────────────────────────────────────────────────────────────────
 
 export function registerPartyOverviewSettings() {
   // GM-only feature, so client scope (same reasoning as enableMinisheet);
@@ -103,9 +102,7 @@ export function registerPartyOverviewSettingsUI() {
   });
 }
 
-/* ====================
-   WIDGET
-   ==================== */
+// ─── WIDGET ──────────────────────────────────────────────────────────────────
 
 export function registerPartyOverview() {
   if (game.system.id !== "daggerheart") return;
@@ -218,7 +215,12 @@ export function registerPartyOverview() {
       });
 
       const dragHandle = this.element.querySelector(".po-drag-handle");
-      if (dragHandle) dragHandle.addEventListener("mousedown", (event) => this._onDragStart(event));
+      if (dragHandle) {
+        attachHudDragHandle(dragHandle, this.element, {
+          getLocked: () => game.settings.get(MODULE_ID, "partyOverviewLocked"),
+          onDragEnd: (pos) => game.settings.set(MODULE_ID, "partyOverviewPosition", pos),
+        });
+      }
 
       const lockToggle = this.element.querySelector(".po-lock-toggle");
       if (lockToggle) {
@@ -228,37 +230,6 @@ export function registerPartyOverview() {
           this._render();
         });
       }
-    }
-
-    static _onDragStart(event) {
-      if (game.settings.get(MODULE_ID, "partyOverviewLocked")) return;
-      event.preventDefault();
-
-      const container = this.element;
-      const rect = container.getBoundingClientRect();
-      const startX = event.clientX;
-      const startY = event.clientY;
-      const startLeft = rect.left;
-      const startBottom = window.innerHeight - rect.bottom;
-
-      const onMove = (moveEvent) => {
-        const newLeft = startLeft + (moveEvent.clientX - startX);
-        const newBottom = startBottom - (moveEvent.clientY - startY);
-        container.style.left = `${Math.max(0, Math.min(newLeft, window.innerWidth - rect.width))}px`;
-        container.style.bottom = `${Math.max(0, Math.min(newBottom, window.innerHeight - rect.height))}px`;
-      };
-
-      const onUp = () => {
-        document.removeEventListener("mousemove", onMove);
-        document.removeEventListener("mouseup", onUp);
-        game.settings.set(MODULE_ID, "partyOverviewPosition", {
-          left: parseFloat(container.style.left),
-          bottom: parseFloat(container.style.bottom),
-        });
-      };
-
-      document.addEventListener("mousemove", onMove);
-      document.addEventListener("mouseup", onUp);
     }
 
     // ─── CHANGE DETECTION ────────────────────────────────────────────────────

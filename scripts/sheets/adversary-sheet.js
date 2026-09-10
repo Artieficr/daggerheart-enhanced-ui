@@ -1,5 +1,16 @@
 import { FloatingTabs } from "../floating-tabs.js";
-import { dismissHoverTooltip } from "../helpers.js";
+import {
+  attachDieResourceListeners,
+  attachSimpleResourceListeners,
+  attachUsesResourceListeners,
+  dismissHoverTooltip,
+  enrichGMNotes,
+  modifyActorResource,
+  prepareActorEffectsData,
+  setCardDescriptionOpen,
+  toggleActorResource,
+  toggleCardDescription,
+} from "../helpers.js";
 
 export function registerAdversarySheet() {
   if (game.system.id !== "daggerheart") return;
@@ -142,6 +153,7 @@ export function registerAdversarySheet() {
           }
 
           const enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(item.system.description, { relativeTo: item, rollData: this.actor.getRollData() });
+          const enrichedGMNotes = await enrichGMNotes(item);
 
           const tags = [
             {
@@ -156,75 +168,16 @@ export function registerAdversarySheet() {
             fearCost,
             usesData,
             enrichedDescription,
+            enrichedGMNotes,
           };
         }),
       );
     }
 
     async _prepareEffectsData(context) {
-      const getItemTypeName = (type) => {
-        const typeMap = {
-          feature: "Feature",
-          adversary: "Adversary",
-        };
-        return typeMap[type] || "Unknown";
-      };
-
-      const createEffectData = async (effect) => {
-        const infoTags = [];
-        const resourceTags = [];
-        let sourceItem = null;
-
-        if (effect.origin) {
-          sourceItem = await fromUuid(effect.origin);
-        }
-        if (!sourceItem && effect.parent) {
-          sourceItem = effect.parent;
-        }
-        if (sourceItem) {
-          const sourceTypeName = getItemTypeName(sourceItem.type);
-          infoTags.push({
-            label: `${sourceTypeName}: ${sourceItem.name}`,
-            uuid: sourceItem.uuid,
-            tagClass: "tag-green",
-          });
-        }
-
-        if (effect.statuses && effect.statuses.size > 0) {
-          effect.statuses.forEach((status) => {
-            resourceTags.push({
-              label: status.charAt(0).toUpperCase() + status.slice(1),
-              uuid: "",
-              tagClass: "tag-blue",
-            });
-          });
-        }
-
-        const isTemporary = effect.isTemporary || effect.duration?.rounds != null || (effect.duration?.seconds != null && effect.duration.seconds > 0) || effect.duration?.turns != null;
-
-        resourceTags.push({
-          label: isTemporary ? "Temporary" : "Passive",
-          uuid: "",
-          tagClass: "tag-blue",
-        });
-
-        let description = effect.description;
-        if (description && /^[A-Z][A-Z_]+\./.test(description)) {
-          description = game.i18n.localize(description);
-        }
-        const enrichedDescription = await foundry.applications.ux.TextEditor.enrichHTML(description, {
-          relativeTo: effect,
-        });
-
-        return { item: effect, infoTags, resourceTags, enrichedDescription };
-      };
-
-      const allEffects = Array.from(this.actor.allApplicableEffects());
-      const activeEffects = allEffects.filter((e) => !e.disabled);
-      const inactiveEffects = allEffects.filter((e) => e.disabled);
-
-      context.activeEffects = await Promise.all(activeEffects.map((effect) => createEffectData(effect)));
-      context.inactiveEffects = await Promise.all(inactiveEffects.map((effect) => createEffectData(effect)));
+      const { activeEffects, inactiveEffects } = await prepareActorEffectsData(this.actor);
+      context.activeEffects = activeEffects;
+      context.inactiveEffects = inactiveEffects;
     }
 
     async _prepareNotesContext(context, options) {
@@ -273,9 +226,7 @@ export function registerAdversarySheet() {
         if (header) {
           const cardWrapper = header.closest(".card-wrapper");
           const description = cardWrapper?.querySelector(".card-container.description");
-          if (description) {
-            description.style.display = "flex";
-          }
+          setCardDescriptionOpen(description, true, { animate: false });
         }
       });
     }
@@ -285,33 +236,25 @@ export function registerAdversarySheet() {
       this._attachResourceListeners(htmlElement);
       this._attachAdversaryAttackListener(htmlElement);
       this._attachCardListeners(htmlElement);
-      this._attachUsesListeners(htmlElement);
-      this._attachSimpleResourceListeners(htmlElement);
-      this._attachDieResourceListeners(htmlElement);
+      attachUsesResourceListeners(htmlElement);
+      attachSimpleResourceListeners(htmlElement);
+      attachDieResourceListeners(htmlElement);
       this._attachDiceResourceListeners(htmlElement);
       this._attachActionListeners(htmlElement);
       this._attachBasicTabListeners(htmlElement);
     }
 
     _attachResourceListeners(htmlElement) {
-      const resourceHeaders = htmlElement.querySelectorAll('[data-action="modifyResource"]');
-      resourceHeaders.forEach((element) => {
-        element.addEventListener("click", (event) => {
-          this.constructor._onModifyResource.call(this, event, element);
-        });
-        element.addEventListener("contextmenu", (event) => {
-          this.constructor._onModifyResource.call(this, event, element);
-        });
+      htmlElement.querySelectorAll('[data-action="modifyResource"]').forEach((element) => {
+        element.addEventListener("click", (event) => modifyActorResource(event, this.actor, element));
+        element.addEventListener("contextmenu", (event) => modifyActorResource(event, this.actor, element));
       });
 
-      const resourcePips = htmlElement.querySelectorAll('[data-action="toggleResource"]');
-      resourcePips.forEach((element) => {
-        element.addEventListener("click", (event) => {
-          this.constructor._onToggleResource.call(this, event, element);
-        });
+      htmlElement.querySelectorAll('[data-action="toggleResource"]').forEach((element) => {
+        element.addEventListener("click", (event) => toggleActorResource(event, this.actor, element));
         element.addEventListener("contextmenu", (event) => {
           event.preventDefault();
-          this.constructor._onToggleResource.call(this, event, element);
+          toggleActorResource(event, this.actor, element);
         });
       });
     }
@@ -344,126 +287,14 @@ export function registerAdversarySheet() {
           const itemUuid = nameContainer.closest("[data-item-uuid]")?.dataset.itemUuid;
 
           if (description && itemUuid) {
-            const isCurrentlyHidden = description.style.display === "none" || !description.style.display;
-            description.style.display = isCurrentlyHidden ? "flex" : "none";
-            if (isCurrentlyHidden) {
+            const isNowOpen = toggleCardDescription(description);
+            if (isNowOpen) {
               this.openCards.add(itemUuid);
             } else {
               this.openCards.delete(itemUuid);
             }
           }
         });
-      });
-    }
-
-    _attachUsesListeners(htmlElement) {
-      const usesResources = htmlElement.querySelectorAll(".uses-resource");
-      usesResources.forEach((element) => {
-        element.addEventListener("click", async (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-
-          const itemUuid = element.closest("[data-item-uuid]")?.dataset.itemUuid;
-          const actionId = element.dataset.actionId;
-          if (!itemUuid || !actionId) return;
-
-          const item = await fromUuid(itemUuid);
-          if (!item) return;
-
-          const action = item.system.actions?.get(actionId);
-          if (!action || !action.uses) return;
-
-          const newValue = Math.max(0, action.uses.value - 1);
-          await action.update({ "uses.value": newValue });
-        });
-
-        element.addEventListener(
-          "contextmenu",
-          async (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            const itemUuid = element.closest("[data-item-uuid]")?.dataset.itemUuid;
-            const actionId = element.dataset.actionId;
-            if (!itemUuid || !actionId) return;
-
-            const item = await fromUuid(itemUuid);
-            if (!item) return;
-
-            const action = item.system.actions?.get(actionId);
-            if (!action || !action.uses) return;
-
-            const newValue = Math.min(action.uses.max, action.uses.value + 1);
-            await action.update({ "uses.value": newValue });
-          },
-          true,
-        );
-      });
-    }
-
-    _attachSimpleResourceListeners(htmlElement) {
-      htmlElement.querySelectorAll(".simple-resource").forEach((element) => {
-        element.addEventListener("click", async (event) => {
-          const itemUuid = element.dataset.itemUuid;
-          if (!itemUuid) return;
-          const item = await fromUuid(itemUuid);
-          if (!item) return;
-          const maxValue = parseInt(element.dataset.max) || 0;
-          const currentValue = item.system.resource.value || 0;
-          await item.update({
-            "system.resource.value": Math.min(maxValue, currentValue + 1),
-          });
-        });
-
-        element.addEventListener(
-          "contextmenu",
-          async (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            const itemUuid = element.dataset.itemUuid;
-            if (!itemUuid) return;
-            const item = await fromUuid(itemUuid);
-            if (!item) return;
-            const currentValue = item.system.resource.value || 0;
-            await item.update({
-              "system.resource.value": Math.max(0, currentValue - 1),
-            });
-          },
-          true,
-        );
-      });
-    }
-
-    _attachDieResourceListeners(htmlElement) {
-      htmlElement.querySelectorAll(".die-resource").forEach((element) => {
-        element.addEventListener("click", async (event) => {
-          const itemUuid = element.dataset.itemUuid;
-          if (!itemUuid) return;
-          const item = await fromUuid(itemUuid);
-          if (!item) return;
-          const dieFaces = parseInt(element.dataset.dieFaces.replace("d", "")) || 6;
-          const currentValue = item.system.resource.value || 0;
-          await item.update({
-            "system.resource.value": (currentValue + 1) % (dieFaces + 1),
-          });
-        });
-
-        element.addEventListener(
-          "contextmenu",
-          async (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            const itemUuid = element.dataset.itemUuid;
-            if (!itemUuid) return;
-            const item = await fromUuid(itemUuid);
-            if (!item) return;
-            const currentValue = item.system.resource.value || 0;
-            await item.update({
-              "system.resource.value": Math.max(0, currentValue - 1),
-            });
-          },
-          true,
-        );
       });
     }
 
@@ -519,31 +350,6 @@ export function registerAdversarySheet() {
           await this.render(true);
         });
       });
-    }
-
-    static async _onModifyResource(event, target) {
-      event.preventDefault();
-      const resource = target.dataset.resource;
-      let amount = parseInt(target.dataset.amount);
-
-      if (event.type === "contextmenu") {
-        amount = -amount;
-      }
-
-      const currentValue = foundry.utils.getProperty(this.actor, resource);
-      const maxPath = resource.replace(".value", ".max");
-      const maxValue = foundry.utils.getProperty(this.actor, maxPath);
-      const newValue = Math.max(0, Math.min(maxValue, currentValue + amount));
-
-      await this.actor.update({ [resource]: newValue });
-    }
-
-    static async _onToggleResource(event, target) {
-      const resource = target.dataset.resource;
-      const clickedValue = parseInt(target.dataset.value);
-      const currentValue = foundry.utils.getProperty(this.actor, resource);
-      const newValue = clickedValue === currentValue ? currentValue - 1 : clickedValue;
-      await this.actor.update({ [resource]: Math.max(0, newValue) });
     }
 
     static async _onUseActorAttack(event, target) {

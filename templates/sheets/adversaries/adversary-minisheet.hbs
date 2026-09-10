@@ -1,5 +1,10 @@
 <div class="minisheet adversary">
 
+    <div class="effects-bar-container"></div>
+    <div class="effects-window-container">
+        <div class="effects-window"></div>
+    </div>
+
     <div
         class="portrait {{#if (and source.system.resources.hitPoints.max (gte source.system.resources.hitPoints.value source.system.resources.hitPoints.max))}}deathroll{{/if}}">
         <img src="{{document.img}}" alt="{{document.name}}" data-action="openSheet" />

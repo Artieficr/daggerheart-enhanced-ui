@@ -1,0 +1,33 @@
+<div class="effects-panel">
+  {{#if effects.length}}
+  <div class="effects-panel-section">
+    <h3>Effects</h3>
+    <ul class="effects-panel-list">
+      {{#each effects as |effectData|}}
+      {{> "modules/daggerheart-enhanced-ui/templates/components/card-effects.hbs"
+        item=effectData.item
+        infoTags=effectData.infoTags
+        resourceTags=effectData.resourceTags
+        enrichedDescription=effectData.enrichedDescription
+        ownershipLevel=@root.ownershipLevel}}
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
+  {{#if statusEffects.length}}
+  <div class="effects-panel-section">
+    <h3>Status Effects</h3>
+    <ul class="effects-panel-list">
+      {{#each statusEffects as |effectData|}}
+      {{> "modules/daggerheart-enhanced-ui/templates/components/card-effects.hbs"
+        item=effectData.item
+        infoTags=effectData.infoTags
+        resourceTags=effectData.resourceTags
+        enrichedDescription=effectData.enrichedDescription
+        ownershipLevel=@root.ownershipLevel}}
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+</div>

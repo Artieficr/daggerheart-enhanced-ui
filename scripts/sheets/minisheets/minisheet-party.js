@@ -1,7 +1,7 @@
 import { hideMacrobar, showMacrobar, collapseMinisheet, injectReopenButton, removeReopenButton, isMinisheetCollapsed, setMinisheetCollapsed } from "./utils-minisheet.js";
 import { applyMinisheetScale } from "../../settings.js";
 import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
-import { getBeastformPortrait } from "../../helpers.js";
+import { getBeastformPortrait, getPartyMemberPips, getSortedPartyMembers } from "../../helpers.js";
 
 export function registerPartyMiniSheet() {
   if (game.system.id !== "daggerheart") return;
@@ -150,32 +150,24 @@ export function registerPartyMiniSheet() {
     // ─── CONTEXT ─────────────────────────────────────────────────────────────
 
     static async _prepareContext(actor) {
-      const members = [...(actor.system.partyMembers ?? [])].sort((a, b) => {
-        const ownershipA = game.user.isGM ? CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER : a.getUserLevel(game.user);
-        const ownershipB = game.user.isGM ? CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER : b.getUserLevel(game.user);
-        if (ownershipB !== ownershipA) return ownershipB - ownershipA;
-        return a.name.localeCompare(b.name);
-      });
-
+      const members = getSortedPartyMembers(actor);
       const partyMembersData = [];
 
       for (const member of members) {
-        if (!member) continue;
-
-        const sys = member.system;
+        const { hope, hitPoints, stress, armorSlots } = getPartyMemberPips(member);
 
         partyMembersData.push({
           actor: member,
           actorUuid: member.uuid,
           beastformPortrait: getBeastformPortrait(member),
-          hopeValue: sys.resources?.hope?.value ?? 0,
-          hopeMax: sys.resources?.hope?.max ?? 0,
-          hitPointsValue: sys.resources?.hitPoints?.value ?? 0,
-          hitPointsMax: sys.resources?.hitPoints?.max ?? 0,
-          stressValue: sys.resources?.stress?.value ?? 0,
-          stressMax: sys.resources?.stress?.max ?? 0,
-          armorValue: sys.armorScore?.value ?? 0,
-          armorMax: sys.armorScore?.max ?? 0,
+          hopeValue: hope.value,
+          hopeMax: hope.max,
+          hitPointsValue: hitPoints.value,
+          hitPointsMax: hitPoints.max,
+          stressValue: stress.value,
+          stressMax: stress.max,
+          armorValue: armorSlots.value,
+          armorMax: armorSlots.max,
         });
       }
 
@@ -241,7 +233,11 @@ export function registerPartyMiniSheet() {
   });
 
   Hooks.on("updateActiveEffect", (effect) => {
-    const parentActor = effect.parent?.parent ?? effect.parent;
+    // See the detailed note in minisheet-adversary.js — a plain truthiness
+    // fallback here silently resolves to the TOKEN rather than the actor
+    // for any unlinked token (Actor#parent returns the TokenDocument there,
+    // not undefined, so `?? effect.parent` never gets a chance to fire).
+    const parentActor = effect.parent instanceof Actor ? effect.parent : effect.parent?.parent;
     if (!parentActor) return;
     const isMember = PartyMiniSheet.currentActor?.system.partyMembers?.some((m) => m === parentActor);
     if (isMember) queueMicrotask(() => PartyMiniSheet._render());

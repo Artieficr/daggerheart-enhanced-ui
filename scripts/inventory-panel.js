@@ -16,9 +16,7 @@ const MODULE_ID = "daggerheart-enhanced-ui";
 
 export function registerInventorySettings() {
   // Deliberately config:false — exposed as an on-the-fly popover next to the
-  // Inventory button (see renderInventoryFilterPopover), same pattern the
-  // Hand's own filter used to follow before it was removed (no filter
-  // needed there once weapons/consumables moved here).
+  // Inventory button instead (see renderInventoryFilterPopover).
   game.settings.register(MODULE_ID, "inventoryShowWeapons", {
     name: "Inventory: Show Weapons",
     scope: "client",
@@ -173,7 +171,7 @@ const INVENTORY_FILTER_TOGGLES = [
   { key: "inventoryShowItems", label: "Items" },
 ];
 
-/** Same on-the-fly popover pattern the Hand's own filter used before it was removed. */
+/** On-the-fly popover (next to the Inventory button) for toggling which item categories are shown. */
 export function renderInventoryFilterPopover(popoverEl, minisheetElement, actor) {
   if (!popoverEl) return;
 

@@ -51,6 +51,19 @@
 
       </div>
 
+      {{#if isMinisheet}}
+      {{#if item.system.actions.size}}
+      <div class="card-header-actions">
+        {{#each item.system.actions as |action|}}
+        {{#if @first}}
+        <button class="card-button" data-action="useAction" data-item-uuid="{{../item.uuid}}"
+          data-action-id="{{action._id}}" data-tooltip="{{localize action.name}}">{{localize action.name}}</button>
+        {{/if}}
+        {{/each}}
+      </div>
+      {{/if}}
+      {{/if}}
+
       <div class="card-controls">
         <a data-action="toChat" data-item-uuid="{{item.uuid}}" data-tooltip="DAGGERHEART.UI.Tooltip.sendToChat">
           <i class="fa-regular fa-message"></i>
@@ -69,6 +82,12 @@
     <div class="card-description">
       {{{enrichedDescription}}}
     </div>
+    {{#if enrichedGMNotes}}
+    <div class="card-gm-notes">
+      <header class="card-gm-notes-label">{{localize "DAGGERHEART.ITEMS.FIELDS.gmNotes.label"}}</header>
+      <div class="card-gm-notes-content">{{{enrichedGMNotes}}}</div>
+    </div>
+    {{/if}}
     <div class="card-bottom">
       <div class="card-tags">
 

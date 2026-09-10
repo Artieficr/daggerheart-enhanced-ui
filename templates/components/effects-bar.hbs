@@ -1,0 +1,28 @@
+{{#if hasActiveAny}}
+<div class="effects-bar">
+  {{#each barActiveEffects as |effectData|}}
+  <div class="effect-icon" data-item-uuid="{{effectData.item.uuid}}" data-effect-kind="effect" data-tooltip="{{effectData.item.name}}">
+    <img src="{{effectData.item.img}}" alt="{{effectData.item.name}}" />
+  </div>
+  {{/each}}
+  {{#each barActiveStatusEffects as |effectData|}}
+  <div class="status-icon" data-item-uuid="{{effectData.item.uuid}}" data-effect-kind="status" data-tooltip="{{effectData.item.name}}">
+    <img src="{{effectData.item.img}}" alt="{{effectData.item.name}}" />
+  </div>
+  {{/each}}
+</div>
+{{/if}}
+{{#if hasInactiveAny}}
+<div class="effects-bar effects-bar-inactive">
+  {{#each barInactiveEffects as |effectData|}}
+  <div class="effect-icon" data-item-uuid="{{effectData.item.uuid}}" data-effect-kind="effect" data-tooltip="{{effectData.item.name}} (disabled)">
+    <img src="{{effectData.item.img}}" alt="{{effectData.item.name}}" />
+  </div>
+  {{/each}}
+  {{#each barInactiveStatusEffects as |effectData|}}
+  <div class="status-icon" data-item-uuid="{{effectData.item.uuid}}" data-effect-kind="status" data-tooltip="{{effectData.item.name}} (disabled)">
+    <img src="{{effectData.item.img}}" alt="{{effectData.item.name}}" />
+  </div>
+  {{/each}}
+</div>
+{{/if}}
