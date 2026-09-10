@@ -1,7 +1,7 @@
 {
   "id": "daggerheart-enhanced-ui",
   "title": "Daggerheart: Enhanced UI",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
