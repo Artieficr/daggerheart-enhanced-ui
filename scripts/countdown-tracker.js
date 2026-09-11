@@ -383,6 +383,13 @@ export function registerCountdownTracker() {
             countdowns[id] = {
               ...countdown,
               editable: isGM || ownership === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER,
+              // The system's own per-countdown `hidden` field falls back to
+              // the tracker-wide `hideNewCountdowns` default when unset
+              // (mirrors the system's own DhCountdowns rendering, e.g.
+              // `daggerheart.js`'s `hidden: countdown.hidden ?? setting.hideNewCountdowns`)
+              // — a countdown left on "inherit" is hidden from players by
+              // default exactly when new countdowns are.
+              hiddenFromPlayers: countdown.hidden ?? systemCountdownSetting.hideNewCountdowns,
               percentage,
               pctRemaining,
               cssClass: `shape-${iconShape}`,

@@ -203,6 +203,12 @@
   white-space: normal;
 }
 
+.countdown-hidden-icon {
+  margin-left: var(--enhancedUI-spacing-tiny);
+  color: var(--enhancedUI-color-tertiary);
+  font-size: var(--enhancedUI-font-size-tiny);
+}
+
 .countdown-visual {
   display: flex;
   align-items: center;

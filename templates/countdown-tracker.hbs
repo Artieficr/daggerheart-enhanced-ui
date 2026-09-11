@@ -25,7 +25,14 @@
         {{#each countdowns as | countdown id |}}
         <div class="countdown-item" data-id="{{id}}">
             {{#unless ../isMinimized}}
-            <div class="countdown-name">{{countdown.name}}</div>
+            <div class="countdown-name">
+                {{countdown.name}}
+                {{#if ../isGM}}
+                {{#if countdown.hiddenFromPlayers}}
+                <i class="fa-solid fa-eye-slash countdown-hidden-icon" title="Hidden from players by default"></i>
+                {{/if}}
+                {{/if}}
+            </div>
             {{/unless}}
 
             <div class="countdown-visual">
