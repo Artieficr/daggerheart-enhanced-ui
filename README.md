@@ -11,6 +11,17 @@
 
 Alternative actor sheets with UI/UX improvements for Foundryborne's Daggerheart System.
 
+## Requirements
+
+- Foundry VTT v14 (minimum/verified)
+- The [Daggerheart](https://github.com/Foundryborne/daggerheart/) game system
+
+## How To
+
+In Foundry's **Add-on Modules** tab, install via manifest URL:<br>
+`https://github.com/Artieficr/daggerheart-enhanced-ui/releases/latest/download/module.json`<br>
+(or install manually and drop the repo contents into `Data/modules/daggerheart-enhanced-ui/`), then activate the module in your Daggerheart world.
+
 # Credits
 
 This module incorporates code and assets from other projects, restyled to match its own UI:
