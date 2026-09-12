@@ -1,7 +1,7 @@
 {
   "id": "daggerheart-enhanced-ui",
   "title": "Daggerheart: Enhanced UI",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -86,5 +86,6 @@
   "description": "<p>UI/UX improvements for Foundryborne's actor sheets</p>",
   "manifest": "https://github.com/Artieficr/daggerheart-enhanced-ui/releases/latest/download/module.json",
   "download": "https://github.com/Artieficr/daggerheart-enhanced-ui/releases/latest/download/daggerheart-enhanced-ui.zip",
+  "url": "https://github.com/Artieficr/daggerheart-enhanced-ui",
   "flags": {}
 }
