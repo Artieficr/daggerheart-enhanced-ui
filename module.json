@@ -1,7 +1,7 @@
 {
   "id": "daggerheart-enhanced-ui",
   "title": "Daggerheart: Enhanced UI",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -61,7 +61,25 @@
   ],
   "authors": [
     {
+      "name": "Artieficr",
+      "email": "artieficr@pm.me",
+      "url": "https://artieficr.vercel.app/",
+      "discord": "Artieficr",
+      "flags": {}
+    },
+    {
       "name": "PasoK",
+      "url": "https://github.com/pasoktcm",
+      "flags": {}
+    },
+    {
+      "name": "Happytreedice",
+      "url": "https://github.com/Happytreedice",
+      "flags": {}
+    },
+    {
+      "name": "CPTN Cosmo",
+      "url": "https://git.geeks.gay/cosmo",
       "flags": {}
     }
   ],
