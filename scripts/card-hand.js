@@ -255,11 +255,19 @@ function formatDomainCardType(domainCardType) {
 }
 
 function itemHasActions(item) {
+  return getItemActions(item).length > 0;
+}
+
+/** Normalizes `item.system.actions` (a Foundry Collection on real data, but
+ * plain-object-shaped in a few edge cases) into a plain array, in source
+ * order, regardless of which shape this world's system version hands back. */
+function getItemActions(item) {
   const actions = item?.system?.actions;
-  if (!actions) return false;
-  if (typeof actions.size === "number") return actions.size > 0;
-  if (typeof actions === "object") return Object.keys(actions).length > 0;
-  return false;
+  if (!actions) return [];
+  if (typeof actions.contents === "object" && Array.isArray(actions.contents)) return actions.contents;
+  if (typeof actions[Symbol.iterator] === "function") return [...actions];
+  if (typeof actions === "object") return Object.values(actions);
+  return [];
 }
 
 // ─── DATA PREP ────────────────────────────────────────────────────────────────
@@ -267,15 +275,21 @@ function itemHasActions(item) {
 // full sheet context. Cheap enough to call on every render.
 
 /**
- * Returns an ordered array of card entries: `{ kind: "item", item }` for
- * domain cards and ungrouped features, and `{ kind: "featureGroup",
- * anchorItem, members }` for ancestry/community/class/subclass/multiclass/
- * transformation features grouped one card per source item. Weapons and
- * consumables (and the unarmed attack, alongside them — it lives in
- * Inventory now too) are deliberately NOT included here — those aren't real
- * Daggerheart cards, so they live in the separate Inventory panel
- * (inventory-panel.js) instead. No filter toggles either: everything this
- * function returns is a real card, so there's nothing to hide.
+ * Returns an ordered array of card entries: `{ kind: "item", item }` for a
+ * domain card/loose feature with at most one action, `{ kind: "actionGroup",
+ * anchorItem, actions }` for one with several (a Wizard's Book-style domain
+ * card offering multiple spells, say) — its own actions become a child fan
+ * of fake per-action cards, see buildHandCardElement/useHandCard — and
+ * `{ kind: "featureGroup", anchorItem, members }` for ancestry/community/
+ * class/subclass/multiclass/transformation features grouped one card per
+ * source item. Weapons and consumables (and the unarmed attack, alongside
+ * them — it lives in Inventory now too) are deliberately NOT included here —
+ * those aren't real Daggerheart cards, so they live in the separate
+ * Inventory panel (inventory-panel.js) instead. No filter toggles either:
+ * everything this function returns is a real card, so there's nothing to
+ * hide — including purely narrative/passive features with zero actions,
+ * which still get a card (played via useHandCard's toChat fallback) so the
+ * table can see them get used even though they have no mechanical effect.
  */
 export function buildHandCards(actor) {
   if (!actor) return [];
@@ -289,23 +303,33 @@ export function buildHandCards(actor) {
   const featureGroups = buildFeatureGroups(actor);
   const groupedFeatureIds = new Set(featureGroups.flatMap((g) => g.members.map((m) => m.id)));
 
-  const cards = items
-    .filter((item) => {
-      if (item.type !== "domainCard" && item.type !== "feature") return false;
-      if (item.type === "feature" && groupedFeatureIds.has(item.id)) return false;
-      // Mirrors the daggerheart system's own _prepareFeaturesContext
-      // looseFeatures computation (confirmed by reading its bundled
-      // source): a feature not yet unlocked by level/subclass-tier
-      // (isItemAvailable) shouldn't surface at all, grouped or not —
-      // buildFeatureGroups already applies this to group members, but
-      // anything that check excludes still needs excluding here too,
-      // otherwise it falls through as a loose card instead of vanishing.
-      if (item.type === "feature" && typeof actor.system.isItemAvailable === "function" && !actor.system.isItemAvailable(item)) return false;
-      if (item.type === "feature" && !itemHasActions(item)) return false;
-      if (item.type === "domainCard" && item.system.inVault) return false;
-      return true;
-    })
-    .map((item) => ({ kind: "item", item }));
+  const looseItems = items.filter((item) => {
+    if (item.type !== "domainCard" && item.type !== "feature") return false;
+    if (item.type === "feature" && groupedFeatureIds.has(item.id)) return false;
+    // Mirrors the daggerheart system's own _prepareFeaturesContext
+    // looseFeatures computation (confirmed by reading its bundled
+    // source): a feature not yet unlocked by level/subclass-tier
+    // (isItemAvailable) shouldn't surface at all, grouped or not —
+    // buildFeatureGroups already applies this to group members, but
+    // anything that check excludes still needs excluding here too,
+    // otherwise it falls through as a loose card instead of vanishing.
+    if (item.type === "feature" && typeof actor.system.isItemAvailable === "function" && !actor.system.isItemAvailable(item)) return false;
+    if (item.type === "domainCard" && item.system.inVault) return false;
+    return true;
+  });
+
+  // A loose item with 2+ actions doesn't map onto a single "drag to use"
+  // gesture unambiguously — which one would fire? — so it's promoted to an
+  // actionGroup instead of a plain item card, same shape as a featureGroup
+  // but fanning out the item's own actions (fake cards, no backing Item
+  // document) rather than real linked feature Items. Deliberately not
+  // applied recursively to featureGroup members: nesting a second fan of
+  // actions inside a feature-group's own hover sub-stack was untested
+  // double-nesting territory, and no reported case needed it.
+  const cards = looseItems.map((item) => {
+    const actions = getItemActions(item);
+    return actions.length > 1 ? { kind: "actionGroup", anchorItem: item, actions } : { kind: "item", item };
+  });
 
   cards.push(...featureGroups.map((group) => ({ kind: "featureGroup", ...group })));
 
@@ -319,6 +343,7 @@ export function buildHandCards(actor) {
 
 function cardSortScore(card) {
   if (card.kind === "item") return card.item.type === "domainCard" ? 1 : 2;
+  if (card.kind === "actionGroup") return card.anchorItem.type === "domainCard" ? 1 : 2;
   return 2; // featureGroup
 }
 
@@ -387,10 +412,15 @@ function buildFeatureGroups(actor) {
  * supports — using theirs verbatim risked silently showing no damage on
  * this world's system version) — everything else (domain colors, layout,
  * font-size formula) is theirs as written.
+ *
+ * `overrides` (title/description/cost) lets renderActionCardFace reuse this
+ * whole banner/domain-color/font-fit pipeline for a single action's fake
+ * card face instead of duplicating it — the art, domain, and level badge
+ * always come from the real parent item either way.
  */
-function renderCardFace(item, actor) {
+function renderCardFace(item, actor, overrides = {}) {
   const img = item.img || "icons/svg/item-bag.svg";
-  const desc = item.system.description?.value || item.system.description || "";
+  const desc = overrides.description ?? (item.system.description?.value || item.system.description || "");
 
   const tempDiv = document.createElement("div");
   const processed = formatDescription(desc);
@@ -428,14 +458,18 @@ function renderCardFace(item, actor) {
   const stressSrc = `${ASSET_ROOT}/default/stress-cost.avif`;
 
   const level = item.system.level || "";
-  const recallCost = item.system.recallCost;
-  const stressCost = item.system.stress;
 
-  let costValue = "";
-  if (recallCost !== null && recallCost !== undefined && recallCost !== 0) {
-    costValue = recallCost;
-  } else if (stressCost !== null && stressCost !== undefined && stressCost !== 0) {
-    costValue = stressCost;
+  let costValue = overrides.cost;
+  if (costValue === undefined) {
+    const recallCost = item.system.recallCost;
+    const stressCost = item.system.stress;
+    if (recallCost !== null && recallCost !== undefined && recallCost !== 0) {
+      costValue = recallCost;
+    } else if (stressCost !== null && stressCost !== undefined && stressCost !== 0) {
+      costValue = stressCost;
+    } else {
+      costValue = "";
+    }
   }
   const showStress = costValue !== "";
 
@@ -474,11 +508,53 @@ function renderCardFace(item, actor) {
         </div>
         <p class="card-type" style="color: ${domainFontColor};">${escapeHtml(itemTypeLocalized)}</p>
       </div>
-      <div class="card-title">${escapeHtml(item.name)}</div>
+      <div class="card-title">${escapeHtml(overrides.title ?? item.name)}</div>
       ${damageHtml}
       <div class="description" style="font-size: ${fontSize}px;">${plainDesc}</div>
     </div>
   `;
+}
+
+/**
+ * Picks the resource cost to show on a single action's fake card face: the
+ * action's own cost entries (each `{key, value}`, e.g. `{key:"hope",
+ * value:1}` — same shape helpers.js's prepareActorInventoryData already
+ * reads) take priority since a multi-action item's actions can each cost
+ * something different; falls back to `undefined` (renderCardFace's own
+ * parent-item fallback) when this action carries no cost of its own, e.g.
+ * a shared per-card recall cost.
+ */
+function getActionCostValue(action) {
+  const costs = Array.isArray(action?.cost) ? action.cost : [];
+  if (!costs.length) return undefined;
+  const entry = costs.find((c) => c.key === "hope") ?? costs.find((c) => c.key === "stress") ?? costs[0];
+  const value = entry?.value;
+  // A cost of exactly 0 is "no cost", same convention renderCardFace's own
+  // recallCost/stress fallback already uses just below.
+  return value !== null && value !== undefined && value !== 0 ? value : undefined;
+}
+
+/**
+ * One action's own fake card face — same art/domain/level chrome as the
+ * parent item (renderCardFace), just with the action's own name/description/
+ * cost swapped in, since that's the actual content a player is choosing
+ * between (e.g. a Wizard's Book's three spells). Falls back to an empty
+ * description rather than the parent item's own text if the action carries
+ * none of its own — showing the same paragraph on all three fake cards would
+ * be more confusing than showing nothing.
+ */
+function renderActionCardFace(item, action, actor) {
+  const description = action?.description?.value ?? action?.description ?? "";
+  // Elsewhere in this codebase action.name is always run through
+  // {{localize}} (see card-domains.hbs etc.) — it's commonly an i18n key,
+  // not display text, on a system-defined action.
+  const rawName = action?.name;
+  const title = rawName ? (game.i18n.has(rawName) ? game.i18n.localize(rawName) : rawName) : item.name;
+  return renderCardFace(item, actor, {
+    title,
+    description,
+    cost: getActionCostValue(action),
+  });
 }
 
 // ─── RENDER ───────────────────────────────────────────────────────────────────
@@ -489,12 +565,27 @@ function renderCardFace(item, actor) {
 
 function cardHandKey(card) {
   if (card.kind === "featureGroup") return `group:${card.anchorItem.uuid}`;
+  if (card.kind === "actionGroup") return `actiongroup:${card.anchorItem.uuid}`;
+  if (card.kind === "action") return `action:${card.parentItem.uuid}:${card.action._id ?? card.action.id}`;
   return card.item.uuid;
 }
 
 function renderCardFaceFor(card, actor) {
-  if (card.kind === "featureGroup") return renderCardFace(card.anchorItem, actor);
+  if (card.kind === "featureGroup" || card.kind === "actionGroup") return renderCardFace(card.anchorItem, actor);
+  if (card.kind === "action") return renderActionCardFace(card.parentItem, card.action, actor);
   return renderCardFace(card.item, actor);
+}
+
+/**
+ * A group card's (featureGroup or actionGroup) own child cards, as the same
+ * `{kind, ...}` descriptors buildHandCards produces for top-level cards —
+ * real linked-feature Items for a featureGroup, fake per-action cards (no
+ * backing Item) for an actionGroup.
+ */
+function getGroupChildCards(card) {
+  if (card.kind === "featureGroup") return card.members.map((member) => ({ kind: "item", item: member }));
+  if (card.kind === "actionGroup") return card.actions.map((action) => ({ kind: "action", parentItem: card.anchorItem, action }));
+  return [];
 }
 
 function buildHandCardElement(card, actor) {
@@ -506,6 +597,12 @@ function buildHandCardElement(card, actor) {
   if (card.kind === "featureGroup") {
     el.dataset.itemUuid = card.anchorItem.uuid;
     el.dataset.memberUuids = card.members.map((m) => m.uuid).join(",");
+  } else if (card.kind === "actionGroup") {
+    el.dataset.itemUuid = card.anchorItem.uuid;
+    el.dataset.actionIds = card.actions.map((a) => a._id ?? a.id).join(",");
+  } else if (card.kind === "action") {
+    el.dataset.itemUuid = card.parentItem.uuid;
+    el.dataset.actionId = card.action._id ?? card.action.id;
   } else {
     el.dataset.itemUuid = card.item.uuid;
   }
@@ -524,14 +621,16 @@ function buildHandCardElement(card, actor) {
 
   el.innerHTML = `${hitzoneHtml}${scalerHtml}`;
 
-  // Every group — even a single-feature one — gets a real hover-revealed
-  // sub-stack of its actual member cards, each fully interactive on its own
-  // (a feature can be played directly from the stack without going through
-  // the parent at all). Always stacking, not just for 2+ members, is
-  // deliberate: an ancestry/class card was never meant to be "played"
-  // directly, so a lone feature still needs its own card in the way, rather
-  // than the parent silently proxying straight to it.
-  if (card.kind === "featureGroup") {
+  // Every group — even a single-feature/single-action one — gets a real
+  // hover-revealed sub-stack of its actual child cards, each fully
+  // interactive on its own (a feature or action can be played directly from
+  // the stack without going through the parent at all). Always stacking, not
+  // just for 2+ children, is deliberate: an ancestry/class card (or a
+  // multi-action domain card) was never meant to be "played" directly, so a
+  // lone child still needs its own card in the way, rather than the parent
+  // silently proxying straight to it.
+  const isGroupCard = card.kind === "featureGroup" || card.kind === "actionGroup";
+  if (isGroupCard) {
     const substack = document.createElement("div");
     // .card-hand-list too: at rest, plain CSS (absolute positioning + nth-
     // child, see card-hand.css) stacks the members behind the parent, each
@@ -540,8 +639,8 @@ function buildHandCardElement(card, actor) {
     // lays out the main hand — treat this container as a fan of its own,
     // instead of writing a second fan-layout implementation.
     substack.className = "hand-card-substack card-hand-list";
-    card.members.forEach((member) => {
-      substack.appendChild(buildHandCardElement({ kind: "item", item: member }, actor));
+    getGroupChildCards(card).forEach((childCard) => {
+      substack.appendChild(buildHandCardElement(childCard, actor));
     });
     el.appendChild(substack);
 
@@ -921,44 +1020,72 @@ function attachCardHandCardInteractions(card, actor) {
 }
 
 /**
- * Resolves what "using" a card actually means per kind: a plain item calls
- * its own use()/roll()/toChat(); a feature group with exactly one actionable
- * member uses it outright, and a group with several opens the center-screen
- * reveal instead of a dialog picker (see showFeatureGroupOverlay) — the same
- * members are also directly reachable without dragging the parent at all,
- * via the hover-revealed sub-stack built in buildHandCardElement.
+ * Resolves what "using" a card actually means per kind:
+ * - "item": a plain item — calls its own use()/toChat()/roll(), in that
+ *   priority order, gated by itemHasActions(item) first: `item.use` is a
+ *   function on every item regardless of whether it actually has any
+ *   actions to run, so calling it unconditionally silently did nothing for
+ *   a zero-action item instead of ever reaching the toChat() fallback below
+ *   it — this is the exact reported bug ("some features can't be played
+ *   from hand"). Checking itemHasActions first instead mirrors the
+ *   `{{#if item.system.actions.size}}useItem{{else}}toChat{{/if}}` split
+ *   every card template in this module already uses for its own dice-icon,
+ *   so a purely narrative/passive feature now falls through to toChat() and
+ *   actually posts something everyone can see. See NOTES.md.
+ * - "action": one fake per-action card — calls that specific action's own
+ *   action.use(), resolved fresh off the live item (not a captured
+ *   reference) since the item may have re-rendered since this card was
+ *   built.
+ * - "featureGroup"/"actionGroup": always reveals the center-screen overlay
+ *   (see showCardGroupOverlay), even for a single child — an ancestry/class
+ *   card, or a multi-action domain card, was never meant to be "played"
+ *   directly, so the parent never proxies straight to a single child. The
+ *   same children are also directly reachable without dragging the parent
+ *   at all, via the hover-revealed sub-stack built in buildHandCardElement.
  */
 async function useHandCard(card, actor) {
   const kind = card.dataset.cardKind;
 
   if (kind === "featureGroup") {
-    // Always reveal the stack, even for a single feature — an ancestry/class
-    // card was never meant to be "played" directly, so the parent never
-    // proxies straight to its sole feature.
     const uuids = (card.dataset.memberUuids || "").split(",").filter(Boolean);
     const members = (await Promise.all(uuids.map((uuid) => fromUuid(uuid)))).filter(Boolean);
-    if (members.length) showFeatureGroupOverlay(members, actor, card.closest("#enhanced-ui-sheet"));
+    const children = members.map((member) => ({ kind: "item", item: member }));
+    if (children.length) showCardGroupOverlay(children, actor, card.closest("#enhanced-ui-sheet"));
+  } else if (kind === "actionGroup") {
+    const itemUuid = card.dataset.itemUuid;
+    const actionIds = (card.dataset.actionIds || "").split(",").filter(Boolean);
+    const parentItem = itemUuid ? await fromUuid(itemUuid) : null;
+    const actions = actionIds.map((id) => parentItem?.system.actions?.get(id)).filter(Boolean);
+    const children = actions.map((action) => ({ kind: "action", parentItem, action }));
+    if (children.length) showCardGroupOverlay(children, actor, card.closest("#enhanced-ui-sheet"));
+  } else if (kind === "action") {
+    const itemUuid = card.dataset.itemUuid;
+    const actionId = card.dataset.actionId;
+    const item = itemUuid ? await fromUuid(itemUuid) : null;
+    const action = item?.system.actions?.get(actionId);
+    if (action && typeof action.use === "function") await action.use({});
   } else {
     const uuid = card.dataset.itemUuid;
     const item = uuid ? await fromUuid(uuid) : null;
     if (!item) return;
-    if (typeof item.use === "function") await item.use({});
-    else if (typeof item.roll === "function") await item.roll({});
+    if (itemHasActions(item) && typeof item.use === "function") await item.use({});
     else if (typeof item.toChat === "function") await item.toChat(item.uuid);
+    else if (typeof item.roll === "function") await item.roll({});
   }
 
   card.dispatchEvent(new CustomEvent("handcard:used", { bubbles: true }));
 }
 
 /**
- * The "drop the parent, its features fade in from the center" reveal: builds
- * a small overlay fan of the group's actual member cards (full-size, fully
- * interactive — reuses buildHandCardElement the same way the hover sub-stack
- * does) centered on screen. Dismissed by using any card in it (the
+ * The "drop the parent, its children fade in from the center" reveal: builds
+ * a small overlay fan of the group's actual child cards — real feature Items
+ * for a featureGroup, fake per-action cards for an actionGroup — full-size
+ * and fully interactive (reuses buildHandCardElement the same way the hover
+ * sub-stack does) centered on screen. Dismissed by using any card in it (the
  * "handcard:used" bubble from useHandCard above), clicking the dimmed
  * backdrop, or Escape.
  */
-function showFeatureGroupOverlay(members, actor, host) {
+function showCardGroupOverlay(childCards, actor, host) {
   if (!host) return;
   host.querySelector(":scope > .card-hand-group-overlay")?.remove();
 
@@ -969,8 +1096,8 @@ function showFeatureGroupOverlay(members, actor, host) {
   fan.className = "card-hand-group-overlay-fan card-hand-list";
   overlay.appendChild(fan);
 
-  members.forEach((member) => {
-    fan.appendChild(buildHandCardElement({ kind: "item", item: member }, actor));
+  childCards.forEach((childCard) => {
+    fan.appendChild(buildHandCardElement(childCard, actor));
   });
 
   host.appendChild(overlay);
@@ -1170,12 +1297,17 @@ export function registerCardHandRuntimeHooks() {
     const controlled = canvas.tokens?.controlled ?? [];
     if (!controlled.some((token) => token.actor?.id === item.parent.id)) return;
 
-    if (typeof item.use === "function") {
+    // Same itemHasActions-gated order as useHandCard above, and for the same
+    // reason: item.use is a function on every item regardless of whether it
+    // has any actions to run, so checking it first silently no-op'd for a
+    // zero-action item (e.g. a passive feature) dragged onto the canvas
+    // instead of ever reaching the toChat() fallback.
+    if (itemHasActions(item) && typeof item.use === "function") {
       await item.use({});
-    } else if (typeof item.roll === "function") {
-      await item.roll({});
     } else if (typeof item.toChat === "function") {
       await item.toChat(item.uuid);
+    } else if (typeof item.roll === "function") {
+      await item.roll({});
     }
   });
 }
