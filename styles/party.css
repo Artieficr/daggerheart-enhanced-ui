@@ -61,31 +61,33 @@ PARTY MEMBERS
   gap: var(--enhancedUI-spacing-tiny);
 }
 
-/* REMOVE */
+/* NAME (grows to push the remove button flush against the hope pips, on the
+   row's right edge) */
+#enhanced-ui-sheet .party-character h1 {
+  flex: 1;
+}
+
+/* REMOVE — always visible, not just on hover: a corner overlay hidden until
+   hover turned out to not be discoverable at all in practice (reported after
+   a real playtest — the user couldn't find this button), matching the exact
+   discoverability problem pasoktcm's own v2.3.3 fixed upstream the same way. */
 #enhanced-ui-sheet .party-character .party-character-remove {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: var(--enhancedUI-spacing-md);
-  height: var(--enhancedUI-spacing-md);
+  display: flex;
+  width: var(--enhancedUI-spacing-xm);
+  height: var(--enhancedUI-spacing-xm);
   cursor: pointer;
-  
 }
 
 #enhanced-ui-sheet .party-character .party-character-remove .party-character-remove-icon {
-  display: none;
-  width: 100%;
-  height: 100%;
-  background: #E84747;
-  color: #fff;
-  font-size: var(--enhancedUI-font-size-tiny);
-  border-radius: 50%;
-}
-
-#enhanced-ui-sheet .party-character .party-character-remove:hover .party-character-remove-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--enhancedUI-color-background-resourceHover);
+  font-size: var(--enhancedUI-font-size-sm);
+}
+
+#enhanced-ui-sheet .party-character .party-character-remove:hover .party-character-remove-icon {
+  color: #e84747;
 }
 
 /* PORTRAIT */
