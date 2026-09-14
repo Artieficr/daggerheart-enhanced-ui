@@ -415,11 +415,15 @@ function buildFeatureGroups(actor) {
  *
  * `overrides` (title/description/cost) lets renderActionCardFace reuse this
  * whole banner/domain-color/font-fit pipeline for a single action's fake
- * card face instead of duplicating it — the art, domain, and level badge
- * always come from the real parent item either way.
+ * card face instead of duplicating it — the domain color/level badge always
+ * come from the real parent item, but the main art (overrides.img) doesn't:
+ * each action on a multi-action card has its own distinct icon (confirmed
+ * live — a Book of Ava's four actions each show a different image in the
+ * system's own Actions tab), so reusing the parent item's own portrait for
+ * every action's fake card was wrong, not just a placeholder choice.
  */
 function renderCardFace(item, actor, overrides = {}) {
-  const img = item.img || "icons/svg/item-bag.svg";
+  const img = overrides.img || item.img || "icons/svg/item-bag.svg";
   const desc = overrides.description ?? (item.system.description?.value || item.system.description || "");
 
   const tempDiv = document.createElement("div");
@@ -536,12 +540,15 @@ function getActionCostValue(action) {
 
 /**
  * One action's own fake card face — same art/domain/level chrome as the
- * parent item (renderCardFace), just with the action's own name/description/
- * cost swapped in, since that's the actual content a player is choosing
- * between (e.g. a Wizard's Book's three spells). Falls back to an empty
- * description rather than the parent item's own text if the action carries
- * none of its own — showing the same paragraph on all three fake cards would
- * be more confusing than showing nothing.
+ * parent item (renderCardFace), just with the action's own name/image/
+ * description/cost swapped in, since that's the actual content a player is
+ * choosing between (e.g. a Wizard's Book's three spells, each with its own
+ * icon in the system's own Actions tab). Falls back to an empty description
+ * rather than the parent item's own text if the action carries none of its
+ * own — showing the same paragraph on all three fake cards would be more
+ * confusing than showing nothing; the image falls back to the parent
+ * item's own art instead, since a blank card image would be worse than a
+ * merely-generic one.
  */
 function renderActionCardFace(item, action, actor) {
   const description = action?.description?.value ?? action?.description ?? "";
@@ -552,6 +559,7 @@ function renderActionCardFace(item, action, actor) {
   const title = rawName ? (game.i18n.has(rawName) ? game.i18n.localize(rawName) : rawName) : item.name;
   return renderCardFace(item, actor, {
     title,
+    img: action?.img,
     description,
     cost: getActionCostValue(action),
   });
