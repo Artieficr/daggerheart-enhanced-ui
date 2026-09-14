@@ -6,12 +6,16 @@
  * per-type centering or horizontal offset.
  */
 
-// z-index:110 — above the Countdown Tracker (z-index:100, see countdown-tracker.css)
+// z-index:90 — above the Countdown Tracker (75, see countdown-tracker.css)
 // and Party Overview (60), so anything popping out of the minisheet (the
 // Effects & Conditions panel included) renders over those ambient widgets
-// instead of under them.
+// instead of under them — but still below Foundry's own --z-index-window
+// (100), the tier every genuine Foundry ApplicationV2 window (an item
+// sheet, a Dialog, the compendium browser, etc.) renders at or above, so a
+// real window opened from the minisheet (right-click an item, say) is never
+// left rendering behind it. See CLAUDE.md's z-index tiers note.
 export function containerStyleFor() {
-  return "position:fixed;bottom:0;left:0;z-index:110;";
+  return "position:fixed;bottom:0;left:0;z-index:90;";
 }
 
 export function transformOriginFor() {

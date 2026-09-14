@@ -232,10 +232,14 @@ itself repositioned.
 
 /* Right-click "Remove from Favorites" menu — appended to document.body, not
    nested under #enhanced-ui-sheet (see showActorPickerContextMenu for why),
-   so these rules are deliberately unscoped. */
+   so these rules are deliberately unscoped. Being outside #enhanced-ui-sheet
+   also means its z-index isn't capped by that container's own stacking
+   context, so it needs its own value: above the minisheet (90) it pops out
+   of, but still below Foundry's --z-index-window (100) — see CLAUDE.md's
+   z-index tiers note. */
 .minisheet-actor-picker-contextmenu {
   position: fixed;
-  z-index: 200;
+  z-index: 95;
   padding: 4px;
   border-radius: var(--enhancedUI-border-radius-s);
   background: var(--enhancedUI-color-background-primary);

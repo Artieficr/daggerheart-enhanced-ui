@@ -13,7 +13,15 @@
 .enhanced-ui-countdown-tracker {
   position: fixed;
   pointer-events: none;
-  z-index: 100;
+  /* `window.positioned:false` (see countdown-tracker.js) means Foundry never
+   * assigns this app a dynamic window z-index the way it does every other
+   * ApplicationV2 — this hardcoded value is all it ever gets. Foundry's own
+   * core CSS puts real floating windows at --z-index-window (100) and up, so
+   * this tier is deliberately kept below that, not just below the other
+   * ambient widgets, so a genuine Foundry window always renders on top of
+   * it. See CLAUDE.md's z-index tiers note.
+   */
+  z-index: 75;
 }
 
 .countdown-tracker-window {

@@ -6,6 +6,10 @@
 
 #party-overview-widget {
   position: fixed;
+  /* Matches Foundry's own --z-index-ui (60, see foundry2.css) — the tier its
+   * persistent chrome (hotbar, players list, sidebar) sits at — and stays
+   * well below --z-index-window (100), so a real Foundry window always
+   * renders above this ambient widget. See CLAUDE.md's z-index tiers note. */
   z-index: 60;
   user-select: none;
   display: flex;
