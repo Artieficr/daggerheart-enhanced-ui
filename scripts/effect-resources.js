@@ -68,7 +68,7 @@ function renderTracker(item) {
   const faces = foundry.utils.escapeHTML(resource.dieFaces ?? "d6");
 
   if (resource.type === "die") {
-    const value = resource.value || "";
+    const value = foundry.utils.escapeHTML(String(resource.value || ""));
     return `
       <a class="effect-resource die" data-item-uuid="${item.uuid}" data-tooltip="${name} (${faces})<br>Click +1 · Right-click −1">
         <img src="${DIE_ICON_ROOT}/${faces}.svg" alt="${faces}">
@@ -83,7 +83,7 @@ function renderTracker(item) {
       return `
         <a class="effect-resource-die-value ${state?.used ? "used" : ""}" data-dice="${index}">
           <img src="${DIE_ICON_ROOT}/${faces}.svg" alt="${faces}">
-          <span class="effect-resource-value">${state?.value ?? "?"}</span>
+          <span class="effect-resource-value">${foundry.utils.escapeHTML(String(state?.value ?? "?"))}</span>
         </a>`;
     }).join("");
     return `
@@ -96,7 +96,7 @@ function renderTracker(item) {
   return `
     <a class="effect-resource simple" data-item-uuid="${item.uuid}" data-tooltip="${name}<br>Click +1 · Right-click −1">
       <i class="${icon}"></i>
-      <span class="effect-resource-value">${resource.value ?? 0}/${parseResourceMax(item)}</span>
+      <span class="effect-resource-value">${foundry.utils.escapeHTML(String(resource.value ?? 0))}/${parseResourceMax(item)}</span>
     </a>`;
 }
 
