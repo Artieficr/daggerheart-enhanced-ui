@@ -24,6 +24,12 @@
     own box would get clipped by it. See minisheet-pin.js. --}}
     {{> "modules/daggerheart-enhanced-ui/templates/components/minisheet-actor-picker.hbs"}}
 
+    {{!-- Filled by effect-resources.js — resource trackers of features whose
+    effect is currently active (e.g. Unstoppable's die). Also a sibling of
+    .portrait for the same mask-image reason, and because a beastform
+    portrait turns off pointer-events on .portrait entirely. --}}
+    <div class="effect-resources" hidden></div>
+
     <div class="character-information">
         <div class="header-details">
             <div class="hope-row">

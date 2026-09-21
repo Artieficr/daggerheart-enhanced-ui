@@ -159,6 +159,12 @@
   pointer-events: none;
 
   transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.6s;
+
+  /* The least card art that always stays visible above the text box — the
+     text box's own max-height is derived from it (440px card height minus
+     this), and fitCardDescription in card-hand.js clamps whatever text
+     still doesn't fit. */
+  --dhc-min-art: 150px;
 }
 
 /* Direct-child combinator, not a descendant one, on purpose: a feature
@@ -204,6 +210,9 @@
 #enhanced-ui-sheet .card-main-image {
   width: 100%;
   height: 100%;
+  /* A wide, short piece of art still fills the reserved art area (plus the
+     12px the title divider pokes up into it) instead of leaving a gap. */
+  min-height: calc(var(--dhc-min-art) + 12px);
   object-fit: cover;
   object-position: top center;
   display: block;
@@ -226,7 +235,7 @@
   justify-content: flex-start;
   align-items: stretch;
   min-height: 184px;
-  max-height: 425px;
+  max-height: calc(440px - var(--dhc-min-art));
   overflow: visible;
 }
 
@@ -321,6 +330,32 @@
   max-width: 100%;
   word-break: break-word;
   padding: 0 12px;
+}
+
+/* Inside a card face the description is the one flex child allowed to
+   shrink, so a long one gets squeezed (and then clamped by
+   fitCardDescription) instead of the title/type/damage rows. */
+#enhanced-ui-sheet .dhc-scaler .card-text-content > .description {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* "Text isn't shown in full" marker — only present on a clamped card. */
+#enhanced-ui-sheet .dhc-scaler .description-more {
+  display: none;
+  flex: none;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+#enhanced-ui-sheet .dhc-scaler.text-truncated .description-more {
+  display: flex;
+}
+
+#enhanced-ui-sheet .dhc-scaler .description-more svg {
+  width: 22px;
+  height: 22px;
 }
 
 #enhanced-ui-sheet .description p {

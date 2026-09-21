@@ -57,6 +57,110 @@ PORTRAIT
 }
 
 /* //////////////////////////////
+EFFECT RESOURCES — trackers of features whose effect is currently active
+(effect-resources.js), stacked down the portrait's left edge starting at its
+top-left corner; a long list wraps into a second column. Positioned against
+.minisheet-transform-wrapper like the actor picker below (whose bottom edge
+is the portrait's), with the column's height matching the character
+portrait's own 200px.
+////////////////////////////// */
+
+#enhanced-ui-sheet .effect-resources {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px;
+  padding: 6px;
+  z-index: 7;
+  pointer-events: none;
+}
+
+#enhanced-ui-sheet .effect-resources[hidden] {
+  display: none;
+}
+
+#enhanced-ui-sheet .effect-resource {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
+}
+
+#enhanced-ui-sheet .effect-resource.readonly {
+  cursor: default;
+}
+
+#enhanced-ui-sheet .effect-resource.die,
+#enhanced-ui-sheet .effect-resource-die-value {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+}
+
+#enhanced-ui-sheet .effect-resource-die-value {
+  width: 28px;
+  height: 28px;
+}
+
+#enhanced-ui-sheet .effect-resource.die img,
+#enhanced-ui-sheet .effect-resource-die-value img {
+  width: 100%;
+  height: 100%;
+  border: none;
+  transition: transform 0.15s ease;
+}
+
+#enhanced-ui-sheet .effect-resource.die:not(.readonly):hover img,
+#enhanced-ui-sheet .effect-resource:not(.readonly) .effect-resource-die-value:hover img {
+  transform: scale(1.12);
+}
+
+#enhanced-ui-sheet .effect-resource .effect-resource-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 4px;
+  font-family: var(--dh-font-header, "Modesto Condensed", "Signika", sans-serif) !important;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 0 2px #000;
+  pointer-events: none;
+}
+
+#enhanced-ui-sheet .effect-resource-die-value.used {
+  opacity: 0.35;
+}
+
+#enhanced-ui-sheet .effect-resource.simple {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--enhancedUI-color-background-primary);
+  border: 1px solid var(--enhancedUI-color-border);
+  color: var(--enhancedUI-color-primary);
+}
+
+#enhanced-ui-sheet .effect-resource.simple .effect-resource-value {
+  position: static;
+  padding: 0;
+  font-size: 14px;
+  color: inherit;
+}
+
+/* //////////////////////////////
 ACTOR PICKER — the "switch character" overlay for the pin fallback (see
 minisheet-pin.js), shown when the minisheet is displaying an actor with no
 owned token controlling it and the player owns more than one pinnable

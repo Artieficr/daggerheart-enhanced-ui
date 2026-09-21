@@ -674,6 +674,10 @@ export async function prepareActorEffectsData(actor) {
     let sourceItem = null;
 
     if (effect.origin) sourceItem = await fromUuid(effect.origin);
+    // An effect applied by an item's action (the system's applyEffect) has
+    // its origin set to the item's own ActiveEffect, not the item — step up
+    // to the item, or the tag reads "Unknown: <effect name>".
+    if (sourceItem instanceof ActiveEffect) sourceItem = sourceItem.parent;
     if (!sourceItem && effect.parent) sourceItem = effect.parent;
 
     if (sourceItem) {

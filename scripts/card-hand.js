@@ -515,6 +515,7 @@ function renderCardFace(item, actor, overrides = {}) {
       <div class="card-title">${escapeHtml(overrides.title ?? item.name)}</div>
       ${damageHtml}
       <div class="description" style="font-size: ${fontSize}px;">${plainDesc}</div>
+      <div class="description-more" style="color: ${domainColor};">${CIRCLE_ARROW_RIGHT_SVG}</div>
     </div>
   `;
 }
@@ -562,6 +563,101 @@ function renderActionCardFace(item, action, actor) {
     img: action?.img,
     description,
     cost: getActionCostValue(action),
+  });
+}
+
+// ─── DESCRIPTION CLAMP ────────────────────────────────────────────────────────
+// A card's text box can only grow up to a fixed height (see --dhc-min-art on
+// .dhc-scaler in card-hand.css — the art always keeps at least that much of
+// the card), so a long feature like Unstoppable no longer shoves the
+// illustration off the top of the card. Whatever still doesn't fit is cut at
+// a word boundary with "…", and a circle-arrow-right icon row appears under
+// it (.description-more) — that icon always means "this text isn't shown in
+// full". CSS line-clamp can't do this: descriptions are rich HTML (several
+// <p>s, lists), and the available line count varies per card (title length,
+// weapon damage row), so it's measured and truncated here instead.
+
+// Lucide "circle-arrow-right" (ISC license), inlined — Foundry doesn't ship
+// Lucide, and it's one icon.
+const CIRCLE_ARROW_RIGHT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m12 16 4-4-4-4"/><path d="M8 12h8"/></svg>`;
+
+/** Every text node under `root`, in document order. */
+function collectTextNodes(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  return nodes;
+}
+
+/**
+ * Writes `originalHtml` into `desc` cut down to its first `limit` text
+ * characters (backed off to the last word boundary) plus "…", dropping every
+ * node after the cut point — so trailing <p>/<li> elements disappear whole
+ * instead of lingering as empty boxes.
+ */
+function writeTruncatedDescription(desc, originalHtml, limit) {
+  desc.innerHTML = originalHtml;
+  let remaining = limit;
+  for (const node of collectTextNodes(desc)) {
+    if (remaining >= node.data.length) {
+      remaining -= node.data.length;
+      continue;
+    }
+    let text = node.data.slice(0, remaining);
+    const lastSpace = text.search(/\s\S*$/);
+    if (lastSpace > 0) text = text.slice(0, lastSpace);
+    node.data = `${text.trimEnd().replace(/[\s,.;:!?—–-]+$/, "")}…`;
+    for (let cur = node; cur && cur !== desc; cur = cur.parentNode) {
+      while (cur.nextSibling) cur.nextSibling.remove();
+    }
+    return;
+  }
+}
+
+function descriptionFits(desc) {
+  return desc.scrollHeight <= desc.clientHeight + 1;
+}
+
+/**
+ * Clamps one card face's description to the space it actually has. Only
+ * runs once per card (data-text-fitted) and only once the card is laid out —
+ * a card measured while still detached/display:none is left for the next
+ * applyCardHandFanLayout pass to pick up.
+ */
+function fitCardDescription(scaler) {
+  if (scaler.dataset.textFitted) return;
+  const desc = scaler.querySelector(":scope > .card-text-content > .description");
+  if (!desc) return;
+  if (!desc.isConnected || !scaler.offsetHeight) return;
+  scaler.dataset.textFitted = "1";
+  if (descriptionFits(desc)) return;
+
+  // Show the icon row first so the search below accounts for the space it
+  // takes out of the text box.
+  scaler.classList.add("text-truncated");
+  const originalHtml = desc.innerHTML;
+  const total = collectTextNodes(desc).reduce((sum, node) => sum + node.data.length, 0);
+
+  let lo = 0;
+  let hi = total;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    writeTruncatedDescription(desc, originalHtml, mid);
+    if (descriptionFits(desc)) lo = mid;
+    else hi = mid - 1;
+  }
+  writeTruncatedDescription(desc, originalHtml, lo);
+}
+
+/**
+ * Clamps every not-yet-fitted card face under `root`. Waits on
+ * document.fonts.ready (an already-resolved promise once fonts are in, so
+ * this still lands before the next paint) — measuring against a fallback
+ * font would cut the text at the wrong place.
+ */
+function fitCardDescriptions(root) {
+  document.fonts.ready.then(() => {
+    root.querySelectorAll(".dhc-scaler:not([data-text-fitted])").forEach(fitCardDescription);
   });
 }
 
@@ -1001,6 +1097,11 @@ export function applyCardHandFanLayout(rootEl) {
       hitzone.style.width = isLast ? `${cardWidth}px` : `${Math.max(cardWidth + overlap - 20, 24)}px`;
     }
   });
+
+  // Every path that puts cards on screen (the Hand itself, a group's
+  // sub-stack, the center-screen group overlay) ends up here once they're
+  // attached, which makes it the one place that can measure them.
+  fitCardDescriptions(list);
 }
 
 // ─── INTERACTIONS ─────────────────────────────────────────────────────────────

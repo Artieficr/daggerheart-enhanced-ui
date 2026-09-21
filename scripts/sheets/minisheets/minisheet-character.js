@@ -24,6 +24,7 @@ import { toggleResourceManagement, toggleArmorManagement, formatWeaponDamageDisp
 import { renderCardHandWindow, getCardHandOpenState, setCardHandOpenState, renderCardHandReorderPopover } from "../../card-hand.js";
 import { renderInventoryWindow, renderInventoryFilterPopover, getInventoryOpenState, setInventoryOpenState } from "../../inventory-panel.js";
 import { renderEffectsPanel } from "../../effects-panel.js";
+import { renderEffectResources } from "../../effect-resources.js";
 import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
 import { buildActorPickerContext, syncPinnedMinisheet } from "./minisheet-pin.js";
 
@@ -94,6 +95,9 @@ export function registerCharacterMiniSheet() {
         this._renderFavorites();
         this._renderCardHand();
         this._renderInventory();
+        // A tracker's value lives on the item, so this (not an effect
+        // update) is what changes the number it shows.
+        renderEffectResources(this.element, this.currentActor);
       }
     }
 
@@ -220,6 +224,7 @@ export function registerCharacterMiniSheet() {
       renderCardHandWindow(this.element, this.currentActor);
       renderInventoryWindow(this.element, this.currentActor);
       renderEffectsPanel(this.element, this.currentActor);
+      renderEffectResources(this.element, this.currentActor);
 
       if (collapsed) {
         const height = this.element.offsetHeight;
