@@ -4,7 +4,7 @@
       "id": "daggerheart-sleek-ui",
       "name": "Daggerheart Sleek UI",
       "repo": "pasoktcm/daggerheart-sleek-ui",
-      "lastSeenRelease": "v2.3.3",
+      "lastSeenRelease": "v2.3.4",
       "lastSeenLicenseSha": "dd66091c8732ff7615aa96b905e30da3eeaa6bfe",
       "notes": "MIT. This repo is a fork of it (remote: upstream) — see CLAUDE.md's 'This fork no longer optimizes for clean upstream merges' note. A new release here is the signal to diff the new tag against this repo's own layout and decide what (if anything) to cherry-pick."
     },
