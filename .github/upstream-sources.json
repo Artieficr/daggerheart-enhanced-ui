@@ -13,7 +13,7 @@
       "name": "Daggerheart Card Hand",
       "repo": "Happytreedice/happytreedice-daggerheart-card-hand",
       "lastSeenRelease": "1.1.0",
-      "lastSeenLicenseSha": "NONE",
+      "lastSeenLicenseSha": "{\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/licenses/licenses#get-the-license-for-a-repository\",\"status\":\"404\"}NONE",
       "notes": "No LICENSE file upstream as of 2026-09-09 — treat as all-rights-reserved. Code/assets used here (scripts/card-hand.js, styles/card-hand.css, assets/cardhand/) under the author's direct informal permission, not a public license. A license-check hit here is the specific signal CLAUDE.md/LICENSE mention watching for — cite it directly once it lands instead of the informal-permission note."
     },
     {
