@@ -24,11 +24,11 @@ for i in $(seq 0 $((count - 1))); do
   if [ "$MODE" = "releases" ]; then
     key="lastSeenRelease"
     label="release"
-    current=$(gh api "repos/$repo/releases/latest" --jq '.tag_name' 2>/dev/null || echo "NONE")
+    current=$(gh api "repos/$repo/releases/latest" --jq '.tag_name' 2>/dev/null) || current="NONE"
   else
     key="lastSeenLicenseSha"
     label="license"
-    current=$(gh api "repos/$repo/license" --jq '.sha' 2>/dev/null || echo "NONE")
+    current=$(gh api "repos/$repo/license" --jq '.sha' 2>/dev/null) || current="NONE"
   fi
 
   previous=$(jq -r ".modules[$i].$key" "$DATA_FILE")

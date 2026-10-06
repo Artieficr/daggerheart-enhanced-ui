@@ -13,6 +13,8 @@ import {
   prepareActorInventoryData,
   recallDomainCardFromVault,
   resolveUnarmedAttack,
+  rollActorAttackDamage,
+  rollItemAttackDamage,
   setCardDescriptionOpen,
   toggleActorHope,
   toggleActorResource,
@@ -372,7 +374,7 @@ export function registerCharacterSheet() {
               attack: unarmed,
             },
           },
-          tags: [{ label: "Unarmed", tagClass: "tag-green" }],
+          tags: [{ label: game.i18n.localize("DAGGERHEART.GENERAL.unarmedAttack"), tagClass: "tag-green" }],
           hopeCost: 0,
           usesData: null,
           enrichedDescription: "",
@@ -675,23 +677,14 @@ export function registerCharacterSheet() {
 
           if (itemUuid === "unarmed-attack") {
             const action = resolveUnarmedAttack(this.actor);
-            if (!action) return;
-
-            const config = action.prepareConfig(event);
-            config.effects = await game.system.api.data.actions.actionsTypes.base.getActionRelevantEffects(this.actor, null);
-            config.hasRoll = false;
-            action.workflow.get("damage").execute(config, null, true);
+            await rollActorAttackDamage(event, this.actor, action);
             return;
           }
 
           const item = await fromUuid(itemUuid);
           if (!item) return;
 
-          const action = item.system.attack;
-          const config = action.prepareConfig(event);
-          config.effects = await game.system.api.data.actions.actionsTypes.base.getActionRelevantEffects(this.actor, item);
-          config.hasRoll = false;
-          action.workflow.get("damage").execute(config, null, true);
+          await rollItemAttackDamage(event, item, this.actor);
         });
       });
     }

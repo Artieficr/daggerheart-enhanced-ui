@@ -410,6 +410,37 @@ export function resolveUnarmedAttack(actor) {
   return sys.usedUnarmed ?? null;
 }
 
+/**
+ * Damage-only workflow for an item's standard attack (matches DH inventory roll damage).
+ * @param {Event} event
+ * @param {Item} item
+ * @param {Actor} actor Fallback actor if item has no .actor (e.g. sheet context)
+ */
+export async function rollItemAttackDamage(event, item, actor) {
+  return runDamageOnly(event, item?.system?.attack, item?.actor ?? item?.parent ?? actor);
+}
+
+/**
+ * Damage-only workflow for an actor attack action (adversary/companion/unarmed).
+ * @param {Event} event
+ * @param {Actor} actor
+ * @param {object} [action] Defaults to actor.system.attack
+ */
+export async function rollActorAttackDamage(event, actor, action = actor?.system?.attack) {
+  return runDamageOnly(event, action, actor);
+}
+
+async function runDamageOnly(event, action, performingActor) {
+  if (!action?.prepareConfig || !performingActor) return;
+  const config = action.prepareConfig(event);
+  config.effects = await game.system.api.data.actions.actionsTypes.base.getActionRelevantEffects(
+    action.getRollData(),
+    performingActor,
+  );
+  config.hasRoll = false;
+  return action.workflow.get("damage")?.execute(config, null, true);
+}
+
 // ─── WEAPON DAMAGE ───────────────────────────────────────────────────────────
 
 /**
@@ -702,7 +733,7 @@ export async function prepareActorEffectsData(actor) {
     const isTemporary = effect.isTemporary || effect.duration?.rounds != null || (effect.duration?.seconds != null && effect.duration.seconds > 0) || effect.duration?.turns != null;
 
     resourceTags.push({
-      label: isTemporary ? "Temporary" : "Passive",
+      label: game.i18n.localize(isTemporary ? "DAGGERHEART.EFFECTS.Duration.temporary" : "DAGGERHEART.EFFECTS.Duration.passive"),
       uuid: "",
       tagClass: "tag-blue",
     });

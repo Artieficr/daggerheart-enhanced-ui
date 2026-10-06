@@ -14,6 +14,7 @@ import {
   unmountEffectsDisplay,
 } from "./utils-minisheet.js";
 import { applyMinisheetScale } from "../../settings.js";
+import { rollActorAttackDamage } from "../../helpers.js";
 import { injectMinisheetContainer, idleTransform, collapsedTransform } from "./minisheet-position.js";
 import { buildActorPickerContext, syncPinnedMinisheet } from "./minisheet-pin.js";
 import { renderEffectsPanel } from "../../effects-panel.js";
@@ -288,11 +289,7 @@ export function registerCompanionMiniSheet() {
         el.addEventListener("click", async (event) => {
           event.preventDefault();
           event.stopPropagation();
-          const action = actor.system.attack;
-          const config = action.prepareConfig(event);
-          config.effects = await game.system.api.data.actions.actionsTypes.base.getActionRelevantEffects(actor, null);
-          config.hasRoll = false;
-          action.workflow.get("damage").execute(config, null, true);
+          await rollActorAttackDamage(event, actor);
         });
       });
 

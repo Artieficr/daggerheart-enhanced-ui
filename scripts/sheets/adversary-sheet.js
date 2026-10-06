@@ -7,6 +7,7 @@ import {
   enrichGMNotes,
   modifyActorResource,
   prepareActorEffectsData,
+  rollActorAttackDamage,
   setCardDescriptionOpen,
   toggleActorResource,
   toggleCardDescription,
@@ -63,6 +64,11 @@ export function registerAdversarySheet() {
 
     async _prepareContext(options) {
       const context = await super._prepareContext(options);
+
+      const typeEntry = CONFIG.DH.ACTOR.allAdversaryTypes()[this.document.system.type];
+      context.adversaryTypeLabel = typeEntry?.label
+        ? game.i18n.localize(typeEntry.label)
+        : (this.document.system.type ?? "");
 
       context.tabsPosition = game.settings.get("daggerheart-enhanced-ui", "tabsPosition");
       context.showTooltip = game.settings.get("daggerheart-enhanced-ui", "showTooltip");
@@ -265,11 +271,7 @@ export function registerAdversarySheet() {
           event.preventDefault();
           event.stopPropagation();
 
-          const action = this.actor.system.attack;
-          const config = action.prepareConfig(event);
-          config.effects = await game.system.api.data.actions.actionsTypes.base.getActionRelevantEffects(this.actor, null);
-          config.hasRoll = false;
-          action.workflow.get("damage").execute(config, null, true);
+          await rollActorAttackDamage(event, this.actor);
         });
       });
     }
