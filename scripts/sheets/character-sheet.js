@@ -206,6 +206,16 @@ export function registerCharacterSheet() {
 
       const createTag = (label, uuid, tagClass) => ({ label, uuid, tagClass });
 
+      const unknown = () => game.i18n.localize("daggerheart-enhanced-ui.unknown");
+      const itemTypeLabel = (type) => game.i18n.localize(`TYPES.Item.${type}`);
+      const ancestryTagLabel = () => `${itemTypeLabel("ancestry")} — ${ancestry?.name ?? unknown()}`;
+      const communityTagLabel = () => `${itemTypeLabel("community")} — ${community?.name ?? unknown()}`;
+      const classTagLabel = () => classItem?.name ?? unknown();
+      const classWithSubclassTagLabel = () => `${classItem?.name ?? unknown()} (${subclass?.name ?? unknown()})`;
+      const multiclassTagLabel = () => multiclassItem?.name ?? unknown();
+      const multiclassWithSubclassTagLabel = () =>
+        `${multiclassItem?.name ?? unknown()} (${multiclassSubclass?.name ?? unknown()})`;
+
       const heritagePromises = [];
       const classPromises = [];
       const multiclassPromises = [];
@@ -217,35 +227,35 @@ export function registerCharacterSheet() {
           case "ancestry":
             for (const feature of group.values) {
               heritagePromises.push(
-                createFeatureData(feature, [createTag(`Ancestry — ${ancestry?.name || "Unknown"}`, ancestry?.uuid || "", "tag-purple")]),
+                createFeatureData(feature, [createTag(ancestryTagLabel(), ancestry?.uuid || "", "tag-purple")]),
               );
             }
             break;
           case "community":
             for (const feature of group.values) {
               heritagePromises.push(
-                createFeatureData(feature, [createTag(`Community — ${community?.name || "Unknown"}`, community?.uuid || "", "tag-orange")]),
+                createFeatureData(feature, [createTag(communityTagLabel(), community?.uuid || "", "tag-orange")]),
               );
             }
             break;
           case "class":
             for (const feature of group.values) {
               classPromises.push(
-                createFeatureData(feature, [createTag(`Class — ${classItem?.name || "Unknown"}`, classItem?.uuid || "", "tag-green")]),
+                createFeatureData(feature, [createTag(classTagLabel(), classItem?.uuid || "", "tag-green")]),
               );
             }
             break;
           case "subclass":
             for (const feature of group.values) {
               classPromises.push(
-                createFeatureData(feature, [createTag(`Subclass — ${subclass?.name || "Unknown"}`, subclass?.uuid || "", "tag-green")]),
+                createFeatureData(feature, [createTag(classWithSubclassTagLabel(), subclass?.uuid || "", "tag-green")]),
               );
             }
             break;
           case "multiclass":
             for (const feature of group.values) {
               multiclassPromises.push(
-                createFeatureData(feature, [createTag(`Multiclass — ${multiclassItem?.name || "Unknown"}`, multiclassItem?.uuid || "", "tag-blue")]),
+                createFeatureData(feature, [createTag(multiclassTagLabel(), multiclassItem?.uuid || "", "tag-blue")]),
               );
             }
             break;
@@ -253,7 +263,7 @@ export function registerCharacterSheet() {
             for (const feature of group.values) {
               multiclassPromises.push(
                 createFeatureData(feature, [
-                  createTag(`Multiclass Subclass — ${multiclassSubclass?.name || "Unknown"}`, multiclassSubclass?.uuid || "", "tag-blue"),
+                  createTag(multiclassWithSubclassTagLabel(), multiclassSubclass?.uuid || "", "tag-blue"),
                 ]),
               );
             }

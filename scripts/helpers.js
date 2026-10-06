@@ -677,26 +677,25 @@ export function attachDieResourceListeners(element) {
 
 // ─── ACTIVE EFFECTS ──────────────────────────────────────────────────────────
 
-const EFFECT_SOURCE_TYPE_LABELS = {
-  feature: "Feature",
-  domainCard: "Domain Card",
-  weapon: "Weapon",
-  armor: "Armor",
-  consumable: "Consumable",
-  loot: "Loot",
-  character: "Character",
-  companion: "Companion",
-  adversary: "Adversary",
-};
+const ACTOR_DOCUMENT_TYPES = new Set(["character", "companion", "adversary", "environment", "npc", "party"]);
+
+/** Localized label for an effect source's document type, via Foundry's own `TYPES.*` keys. */
+export function localizeDocumentType(type) {
+  const unknown = game.i18n.localize("daggerheart-enhanced-ui.unknown");
+  if (!type) return unknown;
+  const key = ACTOR_DOCUMENT_TYPES.has(type) ? `TYPES.Actor.${type}` : `TYPES.Item.${type}`;
+  const localized = game.i18n.localize(key);
+  return localized === key ? unknown : localized;
+}
 
 /**
  * Shapes an actor's active effects into card-ready data (source/status tags,
  * enriched description), split into active/inactive. Shared by
  * character-sheet.js/companion-sheet.js/adversary-sheet.js's own
  * `_prepareEffectsData` methods and by effects-panel.js for the minisheet
- * Effects & Conditions bar/panel. `EFFECT_SOURCE_TYPE_LABELS` above must
- * cover every item/actor type an effect's source can resolve to across all
- * three full sheets, since this one function now serves all of them.
+ * Effects & Conditions bar/panel. `localizeDocumentType` above resolves the source tag's type label for every
+ * item/actor type an effect can come from, since this one function serves all
+ * three full sheets.
  */
 export async function prepareActorEffectsData(actor) {
   const createEffectData = async (effect) => {
@@ -712,9 +711,8 @@ export async function prepareActorEffectsData(actor) {
     if (!sourceItem && effect.parent) sourceItem = effect.parent;
 
     if (sourceItem) {
-      const sourceTypeName = EFFECT_SOURCE_TYPE_LABELS[sourceItem.type] || "Unknown";
-      infoTags.push({
-        label: `${sourceTypeName}: ${sourceItem.name}`,
+            infoTags.push({
+        label: `${localizeDocumentType(sourceItem.type)}: ${sourceItem.name}`,
         uuid: sourceItem.uuid,
         tagClass: "tag-green",
       });
