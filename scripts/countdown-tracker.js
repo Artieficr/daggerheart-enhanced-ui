@@ -49,30 +49,30 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownDisplayMode", {
-    name: "Countdown Tracker: Display Mode",
-    hint: "Choose how the countdown value is displayed.",
+    name: "daggerheart-enhanced-ui.settings.countdownDisplayMode.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownDisplayMode.hint",
     scope: "world",
     config: true,
     type: String,
-    choices: { number: "Number Only", visual: "Visual Only", both: "Visual + Number" },
+    choices: { number: "daggerheart-enhanced-ui.settings.countdownDisplayMode.choices.number", visual: "daggerheart-enhanced-ui.settings.countdownDisplayMode.choices.visual", both: "daggerheart-enhanced-ui.settings.countdownDisplayMode.choices.both" },
     default: "number",
     onChange: () => CountdownTrackerApp.instance?.render(),
   });
 
   game.settings.register(MODULE_ID, "countdownIconShape", {
-    name: "Countdown Tracker: Icon Shape",
-    hint: "Choose the shape of the countdown icons.",
+    name: "daggerheart-enhanced-ui.settings.countdownIconShape.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownIconShape.hint",
     scope: "client",
     config: true,
     type: String,
-    choices: { rounded: "Rounded Square", circle: "Circle" },
+    choices: { rounded: "daggerheart-enhanced-ui.settings.countdownIconShape.choices.rounded", circle: "daggerheart-enhanced-ui.settings.countdownIconShape.choices.circle" },
     default: "rounded",
     onChange: () => CountdownTrackerApp.instance?.render(),
   });
 
   game.settings.register(MODULE_ID, "countdownNumberColor", {
-    name: "Countdown Tracker: Number Color",
-    hint: "Color for the numerical text.",
+    name: "daggerheart-enhanced-ui.settings.countdownNumberColor.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownNumberColor.hint",
     scope: "client",
     config: true,
     type: String,
@@ -81,19 +81,19 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownBarOrientation", {
-    name: "Countdown Tracker: Bar Orientation",
-    hint: "Choose the orientation of the progress bar (for square icons).",
+    name: "daggerheart-enhanced-ui.settings.countdownBarOrientation.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownBarOrientation.hint",
     scope: "client",
     config: true,
     type: String,
-    choices: { vertical: "Vertical", horizontal: "Horizontal" },
+    choices: { vertical: "daggerheart-enhanced-ui.settings.countdownBarOrientation.choices.vertical", horizontal: "daggerheart-enhanced-ui.settings.countdownBarOrientation.choices.horizontal" },
     default: "vertical",
     onChange: () => CountdownTrackerApp.instance?.render(),
   });
 
   game.settings.register(MODULE_ID, "countdownEnableVisualOverlay", {
-    name: "Countdown Tracker: Enable Fill Overlay",
-    hint: "Show the filled progress overlay (Bar or Clock).",
+    name: "daggerheart-enhanced-ui.settings.countdownEnableVisualOverlay.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownEnableVisualOverlay.hint",
     scope: "client",
     config: true,
     type: Boolean,
@@ -102,19 +102,19 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownFillType", {
-    name: "Countdown Tracker: Fill Type",
-    hint: "Choose between a color overlay or a grayscale filter method.",
+    name: "daggerheart-enhanced-ui.settings.countdownFillType.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownFillType.hint",
     scope: "client",
     config: true,
     type: String,
-    choices: { color: "Color Overlay", grayscale: "Grayscale Filter" },
+    choices: { color: "daggerheart-enhanced-ui.settings.countdownFillType.choices.color", grayscale: "daggerheart-enhanced-ui.settings.countdownFillType.choices.grayscale" },
     default: "color",
     onChange: () => CountdownTrackerApp.instance?.render(),
   });
 
   game.settings.register(MODULE_ID, "countdownInvertProgress", {
-    name: "Countdown Tracker: Invert Fill Overlay",
-    hint: "Fill the empty space instead of the current value.",
+    name: "daggerheart-enhanced-ui.settings.countdownInvertProgress.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownInvertProgress.hint",
     scope: "client",
     config: true,
     type: Boolean,
@@ -123,8 +123,8 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownFillColor", {
-    name: "Countdown Tracker: Fill Overlay Color",
-    hint: "Color for the filled progress overlay.",
+    name: "daggerheart-enhanced-ui.settings.countdownFillColor.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownFillColor.hint",
     scope: "client",
     config: true,
     type: String,
@@ -133,8 +133,8 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownEnableVisualBorder", {
-    name: "Countdown Tracker: Enable Border Progress",
-    hint: "Show a progress border around the icon.",
+    name: "daggerheart-enhanced-ui.settings.countdownEnableVisualBorder.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownEnableVisualBorder.hint",
     scope: "client",
     config: true,
     type: Boolean,
@@ -143,8 +143,8 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownInvertBorder", {
-    name: "Countdown Tracker: Invert Border Progress",
-    hint: "Fill the empty space instead of the current value for the border.",
+    name: "daggerheart-enhanced-ui.settings.countdownInvertBorder.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownInvertBorder.hint",
     scope: "client",
     config: true,
     type: Boolean,
@@ -153,30 +153,30 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownBorderStyle", {
-    name: "Countdown Tracker: Border Style",
-    hint: "Choose the style of the progress border (for square icons).",
+    name: "daggerheart-enhanced-ui.settings.countdownBorderStyle.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownBorderStyle.hint",
     scope: "client",
     config: true,
     type: String,
-    choices: { full: "Full Border", edge: "Single Edge" },
+    choices: { full: "daggerheart-enhanced-ui.settings.countdownBorderStyle.choices.full", edge: "daggerheart-enhanced-ui.settings.countdownBorderStyle.choices.edge" },
     default: "full",
     onChange: () => CountdownTrackerApp.instance?.render(),
   });
 
   game.settings.register(MODULE_ID, "countdownBorderEdge", {
-    name: "Countdown Tracker: Border Edge",
-    hint: "Choose which edge to display the border on.",
+    name: "daggerheart-enhanced-ui.settings.countdownBorderEdge.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownBorderEdge.hint",
     scope: "client",
     config: true,
     type: String,
-    choices: { bottom: "Bottom", top: "Top", left: "Left", right: "Right" },
+    choices: { bottom: "daggerheart-enhanced-ui.settings.countdownBorderEdge.choices.bottom", top: "daggerheart-enhanced-ui.settings.countdownBorderEdge.choices.top", left: "daggerheart-enhanced-ui.settings.countdownBorderEdge.choices.left", right: "daggerheart-enhanced-ui.settings.countdownBorderEdge.choices.right" },
     default: "bottom",
     onChange: () => CountdownTrackerApp.instance?.render(),
   });
 
   game.settings.register(MODULE_ID, "countdownBorderColor", {
-    name: "Countdown Tracker: Border Color",
-    hint: "Color for the progress border.",
+    name: "daggerheart-enhanced-ui.settings.countdownBorderColor.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownBorderColor.hint",
     scope: "client",
     config: true,
     type: String,
@@ -185,8 +185,8 @@ export function registerCountdownTrackerSettings() {
   });
 
   game.settings.register(MODULE_ID, "countdownGmAlwaysShowNumbers", {
-    name: "Countdown Tracker: GM Always Shows Numbers",
-    hint: "If enabled, the GM will always see the numerical value even if Display Mode is set to Visual.",
+    name: "daggerheart-enhanced-ui.settings.countdownGmAlwaysShowNumbers.name",
+    hint: "daggerheart-enhanced-ui.settings.countdownGmAlwaysShowNumbers.hint",
     scope: "client",
     config: true,
     type: Boolean,
@@ -562,10 +562,10 @@ export function registerCountdownTracker() {
     const fieldset = document.createElement("fieldset");
     fieldset.classList.add("enhanced-ui-countdown-sidebar");
     fieldset.innerHTML = `
-      <legend>Countdowns</legend>
+      <legend>${game.i18n.localize("daggerheart-enhanced-ui.countdown.sidebarLegend")}</legend>
       <div class="menu-refresh-container">
         <button type="button" class="create-countdown-btn">
-          <i class="fa-solid fa-clock"></i> Create New Countdown
+          <i class="fa-solid fa-clock"></i> ${game.i18n.localize("daggerheart-enhanced-ui.countdown.sidebarCreate")}
         </button>
       </div>
     `;

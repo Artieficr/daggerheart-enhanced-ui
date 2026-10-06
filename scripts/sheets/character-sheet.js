@@ -756,13 +756,13 @@ export function registerCharacterSheet() {
 
       const item = await fromUuid(itemUuid);
       if (!item) {
-        ui.notifications.warn("Item not found");
+        ui.notifications.warn(game.i18n.localize("daggerheart-enhanced-ui.notifications.itemNotFound"));
         return;
       }
 
       const action = item.system.actions?.get(actionId);
       if (!action) {
-        ui.notifications.warn("Action not found");
+        ui.notifications.warn(game.i18n.localize("daggerheart-enhanced-ui.notifications.actionNotFound"));
         return;
       }
 
@@ -808,7 +808,7 @@ export function registerCharacterSheet() {
       if (data && data.type === "Divider") {
         const quickAccessArea = event.target.closest(".favorites-list");
         const container = quickAccessArea?.closest(".favorites-container");
-        const isQuickAccess = container?.querySelector(".favorites-header h3")?.textContent.trim() === "Quick Access";
+        const isQuickAccess = container?.querySelector("[data-section='quick-access']") != null;
 
         if (quickAccessArea && isQuickAccess) {
           event.preventDefault();
@@ -845,7 +845,7 @@ export function registerCharacterSheet() {
 
       const quickAccessArea = event.target.closest(".favorites-list");
       const container = quickAccessArea?.closest(".favorites-container");
-      const isQuickAccess = container?.querySelector(".favorites-header h3")?.textContent.trim() === "Quick Access";
+      const isQuickAccess = container?.querySelector("[data-section='quick-access']") != null;
 
       if (quickAccessArea && isQuickAccess) {
         event.preventDefault();
@@ -933,7 +933,7 @@ export function registerCharacterSheet() {
 
         if (createdItems && createdItems.length > 0) {
           await sourceActor.deleteEmbeddedDocuments("Item", [sourceItem.id]);
-          ui.notifications.info(`Transferred ${sourceItem.name} to ${this.actor.name}`);
+          ui.notifications.info(game.i18n.format("daggerheart-enhanced-ui.notifications.transferredTo", { item: sourceItem.name, target: this.actor.name }));
         }
 
         return false;
@@ -1039,7 +1039,7 @@ export function registerCharacterSheet() {
       const quickAccessItems = this.actor.getFlag("daggerheart-enhanced-ui", "quickAccess") || [];
 
       if (quickAccessItems.includes(itemUuid)) {
-        ui.notifications.warn("Item is already in Quick Access");
+        ui.notifications.warn(game.i18n.localize("daggerheart-enhanced-ui.quickAccess.alreadyInQuickAccess"));
         return;
       }
 
@@ -1127,7 +1127,7 @@ export function registerCharacterSheet() {
           const sourceItem = sourceActor.items.get(dragData.itemId);
           if (sourceItem) {
             await sourceActor.deleteEmbeddedDocuments("Item", [dragData.itemId]);
-            ui.notifications.info(`Transferred ${dragData.itemName} from ${sourceActor.name}`);
+            ui.notifications.info(game.i18n.format("daggerheart-enhanced-ui.notifications.transferredFrom", { item: dragData.itemName, source: sourceActor.name }));
           }
         }
 

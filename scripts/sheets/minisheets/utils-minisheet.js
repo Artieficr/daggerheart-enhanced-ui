@@ -325,7 +325,7 @@ function showActorPickerContextMenu(event, onRemove) {
 
   const removeItem = document.createElement("button");
   removeItem.type = "button";
-  removeItem.textContent = "Remove from Favorites";
+  removeItem.textContent = game.i18n.localize("daggerheart-enhanced-ui.picker.removeFromFavorites");
   removeItem.addEventListener("click", () => {
     onRemove();
     menu.remove();
@@ -366,7 +366,7 @@ export function triggerMinisheetToggle() {
 
 export function registerMinisheetKeybinding() {
   game.keybindings.register("daggerheart-enhanced-ui", "toggleMinisheet", {
-    name: "Toggle minisheet open/closed",
+    name: "daggerheart-enhanced-ui.keybindings.toggleMinisheet",
     editable: [{ key: "KeyC", modifiers: ["Alt"] }],
     onDown: () => triggerMinisheetToggle(),
   });
@@ -394,7 +394,7 @@ export function injectReopenButton(onReopen) {
   const btn = document.createElement("button");
   btn.id = "minisheet-reopen-btn";
   btn.classList.add("toggle-minisheet");
-  btn.dataset.tooltip = "Open Mini Sheet";
+  btn.dataset.tooltip = game.i18n.localize("daggerheart-enhanced-ui.minisheet.open");
   btn.innerHTML = `<i class="fa-solid fa-chevron-up"></i>`;
   hotbar.appendChild(btn); // inside #hotbar
 
@@ -616,13 +616,13 @@ function _attachUseActionListeners(element) {
 
       const item = await fromUuid(itemUuid);
       if (!item) {
-        ui.notifications.warn("Item not found");
+        ui.notifications.warn(game.i18n.localize("daggerheart-enhanced-ui.notifications.itemNotFound"));
         return;
       }
 
       const action = item.system.actions?.get(actionId);
       if (!action) {
-        ui.notifications.warn("Action not found");
+        ui.notifications.warn(game.i18n.localize("daggerheart-enhanced-ui.notifications.actionNotFound"));
         return;
       }
 

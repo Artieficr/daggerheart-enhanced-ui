@@ -1,21 +1,21 @@
 <div class="countdown-tracker-window {{#if isMinimized}}minimized{{/if}} {{#if isLocked}}locked{{/if}}">
     <div class="tracker-header">
-        <div class="drag-handle" title="Drag to move">
+        <div class="drag-handle" title="{{localize 'daggerheart-enhanced-ui.countdown.dragToMove'}}">
             <i class="fa-solid fa-grip-vertical"></i>
         </div>
         <div class="header-controls">
             {{#if isGM}}
             <a class="control-btn" data-action="addCountdown"
-                title="{{#if hasCountdowns}}Manage Countdowns{{else}}Add New Countdown{{/if}}">
+                title="{{#if hasCountdowns}}{{localize 'daggerheart-enhanced-ui.countdown.manage'}}{{else}}{{localize 'daggerheart-enhanced-ui.countdown.addNew'}}{{/if}}">
                 <i class="fa-solid {{#if hasCountdowns}}fa-pen-to-square{{else}}fa-plus-circle{{/if}}"></i>
             </a>
             {{/if}}
             <a class="control-btn" data-action="toggleLock"
-                title="{{#if isLocked}}Unlock Window{{else}}Lock Window{{/if}}">
+                title="{{#if isLocked}}{{localize 'daggerheart-enhanced-ui.countdown.unlockWindow'}}{{else}}{{localize 'daggerheart-enhanced-ui.countdown.lockWindow'}}{{/if}}">
                 <i class="fa-solid {{#if isLocked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
             </a>
             <a class="control-btn" data-action="toggleViewMode"
-                title="{{#if isMinimized}}Maximize{{else}}Minimize{{/if}}">
+                title="{{#if isMinimized}}{{localize 'daggerheart-enhanced-ui.countdown.maximize'}}{{else}}{{localize 'daggerheart-enhanced-ui.countdown.minimize'}}{{/if}}">
                 <i class="fa-solid {{#if isMinimized}}fa-expand-alt{{else}}fa-compress-alt{{/if}}"></i>
             </a>
         </div>
@@ -29,7 +29,7 @@
                 {{countdown.name}}
                 {{#if ../isGM}}
                 {{#if countdown.hiddenFromPlayers}}
-                <i class="fa-solid fa-eye-slash countdown-hidden-icon" title="Hidden from players by default"></i>
+                <i class="fa-solid fa-eye-slash countdown-hidden-icon" title="{{localize 'daggerheart-enhanced-ui.countdown.hiddenFromPlayers'}}"></i>
                 {{/if}}
                 {{/if}}
             </div>
@@ -206,7 +206,7 @@
             </div>
         </div>
         {{else}}
-        <div class="no-countdowns">No Active Countdowns</div>
+        <div class="no-countdowns">{{localize 'daggerheart-enhanced-ui.countdown.noActive'}}</div>
         {{/each}}
     </div>
 </div>

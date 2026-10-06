@@ -35,8 +35,8 @@ export function registerPartyOverviewSettings() {
   // requiresReload keeps this in line with that setting too, rather than
   // wiring a live mount/teardown path.
   game.settings.register(MODULE_ID, "enablePartyOverview", {
-    name: "Enable Party Overview Widget",
-    hint: "Shows a small draggable HUD (GM only) with each party member's HP, Stress, and portrait",
+    name: "daggerheart-enhanced-ui.settings.enablePartyOverview.name",
+    hint: "daggerheart-enhanced-ui.settings.enablePartyOverview.hint",
     requiresReload: true,
     scope: "client",
     config: true,
@@ -45,12 +45,12 @@ export function registerPartyOverviewSettings() {
   });
 
   game.settings.register(MODULE_ID, "partyOverviewLayout", {
-    name: "Party Overview Layout",
-    hint: "Horizontal: one column per member. Vertical: one row per member.",
+    name: "daggerheart-enhanced-ui.settings.partyOverviewLayout.name",
+    hint: "daggerheart-enhanced-ui.settings.partyOverviewLayout.hint",
     scope: "client",
     config: true,
     type: String,
-    choices: { horizontal: "Horizontal (columns)", vertical: "Vertical (rows)" },
+    choices: { horizontal: "daggerheart-enhanced-ui.settings.partyOverviewLayout.choices.horizontal", vertical: "daggerheart-enhanced-ui.settings.partyOverviewLayout.choices.vertical" },
     default: "horizontal",
     // Pure CSS toggle — apply immediately against the live widget instead
     // of requiring a reload.

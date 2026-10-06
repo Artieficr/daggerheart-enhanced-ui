@@ -1,0 +1,236 @@
+{
+  "daggerheart-enhanced-ui": {
+    "settings": {
+      "theme": {
+        "name": "Theme Foundryborne",
+        "hint": "Enables the styling of Foundryborne's application windows to match Enhanced UI's styling"
+      },
+      "themeChat": {
+        "name": "Theme Chat Cards",
+        "hint": "Enables the styling of chat cards to match Enhanced UI's styling"
+      },
+      "enableMinisheet": {
+        "name": "Enable Mini Sheets",
+        "hint": "Enables the mini sheet displayed at the bottom of the screen while a token is selected"
+      },
+      "minisheetScale": {
+        "name": "Minisheet Scale",
+        "hint": "Adjusts the scale of the mini sheets to better accomodate smaller or larger screens (default: 1)"
+      },
+      "tabsPosition": {
+        "name": "Tabs Position",
+        "choices": {
+          "floating": "Floating",
+          "basic": "Basic"
+        }
+      },
+      "showTooltip": {
+        "name": "Show Card Tooltips",
+        "hint": "Shows tooltips for cards when hovering the icon"
+      },
+      "currencyLabel": {
+        "name": "Show Currency Labels",
+        "hint": "Shows the labels for each currency on top of their values"
+      },
+      "beastformPortrait": {
+        "name": "Use Beastform Portrait",
+        "hint": "When in beastform, change the character's portrait to the form's Subject Texture"
+      },
+      "favoritesDisplayMode": {
+        "name": "Minisheet Panel",
+        "hint": "Quick Access is your own hand-picked shortcut list. Standard shows Inventory (weapons/armor/consumables/items) and Hand (domain cards and class/ancestry/community features) as two separate buttons.",
+        "choices": {
+          "standard": "Standard (Inventory + Hand)",
+          "quickAccess": "Quick Access"
+        }
+      },
+      "cardHandPosition": {
+        "name": "Card Hand Position",
+        "hint": "Where the hand opens relative to the minisheet.",
+        "choices": {
+          "right": "Right",
+          "above": "Above"
+        }
+      },
+      "enablePartyOverview": {
+        "name": "Enable Party Overview Widget",
+        "hint": "Shows a small draggable HUD (GM only) with each party member's HP, Stress, and portrait"
+      },
+      "partyOverviewLayout": {
+        "name": "Party Overview Layout",
+        "hint": "Horizontal: one column per member. Vertical: one row per member.",
+        "choices": {
+          "horizontal": "Horizontal (columns)",
+          "vertical": "Vertical (rows)"
+        }
+      },
+      "countdownDisplayMode": {
+        "name": "Countdown Tracker: Display Mode",
+        "hint": "Choose how the countdown value is displayed.",
+        "choices": {
+          "number": "Number Only",
+          "visual": "Visual Only",
+          "both": "Visual + Number"
+        }
+      },
+      "countdownIconShape": {
+        "name": "Countdown Tracker: Icon Shape",
+        "hint": "Choose the shape of the countdown icons.",
+        "choices": {
+          "rounded": "Rounded Square",
+          "circle": "Circle"
+        }
+      },
+      "countdownNumberColor": {
+        "name": "Countdown Tracker: Number Color",
+        "hint": "Color for the numerical text."
+      },
+      "countdownBarOrientation": {
+        "name": "Countdown Tracker: Bar Orientation",
+        "hint": "Choose the orientation of the progress bar (for square icons).",
+        "choices": {
+          "vertical": "Vertical",
+          "horizontal": "Horizontal"
+        }
+      },
+      "countdownEnableVisualOverlay": {
+        "name": "Countdown Tracker: Enable Fill Overlay",
+        "hint": "Show the filled progress overlay (Bar or Clock)."
+      },
+      "countdownFillType": {
+        "name": "Countdown Tracker: Fill Type",
+        "hint": "Choose between a color overlay or a grayscale filter method.",
+        "choices": {
+          "color": "Color Overlay",
+          "grayscale": "Grayscale Filter"
+        }
+      },
+      "countdownInvertProgress": {
+        "name": "Countdown Tracker: Invert Fill Overlay",
+        "hint": "Fill the empty space instead of the current value."
+      },
+      "countdownFillColor": {
+        "name": "Countdown Tracker: Fill Overlay Color",
+        "hint": "Color for the filled progress overlay."
+      },
+      "countdownEnableVisualBorder": {
+        "name": "Countdown Tracker: Enable Border Progress",
+        "hint": "Show a progress border around the icon."
+      },
+      "countdownInvertBorder": {
+        "name": "Countdown Tracker: Invert Border Progress",
+        "hint": "Fill the empty space instead of the current value for the border."
+      },
+      "countdownBorderStyle": {
+        "name": "Countdown Tracker: Border Style",
+        "hint": "Choose the style of the progress border (for square icons).",
+        "choices": {
+          "full": "Full Border",
+          "edge": "Single Edge"
+        }
+      },
+      "countdownBorderEdge": {
+        "name": "Countdown Tracker: Border Edge",
+        "hint": "Choose which edge to display the border on.",
+        "choices": {
+          "bottom": "Bottom",
+          "top": "Top",
+          "left": "Left",
+          "right": "Right"
+        }
+      },
+      "countdownBorderColor": {
+        "name": "Countdown Tracker: Border Color",
+        "hint": "Color for the progress border."
+      },
+      "countdownGmAlwaysShowNumbers": {
+        "name": "Countdown Tracker: GM Always Shows Numbers",
+        "hint": "If enabled, the GM will always see the numerical value even if Display Mode is set to Visual."
+      }
+    },
+    "common": {
+      "create": "Create"
+    },
+    "keybindings": {
+      "toggleMinisheet": "Toggle minisheet open/closed"
+    },
+    "minisheet": {
+      "open": "Open Mini Sheet",
+      "close": "Close Mini Sheet",
+      "toggle": "Toggle Mini Sheet"
+    },
+    "notifications": {
+      "itemNotFound": "Item not found",
+      "actionNotFound": "Action not found",
+      "transferredTo": "Transferred {item} to {target}",
+      "transferredFrom": "Transferred {item} from {source}"
+    },
+    "quickAccess": {
+      "title": "Quick Access",
+      "addDivider": "Add Divider",
+      "dragHere": "Drag Here",
+      "alreadyInQuickAccess": "Item is already in Quick Access"
+    },
+    "biography": {
+      "descriptions": "Descriptions",
+      "clothes": "Clothes that are:",
+      "eyes": "Eyes the color of:",
+      "body": "Body that's:",
+      "skin": "Skin the color of:",
+      "attitude": "Attitude like:"
+    },
+    "party": {
+      "removeMemberTitle": "Remove {name} from party?",
+      "removeMemberContent": "Remove <strong>{name}</strong> from the party sheet?",
+      "memberFallback": "member",
+      "thisMemberFallback": "this member",
+      "overview": {
+        "dragToMove": "Drag to move",
+        "lock": "Lock Position",
+        "unlock": "Unlock Position",
+        "noParty": "No Party actor found",
+        "noMembers": "No party members"
+      }
+    },
+    "countdown": {
+      "dragToMove": "Drag to move",
+      "manage": "Manage Countdowns",
+      "addNew": "Add New Countdown",
+      "unlockWindow": "Unlock Window",
+      "lockWindow": "Lock Window",
+      "maximize": "Maximize",
+      "minimize": "Minimize",
+      "hiddenFromPlayers": "Hidden from players by default",
+      "noActive": "No Active Countdowns",
+      "sidebarLegend": "Countdowns",
+      "sidebarCreate": "Create New Countdown"
+    },
+    "picker": {
+      "switch": "Switch Character",
+      "favorites": "Favorite Characters",
+      "search": "Search…",
+      "toggleFavorite": "Toggle Favorite",
+      "removeFromFavorites": "Remove from Favorites"
+    },
+    "inventory": {
+      "title": "Inventory",
+      "weapons": "Weapons",
+      "armor": "Armor",
+      "consumables": "Consumables",
+      "items": "Items",
+      "equippedOnly": "Equipped only",
+      "filter": "Filter Inventory",
+      "noItems": "No items"
+    },
+    "hand": {
+      "title": "Hand",
+      "reorder": "Reorder Hand",
+      "noCards": "No cards",
+      "noUsableCards": "No usable cards"
+    },
+    "effects": {
+      "title": "Effects",
+      "statusEffects": "Status Effects"
+    }
+  }
+}

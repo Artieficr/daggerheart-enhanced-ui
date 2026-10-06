@@ -71,25 +71,25 @@
                     {{#if (eq favoritesDisplayMode "standard")}}
                     <div class="tab-button-group">
                         <div class="tab-button" data-hand-target="inventory">
-                            <h3>Inventory</h3>
+                            <h3>{{localize 'daggerheart-enhanced-ui.inventory.title'}}</h3>
                         </div>
-                        <button type="button" class="hand-filter-btn" data-action="toggleInventoryFilters" data-tooltip="Filter Inventory">
+                        <button type="button" class="hand-filter-btn" data-action="toggleInventoryFilters" data-tooltip="{{localize 'daggerheart-enhanced-ui.inventory.filter'}}">
                             <i class="fa-solid fa-filter"></i>
                         </button>
                         <div class="hand-filter-popover inventory-filter-popover"></div>
                     </div>
                     <div class="tab-button-group">
                         <div class="tab-button" data-hand-target="cardHand">
-                            <h3>Hand</h3>
+                            <h3>{{localize 'daggerheart-enhanced-ui.hand.title'}}</h3>
                         </div>
-                        <button type="button" class="hand-filter-btn" data-action="toggleHandReorder" data-tooltip="Reorder Hand">
+                        <button type="button" class="hand-filter-btn" data-action="toggleHandReorder" data-tooltip="{{localize 'daggerheart-enhanced-ui.hand.reorder'}}">
                             <i class="fa-solid fa-arrow-down-up-across-line"></i>
                         </button>
                         <div class="hand-filter-popover hand-reorder-popover"></div>
                     </div>
                     {{else}}
                     <div class="tab-button" data-hand-target="favorites">
-                        <h3>Quick Access</h3>
+                        <h3 data-section="quick-access">{{localize 'daggerheart-enhanced-ui.quickAccess.title'}}</h3>
                     </div>
                     {{/if}}
 

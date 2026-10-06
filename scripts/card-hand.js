@@ -12,14 +12,14 @@ export function registerCardHandSettings() {
   // never needs Quick Access, Standard's Inventory, AND Standard's Hand
   // simultaneously as independent top-level choices.
   game.settings.register(MODULE_ID, "favoritesDisplayMode", {
-    name: "Minisheet Panel",
-    hint: "Quick Access is your own hand-picked shortcut list. Standard shows Inventory (weapons/armor/consumables/items) and Hand (domain cards and class/ancestry/community features) as two separate buttons.",
+    name: "daggerheart-enhanced-ui.settings.favoritesDisplayMode.name",
+    hint: "daggerheart-enhanced-ui.settings.favoritesDisplayMode.hint",
     scope: "client",
     config: true,
     type: String,
     choices: {
-      standard: "Standard (Inventory + Hand)",
-      quickAccess: "Quick Access",
+      standard: "daggerheart-enhanced-ui.settings.favoritesDisplayMode.choices.standard",
+      quickAccess: "daggerheart-enhanced-ui.settings.favoritesDisplayMode.choices.quickAccess",
     },
     default: "standard",
     // Switches which buttons/windows the minisheet's own template renders
@@ -33,12 +33,12 @@ export function registerCardHandSettings() {
   // minisheet-position.js), so there's no screen space left of it to open
   // a hand toward.
   game.settings.register(MODULE_ID, "cardHandPosition", {
-    name: "Card Hand Position",
-    hint: "Where the hand opens relative to the minisheet.",
+    name: "daggerheart-enhanced-ui.settings.cardHandPosition.name",
+    hint: "daggerheart-enhanced-ui.settings.cardHandPosition.hint",
     scope: "client",
     config: true,
     type: String,
-    choices: { right: "Right", above: "Above" },
+    choices: { right: "daggerheart-enhanced-ui.settings.cardHandPosition.choices.right", above: "daggerheart-enhanced-ui.settings.cardHandPosition.choices.above" },
     default: "right",
     onChange: () => applyCardHandPosition(),
   });
@@ -842,7 +842,7 @@ export function renderCardHandWindow(minisheetElement, actor) {
   const cards = buildHandCards(actor);
 
   if (!cards.length) {
-    handWindow.innerHTML = `<div class="no-cards">No usable cards</div>`;
+    handWindow.innerHTML = `<div class="no-cards">${game.i18n.localize("daggerheart-enhanced-ui.hand.noUsableCards")}</div>`;
     return;
   }
 
@@ -937,8 +937,8 @@ function renderReorderMainList(popoverEl, minisheetElement, actor) {
     .join("");
 
   popoverEl.innerHTML = `
-    <div class="hand-reorder-header">Reorder Hand</div>
-    <div class="hand-reorder-list">${rows || `<div class="no-cards">No cards</div>`}</div>
+    <div class="hand-reorder-header">${game.i18n.localize("daggerheart-enhanced-ui.hand.reorder")}</div>
+    <div class="hand-reorder-list">${rows || `<div class="no-cards">${game.i18n.localize("daggerheart-enhanced-ui.hand.noCards")}</div>`}</div>
     <div class="hand-reorder-child-popover"></div>
   `;
 

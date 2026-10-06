@@ -21,7 +21,7 @@
   {{#if weapons.length}}
   <div class="favorites-container">
     <div class="favorites-header">
-      <h3>Weapons</h3>
+      <h3>{{localize 'daggerheart-enhanced-ui.inventory.weapons'}}</h3>
     </div>
     <ul class="favorites-list">
       {{#each weapons as |weaponData|}}
@@ -41,7 +41,7 @@
   {{#if armors.length}}
   <div class="favorites-container">
     <div class="favorites-header">
-      <h3>Armor</h3>
+      <h3>{{localize 'daggerheart-enhanced-ui.inventory.armor'}}</h3>
     </div>
     <ul class="favorites-list">
       {{#each armors as |armorData|}}
@@ -61,7 +61,7 @@
   {{#if consumables.length}}
   <div class="favorites-container">
     <div class="favorites-header">
-      <h3>Consumables</h3>
+      <h3>{{localize 'daggerheart-enhanced-ui.inventory.consumables'}}</h3>
     </div>
     <ul class="favorites-list">
       {{#each consumables as |itemData|}}
@@ -81,7 +81,7 @@
   {{#if items.length}}
   <div class="favorites-container">
     <div class="favorites-header">
-      <h3>Items</h3>
+      <h3>{{localize 'daggerheart-enhanced-ui.inventory.items'}}</h3>
     </div>
     <ul class="favorites-list">
       {{#each items as |itemData|}}
@@ -99,7 +99,7 @@
   {{/if}}
 
   {{#unless (or weapons.length armors.length consumables.length items.length unarmedAttack)}}
-  <div class="no-cards">No items</div>
+  <div class="no-cards">{{localize 'daggerheart-enhanced-ui.inventory.noItems'}}</div>
   {{/unless}}
 
 </div>

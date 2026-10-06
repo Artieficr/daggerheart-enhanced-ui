@@ -1,16 +1,16 @@
 <div class="party-overview">
 
     <div class="party-overview-controls">
-        <button type="button" class="po-drag-handle" title="Drag to move">
+        <button type="button" class="po-drag-handle" title="{{localize 'daggerheart-enhanced-ui.party.overview.dragToMove'}}">
             <i class="fa-solid fa-grip-vertical"></i>
         </button>
-        <button type="button" class="po-lock-toggle" title="{{#if locked}}Unlock Position{{else}}Lock Position{{/if}}">
+        <button type="button" class="po-lock-toggle" title="{{#if locked}}{{localize 'daggerheart-enhanced-ui.party.overview.unlock'}}{{else}}{{localize 'daggerheart-enhanced-ui.party.overview.lock'}}{{/if}}">
             <i class="fa-solid {{#if locked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
         </button>
     </div>
 
     {{#if noParty}}
-    <div class="party-overview-empty">No Party actor found</div>
+    <div class="party-overview-empty">{{localize 'daggerheart-enhanced-ui.party.overview.noParty'}}</div>
     {{else if members.length}}
     <div class="party-overview-grid">
         {{#each members as |member|}}
@@ -32,7 +32,7 @@
         {{/each}}
     </div>
     {{else}}
-    <div class="party-overview-empty">No party members</div>
+    <div class="party-overview-empty">{{localize 'daggerheart-enhanced-ui.party.overview.noMembers'}}</div>
     {{/if}}
 
 </div>

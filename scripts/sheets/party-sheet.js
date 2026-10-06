@@ -506,8 +506,8 @@ export function registerPartySheet() {
       if (!event.shiftKey) {
         const actor = await fromUuid(uuid);
         const confirmed = await foundry.applications.api.DialogV2.confirm({
-          window: { title: `Remove ${actor?.name ?? "member"} from party?` },
-          content: `<p>Remove <strong>${actor?.name ?? "this member"}</strong> from the party sheet?</p>`,
+          window: { title: game.i18n.format("daggerheart-enhanced-ui.party.removeMemberTitle", { name: actor?.name ?? game.i18n.localize("daggerheart-enhanced-ui.party.memberFallback") }) },
+          content: game.i18n.format("daggerheart-enhanced-ui.party.removeMemberContent", { name: actor?.name ?? game.i18n.localize("daggerheart-enhanced-ui.party.thisMemberFallback") }),
         });
         if (!confirmed) return;
       }
@@ -632,7 +632,7 @@ export function registerPartySheet() {
           const createdItems = await this.document.createEmbeddedDocuments("Item", [item.toObject()]);
           if (createdItems?.length > 0) {
             await item.parent.deleteEmbeddedDocuments("Item", [item.id]);
-            ui.notifications.info(`Transferred ${item.name} to ${this.document.name}`);
+            ui.notifications.info(game.i18n.format("daggerheart-enhanced-ui.notifications.transferredTo", { item: item.name, target: this.document.name }));
           }
           return false;
         }
@@ -719,7 +719,7 @@ export function registerPartySheet() {
           const sourceItem = sourceActor.items.get(dragData.itemId);
           if (sourceItem) {
             await sourceActor.deleteEmbeddedDocuments("Item", [dragData.itemId]);
-            ui.notifications.info(`Transferred ${dragData.itemName} from ${sourceActor.name}`);
+            ui.notifications.info(game.i18n.format("daggerheart-enhanced-ui.notifications.transferredFrom", { item: dragData.itemName, source: sourceActor.name }));
           }
         }
         EnhancedPartySheet.draggedItem = null;

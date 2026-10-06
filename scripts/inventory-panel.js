@@ -165,10 +165,10 @@ export async function renderInventoryWindow(minisheetElement, actor) {
 }
 
 const INVENTORY_FILTER_TOGGLES = [
-  { key: "inventoryShowWeapons", label: "Weapons" },
-  { key: "inventoryShowArmor", label: "Armor" },
-  { key: "inventoryShowConsumables", label: "Consumables" },
-  { key: "inventoryShowItems", label: "Items" },
+  { key: "inventoryShowWeapons", label: "inventory.weapons" },
+  { key: "inventoryShowArmor", label: "inventory.armor" },
+  { key: "inventoryShowConsumables", label: "inventory.consumables" },
+  { key: "inventoryShowItems", label: "inventory.items" },
 ];
 
 /** On-the-fly popover (next to the Inventory button) for toggling which item categories are shown. */
@@ -177,7 +177,7 @@ export function renderInventoryFilterPopover(popoverEl, minisheetElement, actor)
 
   const rows = INVENTORY_FILTER_TOGGLES.map(({ key, label }) => {
     const checked = game.settings.get(MODULE_ID, key) ? "checked" : "";
-    return `<label><input type="checkbox" data-setting="${key}" ${checked}> ${label}</label>`;
+    return `<label><input type="checkbox" data-setting="${key}" ${checked}> ${game.i18n.localize(`daggerheart-enhanced-ui.${label}`)}</label>`;
   }).join("");
 
   const equippedChecked = game.settings.get(MODULE_ID, "inventoryFilterEquippedOnly") ? "checked" : "";
@@ -185,7 +185,7 @@ export function renderInventoryFilterPopover(popoverEl, minisheetElement, actor)
   popoverEl.innerHTML = `
     ${rows}
     <hr>
-    <label><input type="checkbox" data-setting="inventoryFilterEquippedOnly" ${equippedChecked}> Equipped only</label>
+    <label><input type="checkbox" data-setting="inventoryFilterEquippedOnly" ${equippedChecked}> ${game.i18n.localize("daggerheart-enhanced-ui.inventory.equippedOnly")}</label>
   `;
 
   popoverEl.querySelectorAll("input[data-setting]").forEach((input) => {

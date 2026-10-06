@@ -1,18 +1,18 @@
 {{#if actorPicker.show}}
 <div class="minisheet-actor-picker">
     <div class="minisheet-actor-picker-toggles">
-        <button type="button" class="minisheet-actor-picker-toggle" data-tooltip="Switch Character">
+        <button type="button" class="minisheet-actor-picker-toggle" data-tooltip="{{localize 'daggerheart-enhanced-ui.picker.switch'}}">
             <i class="fa-solid fa-chevron-up"></i>
         </button>
         {{#if actorPicker.showExtras}}
-        <button type="button" class="minisheet-actor-picker-favorites-toggle" data-tooltip="Favorite Characters">
+        <button type="button" class="minisheet-actor-picker-favorites-toggle" data-tooltip="{{localize 'daggerheart-enhanced-ui.picker.favorites'}}">
             <i class="fa-solid fa-star"></i>
         </button>
         {{/if}}
     </div>
     <div class="minisheet-actor-picker-panel">
         {{#if actorPicker.showExtras}}
-        <input type="text" class="minisheet-actor-picker-search" placeholder="Search…" />
+        <input type="text" class="minisheet-actor-picker-search" placeholder="{{localize 'daggerheart-enhanced-ui.picker.search'}}" />
         {{/if}}
         <div class="minisheet-actor-picker-list">
             {{#each actorPicker.actors}}
@@ -20,7 +20,7 @@
                 <img src="{{this.img}}" alt="{{this.name}}" />
                 <span class="minisheet-actor-picker-item-name">{{this.name}}</span>
                 {{#if @root.actorPicker.showExtras}}
-                <button type="button" class="minisheet-actor-picker-star" data-tooltip="Toggle Favorite">
+                <button type="button" class="minisheet-actor-picker-star" data-tooltip="{{localize 'daggerheart-enhanced-ui.picker.toggleFavorite'}}">
                     <i class="fa-{{#if this.favorite}}solid{{else}}regular{{/if}} fa-star"></i>
                 </button>
                 {{/if}}

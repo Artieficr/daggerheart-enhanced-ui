@@ -240,7 +240,7 @@ export function registerMinisheetPin() {
     tokenControls.tools.minisheetToggle = {
       name: "minisheetToggle",
       order: 5,
-      title: "Toggle Mini Sheet",
+      title: game.i18n.localize("daggerheart-enhanced-ui.minisheet.toggle"),
       icon: "fa-solid fa-id-card",
       toggle: true,
       active: isMinisheetVisible(),

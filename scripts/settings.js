@@ -4,8 +4,8 @@ export function registerSettings() {
 
   // Theme Foundryborne
   game.settings.register("daggerheart-enhanced-ui", "theme", {
-    name: "Theme Foundryborne",
-    hint: "Enables the styling of Foundryborne's application windows to match Enhanced UI's styling",
+    name: "daggerheart-enhanced-ui.settings.theme.name",
+    hint: "daggerheart-enhanced-ui.settings.theme.hint",
     requiresReload: true,
     scope: "world",
     config: true,
@@ -15,8 +15,8 @@ export function registerSettings() {
 
   // Theme Chat Cards
   game.settings.register("daggerheart-enhanced-ui", "themeChat", {
-    name: "Theme Chat Cards",
-    hint: "Enables the styling of chat cards to match Enhanced UI's styling",
+    name: "daggerheart-enhanced-ui.settings.themeChat.name",
+    hint: "daggerheart-enhanced-ui.settings.themeChat.hint",
     requiresReload: true,
     scope: "world",
     config: true,
@@ -26,8 +26,8 @@ export function registerSettings() {
 
   // Minisheets
   game.settings.register("daggerheart-enhanced-ui", "enableMinisheet", {
-    name: "Enable Mini Sheets",
-    hint: "Enables the mini sheet displayed at the bottom of the screen while a token is selected",
+    name: "daggerheart-enhanced-ui.settings.enableMinisheet.name",
+    hint: "daggerheart-enhanced-ui.settings.enableMinisheet.hint",
     requiresReload: true,
     scope: "client",
     config: true,
@@ -69,8 +69,8 @@ export function registerSettings() {
 
   //Minisheet Transform
   game.settings.register("daggerheart-enhanced-ui", "minisheetScale", {
-    name: "Minisheet Scale",
-    hint: "Adjusts the scale of the mini sheets to better accomodate smaller or larger screens (default: 1)",
+    name: "daggerheart-enhanced-ui.settings.minisheetScale.name",
+    hint: "daggerheart-enhanced-ui.settings.minisheetScale.hint",
     scope: "client",
     config: true,
     type: Number,
@@ -85,13 +85,13 @@ export function registerSettings() {
 
   // Tabs Position
   game.settings.register("daggerheart-enhanced-ui", "tabsPosition", {
-    name: "Tabs Position",
+    name: "daggerheart-enhanced-ui.settings.tabsPosition.name",
     scope: "client",
     config: true,
     type: String,
     choices: {
-      floating: "Floating",
-      basic: "Basic",
+      floating: "daggerheart-enhanced-ui.settings.tabsPosition.choices.floating",
+      basic: "daggerheart-enhanced-ui.settings.tabsPosition.choices.basic",
     },
     default: "floating",
     onChange: () => {
@@ -108,8 +108,8 @@ export function registerSettings() {
 
   // Tooltips
   game.settings.register("daggerheart-enhanced-ui", "showTooltip", {
-    name: "Show Card Tooltips",
-    hint: "Shows tooltips for cards when hovering the icon",
+    name: "daggerheart-enhanced-ui.settings.showTooltip.name",
+    hint: "daggerheart-enhanced-ui.settings.showTooltip.hint",
     scope: "client",
     config: true,
     type: Boolean,
@@ -118,8 +118,8 @@ export function registerSettings() {
 
   // Currency Labels
   game.settings.register("daggerheart-enhanced-ui", "currencyLabel", {
-    name: "Show Currency Labels",
-    hint: "Shows the labels for each currency on top of their values",
+    name: "daggerheart-enhanced-ui.settings.currencyLabel.name",
+    hint: "daggerheart-enhanced-ui.settings.currencyLabel.hint",
     scope: "world",
     config: true,
     type: Boolean,
@@ -128,8 +128,8 @@ export function registerSettings() {
 
   // Beastform Portrait
   game.settings.register("daggerheart-enhanced-ui", "beastformPortrait", {
-    name: "Use Beastform Portrait",
-    hint: "When in beastform, change the character's portrait to the form's Subject Texture",
+    name: "daggerheart-enhanced-ui.settings.beastformPortrait.name",
+    hint: "daggerheart-enhanced-ui.settings.beastformPortrait.hint",
     scope: "world",
     config: true,
     type: Boolean,
